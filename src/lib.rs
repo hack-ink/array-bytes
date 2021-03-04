@@ -3,12 +3,13 @@
 extern crate alloc;
 
 // --- alloc ---
-use alloc::{string::String, vec::Vec};
+use alloc::{string::String as Hex, vec::Vec};
 // --- core ---
 use core::char;
 // // --- crates.io ---
 // use thiserror::Error as ThisError;
 
+pub type Bytes = Vec<u8>;
 pub type ArrayBytesResult<T> = Result<T, Error>;
 
 // #[derive(Debug, ThisError)]
@@ -26,18 +27,33 @@ pub enum Error {
 	InvalidCharBoundary { index: usize },
 }
 
-/// `Slice`/`Vec` to a fixed length `u8` array
+/// `Slice`/`Vec` to `[u8; _]`
+///
+/// # Examples
+///
+/// ```
+/// assert_eq!([0; 8], array_bytes::dyn2array!(vec![0; 10], 8));
+/// ```
 #[macro_export]
-macro_rules! array {
-	($bytes:expr, $len:expr) => {{
-		unsafe { *($bytes.as_ptr() as *const [u8; $len]) }
+macro_rules! dyn2array {
+	($dyn:expr, $len:expr) => {{
+		unsafe { *($dyn.as_ptr() as *const [u8; $len]) }
 	}};
 }
 
-/// hex to bytes
+/// `Hex` to `Bytes`
 ///
-/// error while length is a odd number or any byte out of radix
-pub fn hex2bytes(hex: impl AsRef<str>) -> ArrayBytesResult<Vec<u8>> {
+/// Return error while length is a odd number or any byte out of radix
+///
+/// # Examples
+///
+/// ```
+/// assert_eq!(
+/// 	array_bytes::hex2bytes("0x49204c6f766520596f75").unwrap(),
+/// 	b"I Love You".to_vec()
+/// );
+/// ```
+pub fn hex2bytes(hex: impl AsRef<str>) -> ArrayBytesResult<Bytes> {
 	let hex = hex.as_ref();
 
 	if hex.len() % 2 != 0 {
@@ -66,7 +82,16 @@ pub fn hex2bytes(hex: impl AsRef<str>) -> ArrayBytesResult<Vec<u8>> {
 	Ok(bytes)
 }
 
-/// just like `hex2bytes` but without checking
+/// Just like `fn hex2bytes` but without checking
+///
+/// # Examples
+///
+/// ```
+/// assert_eq!(
+/// 	array_bytes::hex2bytes_unchecked("0x49204c6f766520596f75"),
+/// 	b"I Love You".to_vec()
+/// );
+/// ```
 pub fn hex2bytes_unchecked(hex: impl AsRef<str>) -> Vec<u8> {
 	let hex = hex.as_ref();
 
@@ -77,18 +102,36 @@ pub fn hex2bytes_unchecked(hex: impl AsRef<str>) -> Vec<u8> {
 }
 
 /// just like `hex2bytes_unchecked` but to a fixed length array
+///
+/// # Examples
+///
+/// ```
+/// assert_eq!(
+/// 	array_bytes::hex2array_unchecked!("0x49204c6f766520596f75", 10),
+/// 	*b"I Love You"
+/// );
+/// ```
 #[macro_export]
 macro_rules! hex2array_unchecked {
 	($hex:expr, $len:expr) => {{
-		$crate::array!($crate::hex2bytes_unchecked($hex), $len)
+		$crate::dyn2array!($crate::hex2bytes_unchecked($hex), $len)
 	}};
 }
 
-/// bytes to hex
-pub fn bytes2hex(prefix: impl AsRef<str>, bytes: impl AsRef<[u8]>) -> String {
+/// `Bytes` to `Hex`
+///
+/// # Examples
+///
+/// ```
+/// assert_eq!(
+/// 	array_bytes::bytes2hex("0x", b"I Love You"),
+/// 	Hex::from("0x49204c6f766520596f75")
+/// );
+/// ```
+pub fn bytes2hex(prefix: impl AsRef<str>, bytes: impl AsRef<[u8]>) -> Hex {
 	let prefix = prefix.as_ref();
 	let bytes = bytes.as_ref();
-	let mut hex = String::with_capacity(prefix.len() + bytes.len() * 2);
+	let mut hex = Hex::with_capacity(prefix.len() + bytes.len() * 2);
 
 	for byte in prefix.chars() {
 		hex.push(byte);
@@ -119,9 +162,9 @@ mod test {
 	}
 
 	#[test]
-	fn array_should_work() {
+	fn dyn2array_should_work() {
 		for v in 0u8..16 {
-			assert_eq!([v; 8], array!(vec![v; 10], 8));
+			assert_eq!([v; 8], dyn2array!(vec![v; 10], 8));
 		}
 	}
 
@@ -137,20 +180,20 @@ mod test {
 		);
 
 		assert_eq!(
-			hex2bytes(String::from("我爱你")).unwrap_err(),
+			hex2bytes(Hex::from("我爱你")).unwrap_err(),
 			Error::InvalidLength { length: 9 }
 		);
 		assert_eq!(
-			hex2bytes(String::from("0x我爱你")).unwrap_err(),
+			hex2bytes(Hex::from("0x我爱你")).unwrap_err(),
 			Error::InvalidLength { length: 9 }
 		);
 
 		assert_eq!(
-			hex2bytes(String::from("我爱你 ")).unwrap_err(),
+			hex2bytes(Hex::from("我爱你 ")).unwrap_err(),
 			Error::InvalidCharBoundary { index: 1 }
 		);
 		assert_eq!(
-			hex2bytes(String::from(" 我爱你")).unwrap_err(),
+			hex2bytes(Hex::from(" 我爱你")).unwrap_err(),
 			Error::InvalidCharBoundary { index: 2 }
 		);
 	}
@@ -183,11 +226,11 @@ mod test {
 	fn bytes2hex_should_work() {
 		assert_eq!(
 			bytes2hex("", b"I Love You"),
-			String::from("49204c6f766520596f75")
+			Hex::from("49204c6f766520596f75")
 		);
 		assert_eq!(
 			bytes2hex("0x", b"I Love You"),
-			String::from("0x49204c6f766520596f75")
+			Hex::from("0x49204c6f766520596f75")
 		);
 	}
 }
