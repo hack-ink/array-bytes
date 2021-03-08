@@ -3,13 +3,17 @@
 extern crate alloc;
 
 // --- alloc ---
-use alloc::{string::String as Hex, vec::Vec};
+use alloc::{string::String, vec::Vec};
 // --- core ---
 use core::char;
 // // --- crates.io ---
 // use thiserror::Error as ThisError;
 
+/// Alias for `Vec<u8>`
 pub type Bytes = Vec<u8>;
+/// Alias for `String`
+pub type Hex = String;
+/// The generic main result of crate array-bytes
 pub type ArrayBytesResult<T> = Result<T, Error>;
 
 // #[derive(Debug, ThisError)]
@@ -20,6 +24,7 @@ pub type ArrayBytesResult<T> = Result<T, Error>;
 // 	#[error("Invalid char boundary at: {}", index)]
 // 	InvalidCharBoundary { index: usize },
 // }
+/// The main error of crate array-bytes
 #[derive(Debug)]
 #[cfg_attr(test, derive(PartialEq))]
 pub enum Error {
@@ -50,7 +55,7 @@ macro_rules! dyn2array {
 /// ```
 /// assert_eq!(
 /// 	array_bytes::hex2bytes("0x49204c6f766520596f75").unwrap(),
-/// 	b"I Love You".to_vec()
+/// 	*b"I Love You"
 /// );
 /// ```
 pub fn hex2bytes(hex: impl AsRef<str>) -> ArrayBytesResult<Bytes> {
@@ -89,7 +94,7 @@ pub fn hex2bytes(hex: impl AsRef<str>) -> ArrayBytesResult<Bytes> {
 /// ```
 /// assert_eq!(
 /// 	array_bytes::hex2bytes_unchecked("0x49204c6f766520596f75"),
-/// 	b"I Love You".to_vec()
+/// 	*b"I Love You"
 /// );
 /// ```
 pub fn hex2bytes_unchecked(hex: impl AsRef<str>) -> Vec<u8> {
@@ -123,6 +128,8 @@ macro_rules! hex2array_unchecked {
 /// # Examples
 ///
 /// ```
+/// use array_bytes::Hex;
+///
 /// assert_eq!(
 /// 	array_bytes::bytes2hex("0x", b"I Love You"),
 /// 	Hex::from("0x49204c6f766520596f75")
@@ -170,14 +177,8 @@ mod test {
 
 	#[test]
 	fn hex2bytes_should_work() {
-		assert_eq!(
-			hex2bytes("49204c6f766520596f75").unwrap(),
-			b"I Love You".to_vec()
-		);
-		assert_eq!(
-			hex2bytes("0x49204c6f766520596f75").unwrap(),
-			b"I Love You".to_vec()
-		);
+		assert_eq!(hex2bytes("49204c6f766520596f75").unwrap(), *b"I Love You");
+		assert_eq!(hex2bytes("0x49204c6f766520596f75").unwrap(), *b"I Love You");
 
 		assert_eq!(
 			hex2bytes(Hex::from("我爱你")).unwrap_err(),
@@ -200,13 +201,10 @@ mod test {
 
 	#[test]
 	fn hex2bytes_unchecked_should_work() {
-		assert_eq!(
-			hex2bytes_unchecked("49204c6f766520596f75"),
-			b"I Love You".to_vec()
-		);
+		assert_eq!(hex2bytes_unchecked("49204c6f766520596f75"), *b"I Love You");
 		assert_eq!(
 			hex2bytes_unchecked("0x49204c6f766520596f75"),
-			b"I Love You".to_vec()
+			*b"I Love You"
 		);
 	}
 
