@@ -5,7 +5,7 @@ extern crate alloc;
 // --- alloc ---
 use alloc::{string::String, vec::Vec};
 // --- core ---
-use core::char;
+use core::{char, convert::TryInto};
 // // --- crates.io ---
 // use thiserror::Error as ThisError;
 
@@ -112,10 +112,25 @@ pub fn hex2bytes_unchecked(hex: impl AsRef<str>) -> Vec<u8> {
 ///
 /// ```
 /// assert_eq!(
+/// 	array_bytes::hex2array_unchecked("0x49204c6f766520596f75"),
+/// 	*b"I Love You"
+/// );
+/// ```
+pub fn hex2array_unchecked<const N: usize>(hex: impl AsRef<str>) -> [u8; N] {
+	hex2bytes_unchecked(hex).try_into().unwrap()
+}
+
+/// just like `hex2bytes_unchecked` but to a fixed length array
+///
+/// # Examples
+///
+/// ```
+/// assert_eq!(
 /// 	array_bytes::hex2array_unchecked!("0x49204c6f766520596f75", 10),
 /// 	*b"I Love You"
 /// );
 /// ```
+#[deprecated(since = "1.2.0", note = "use `fn hex2array_unchecked` instead.")]
 #[macro_export]
 macro_rules! hex2array_unchecked {
 	($hex:expr, $len:expr) => {{
@@ -210,6 +225,12 @@ mod test {
 
 	#[test]
 	fn hex2array_unchecked_should_work() {
+		assert_eq!(hex2array_unchecked("49204c6f766520596f75"), *b"I Love You");
+		assert_eq!(
+			hex2array_unchecked("0x49204c6f766520596f75"),
+			*b"I Love You"
+		);
+
 		assert_eq!(
 			hex2array_unchecked!("49204c6f766520596f75", 10),
 			*b"I Love You"
