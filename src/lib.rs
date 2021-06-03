@@ -54,8 +54,8 @@ macro_rules! dyn2array {
 ///
 /// ```
 /// assert_eq!(
-/// 	array_bytes::hex2bytes("0x49204c6f766520596f75").unwrap(),
-/// 	*b"I Love You"
+/// 	array_bytes::hex2bytes("0x4c6f7665204a616e6520466f7265766572").unwrap(),
+/// 	*b"Love Jane Forever"
 /// );
 /// ```
 pub fn hex2bytes(hex: impl AsRef<str>) -> ArrayBytesResult<Bytes> {
@@ -93,8 +93,8 @@ pub fn hex2bytes(hex: impl AsRef<str>) -> ArrayBytesResult<Bytes> {
 ///
 /// ```
 /// assert_eq!(
-/// 	array_bytes::hex2bytes_unchecked("0x49204c6f766520596f75"),
-/// 	*b"I Love You"
+/// 	array_bytes::hex2bytes_unchecked("0x4c6f7665204a616e6520466f7265766572"),
+/// 	*b"Love Jane Forever"
 /// );
 /// ```
 pub fn hex2bytes_unchecked(hex: impl AsRef<str>) -> Vec<u8> {
@@ -112,8 +112,8 @@ pub fn hex2bytes_unchecked(hex: impl AsRef<str>) -> Vec<u8> {
 ///
 /// ```
 /// assert_eq!(
-/// 	array_bytes::hex2array_unchecked("0x49204c6f766520596f75"),
-/// 	*b"I Love You"
+/// 	array_bytes::hex2array_unchecked("0x4c6f7665204a616e6520466f7265766572"),
+/// 	*b"Love Jane Forever"
 /// );
 /// ```
 pub fn hex2array_unchecked<const N: usize>(hex: impl AsRef<str>) -> [u8; N] {
@@ -126,8 +126,8 @@ pub fn hex2array_unchecked<const N: usize>(hex: impl AsRef<str>) -> [u8; N] {
 ///
 /// ```
 /// assert_eq!(
-/// 	array_bytes::hex2array_unchecked!("0x49204c6f766520596f75", 10),
-/// 	*b"I Love You"
+/// 	array_bytes::hex2array_unchecked!("0x4c6f7665204a616e6520466f7265766572", 17),
+/// 	*b"Love Jane Forever"
 /// );
 /// ```
 #[deprecated(since = "1.2.0", note = "use `fn hex2array_unchecked` instead.")]
@@ -146,8 +146,8 @@ macro_rules! hex2array_unchecked {
 /// use array_bytes::Hex;
 ///
 /// assert_eq!(
-/// 	array_bytes::bytes2hex("0x", b"I Love You"),
-/// 	Hex::from("0x49204c6f766520596f75")
+/// 	array_bytes::bytes2hex("0x", b"Love Jane Forever"),
+/// 	Hex::from("0x4c6f7665204a616e6520466f7265766572")
 /// );
 /// ```
 pub fn bytes2hex(prefix: impl AsRef<str>, bytes: impl AsRef<[u8]>) -> Hex {
@@ -192,8 +192,8 @@ mod test {
 
 	#[test]
 	fn hex2bytes_should_work() {
-		assert_eq!(hex2bytes("49204c6f766520596f75").unwrap(), *b"I Love You");
-		assert_eq!(hex2bytes("0x49204c6f766520596f75").unwrap(), *b"I Love You");
+		assert_eq!(hex2bytes("4c6f7665204a616e6520466f7265766572").unwrap(), *b"Love Jane Forever");
+		assert_eq!(hex2bytes("0x4c6f7665204a616e6520466f7265766572").unwrap(), *b"Love Jane Forever");
 
 		assert_eq!(
 			hex2bytes(Hex::from("我爱你")).unwrap_err(),
@@ -216,40 +216,40 @@ mod test {
 
 	#[test]
 	fn hex2bytes_unchecked_should_work() {
-		assert_eq!(hex2bytes_unchecked("49204c6f766520596f75"), *b"I Love You");
+		assert_eq!(hex2bytes_unchecked("4c6f7665204a616e6520466f7265766572"), *b"Love Jane Forever");
 		assert_eq!(
-			hex2bytes_unchecked("0x49204c6f766520596f75"),
-			*b"I Love You"
+			hex2bytes_unchecked("0x4c6f7665204a616e6520466f7265766572"),
+			*b"Love Jane Forever"
 		);
 	}
 
 	#[test]
 	fn hex2array_unchecked_should_work() {
-		assert_eq!(hex2array_unchecked("49204c6f766520596f75"), *b"I Love You");
+		assert_eq!(hex2array_unchecked("4c6f7665204a616e6520466f7265766572"), *b"Love Jane Forever");
 		assert_eq!(
-			hex2array_unchecked("0x49204c6f766520596f75"),
-			*b"I Love You"
+			hex2array_unchecked("0x4c6f7665204a616e6520466f7265766572"),
+			*b"Love Jane Forever"
 		);
 
 		assert_eq!(
-			hex2array_unchecked!("49204c6f766520596f75", 10),
-			*b"I Love You"
+			hex2array_unchecked!("4c6f7665204a616e6520466f7265766572", 17),
+			*b"Love Jane Forever"
 		);
 		assert_eq!(
-			hex2array_unchecked!("0x49204c6f766520596f75", 10),
-			*b"I Love You"
+			hex2array_unchecked!("0x4c6f7665204a616e6520466f7265766572", 17),
+			*b"Love Jane Forever"
 		);
 	}
 
 	#[test]
 	fn bytes2hex_should_work() {
 		assert_eq!(
-			bytes2hex("", b"I Love You"),
-			Hex::from("49204c6f766520596f75")
+			bytes2hex("", b"Love Jane Forever"),
+			Hex::from("4c6f7665204a616e6520466f7265766572")
 		);
 		assert_eq!(
-			bytes2hex("0x", b"I Love You"),
-			Hex::from("0x49204c6f766520596f75")
+			bytes2hex("0x", b"Love Jane Forever"),
+			Hex::from("0x4c6f7665204a616e6520466f7265766572")
 		);
 	}
 }
