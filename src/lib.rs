@@ -46,7 +46,7 @@ macro_rules! dyn2array {
 	}};
 }
 
-/// `Hex` to `Bytes`
+/// [`Hex`] to [`Bytes`]
 ///
 /// Return error while length is a odd number or any byte out of radix
 ///
@@ -87,7 +87,7 @@ pub fn hex2bytes(hex: impl AsRef<str>) -> ArrayBytesResult<Bytes> {
 	Ok(bytes)
 }
 
-/// Just like `fn hex2bytes` but without checking
+/// Just like [`hex2bytes`] but without checking
 ///
 /// # Examples
 ///
@@ -106,7 +106,7 @@ pub fn hex2bytes_unchecked(hex: impl AsRef<str>) -> Vec<u8> {
 		.collect()
 }
 
-/// Just like `fn hex2bytes` but to a fixed length array
+/// Just like [`hex2bytes`] but to a fixed length array
 ///
 /// # Examples
 ///
@@ -122,7 +122,7 @@ pub fn hex2array<const N: usize>(hex: impl AsRef<str>) -> ArrayBytesResult<[u8; 
 		.map_err(|e: Vec<_>| Error::InvalidLength { length: e.len() })
 }
 
-/// Just like `fn hex2array` but without checking
+/// Just like [`hex2array`] but without checking
 ///
 /// # Examples
 ///
@@ -136,7 +136,7 @@ pub fn hex2array_unchecked<const N: usize>(hex: impl AsRef<str>) -> [u8; N] {
 	hex2bytes_unchecked(hex).try_into().unwrap()
 }
 
-/// Just like `fn hex2array` but without checking
+/// Just like [`hex2array`] but without checking
 ///
 /// # Examples
 ///
@@ -154,7 +154,7 @@ macro_rules! hex2array_unchecked {
 	}};
 }
 
-/// `Bytes` to `Hex`
+/// [`Bytes`] to [`Hex`]
 ///
 /// # Examples
 ///
