@@ -106,7 +106,23 @@ pub fn hex2bytes_unchecked(hex: impl AsRef<str>) -> Vec<u8> {
 		.collect()
 }
 
-/// just like `hex2bytes_unchecked` but to a fixed length array
+/// Just like `fn hex2bytes` but to a fixed length array
+///
+/// # Examples
+///
+/// ```
+/// assert_eq!(
+/// 	array_bytes::hex2array("0x4c6f7665204a616e6520466f7265766572").unwrap(),
+/// 	*b"Love Jane Forever"
+/// );
+/// ```
+pub fn hex2array<const N: usize>(hex: impl AsRef<str>) -> ArrayBytesResult<[u8; N]> {
+	hex2bytes(hex)?
+		.try_into()
+		.map_err(|e: Vec<_>| Error::InvalidLength { length: e.len() })
+}
+
+/// Just like `fn hex2array` but without checking
 ///
 /// # Examples
 ///
@@ -120,7 +136,7 @@ pub fn hex2array_unchecked<const N: usize>(hex: impl AsRef<str>) -> [u8; N] {
 	hex2bytes_unchecked(hex).try_into().unwrap()
 }
 
-/// just like `hex2bytes_unchecked` but to a fixed length array
+/// Just like `fn hex2array` but without checking
 ///
 /// # Examples
 ///
@@ -192,8 +208,14 @@ mod test {
 
 	#[test]
 	fn hex2bytes_should_work() {
-		assert_eq!(hex2bytes("4c6f7665204a616e6520466f7265766572").unwrap(), *b"Love Jane Forever");
-		assert_eq!(hex2bytes("0x4c6f7665204a616e6520466f7265766572").unwrap(), *b"Love Jane Forever");
+		assert_eq!(
+			hex2bytes("4c6f7665204a616e6520466f7265766572").unwrap(),
+			*b"Love Jane Forever"
+		);
+		assert_eq!(
+			hex2bytes("0x4c6f7665204a616e6520466f7265766572").unwrap(),
+			*b"Love Jane Forever"
+		);
 
 		assert_eq!(
 			hex2bytes(Hex::from("我爱你")).unwrap_err(),
@@ -216,7 +238,10 @@ mod test {
 
 	#[test]
 	fn hex2bytes_unchecked_should_work() {
-		assert_eq!(hex2bytes_unchecked("4c6f7665204a616e6520466f7265766572"), *b"Love Jane Forever");
+		assert_eq!(
+			hex2bytes_unchecked("4c6f7665204a616e6520466f7265766572"),
+			*b"Love Jane Forever"
+		);
 		assert_eq!(
 			hex2bytes_unchecked("0x4c6f7665204a616e6520466f7265766572"),
 			*b"Love Jane Forever"
@@ -224,8 +249,23 @@ mod test {
 	}
 
 	#[test]
+	fn hex2array_should_work() {
+		assert_eq!(
+			hex2array("4c6f7665204a616e6520466f7265766572").unwrap(),
+			*b"Love Jane Forever"
+		);
+		assert_eq!(
+			hex2array("0x4c6f7665204a616e6520466f7265766572").unwrap(),
+			*b"Love Jane Forever"
+		);
+	}
+
+	#[test]
 	fn hex2array_unchecked_should_work() {
-		assert_eq!(hex2array_unchecked("4c6f7665204a616e6520466f7265766572"), *b"Love Jane Forever");
+		assert_eq!(
+			hex2array_unchecked("4c6f7665204a616e6520466f7265766572"),
+			*b"Love Jane Forever"
+		);
 		assert_eq!(
 			hex2array_unchecked("0x4c6f7665204a616e6520466f7265766572"),
 			*b"Love Jane Forever"
