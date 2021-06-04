@@ -154,6 +154,58 @@ macro_rules! hex2array_unchecked {
 	}};
 }
 
+/// Try to convert [`Hex`] to a type directly
+///
+/// # Examples
+///
+/// ```
+/// #[derive(Debug, PartialEq)]
+/// struct LJF([u8; 17]);
+/// impl From<[u8; 17]> for LJF {
+/// 	fn from(array: [u8; 17]) -> Self {
+/// 		Self(array)
+/// 	}
+/// }
+///
+/// assert_eq!(
+/// 	array_bytes::hex_try_into::<_, LJF, 17>("0x4c6f7665204a616e6520466f7265766572").unwrap(),
+/// 	LJF(*b"Love Jane Forever")
+/// );
+/// ```
+pub fn hex_try_into<H, T, const N: usize>(hex: H) -> ArrayBytesResult<T>
+where
+	H: AsRef<str>,
+	T: From<[u8; N]>,
+{
+	Ok(hex2array(hex)?.into())
+}
+
+/// Just like [`hex_try_into`] but without checking
+///
+/// # Examples
+///
+/// ```
+/// #[derive(Debug, PartialEq)]
+/// struct LJF([u8; 17]);
+/// impl From<[u8; 17]> for LJF {
+/// 	fn from(array: [u8; 17]) -> Self {
+/// 		Self(array)
+/// 	}
+/// }
+///
+/// assert_eq!(
+/// 	array_bytes::hex_into_unchecked::<_, LJF, 17>("0x4c6f7665204a616e6520466f7265766572"),
+/// 	LJF(*b"Love Jane Forever")
+/// );
+/// ```
+pub fn hex_into_unchecked<H, T, const N: usize>(hex: H) -> T
+where
+	H: AsRef<str>,
+	T: From<[u8; N]>,
+{
+	hex2array_unchecked(hex).into()
+}
+
 /// [`Bytes`] to [`Hex`]
 ///
 /// # Examples
@@ -278,6 +330,38 @@ mod test {
 		assert_eq!(
 			hex2array_unchecked!("0x4c6f7665204a616e6520466f7265766572", 17),
 			*b"Love Jane Forever"
+		);
+	}
+
+	#[test]
+	fn hex_try_into_should_work() {
+		#[derive(Debug, PartialEq)]
+		struct LJF([u8; 17]);
+		impl From<[u8; 17]> for LJF {
+			fn from(array: [u8; 17]) -> Self {
+				Self(array)
+			}
+		}
+
+		assert_eq!(
+			hex_try_into::<_, LJF, 17>("0x4c6f7665204a616e6520466f7265766572").unwrap(),
+			LJF(*b"Love Jane Forever")
+		);
+	}
+
+	#[test]
+	fn hex_into_should_work() {
+		#[derive(Debug, PartialEq)]
+		struct LJF([u8; 17]);
+		impl From<[u8; 17]> for LJF {
+			fn from(array: [u8; 17]) -> Self {
+				Self(array)
+			}
+		}
+
+		assert_eq!(
+			hex_into_unchecked::<_, LJF, 17>("0x4c6f7665204a616e6520466f7265766572"),
+			LJF(*b"Love Jane Forever")
 		);
 	}
 
