@@ -5,8 +5,10 @@ extern crate alloc;
 // --- alloc ---
 use alloc::{string::String, vec::Vec};
 // --- core ---
-use core::{char, convert::TryInto};
-// // --- crates.io ---
+use core::{char, convert::TryInto, i16, i32, num::ParseIntError};
+// --- crates.io ---
+#[cfg(feature = "serde")]
+use serde::{de::Error as DeError, Deserialize, Deserializer};
 // use thiserror::Error as ThisError;
 
 /// Alias for `Vec<u8>`
@@ -15,6 +17,38 @@ pub type Bytes = Vec<u8>;
 pub type Hex = String;
 /// The generic main result of crate array-bytes
 pub type ArrayBytesResult<T> = Result<T, Error>;
+
+pub trait TryFromHex
+where
+	Self: Sized,
+{
+	fn try_from_hex(hex: impl AsRef<str>) -> ArrayBytesResult<Self>;
+}
+
+macro_rules! impl_num_from_hex {
+	($t:ty) => {
+		impl TryFromHex for $t {
+			fn try_from_hex(hex: impl AsRef<str>) -> ArrayBytesResult<Self> {
+				let hex = hex.as_ref();
+
+				Self::from_str_radix(&hex[if hex.starts_with("0x") { 2 } else { 0 }..], 16)
+					.map_err(|e| Error::ParseIntError(e))
+			}
+		}
+	};
+}
+impl_num_from_hex!(isize);
+impl_num_from_hex!(i8);
+impl_num_from_hex!(i16);
+impl_num_from_hex!(i32);
+impl_num_from_hex!(i64);
+impl_num_from_hex!(i128);
+impl_num_from_hex!(usize);
+impl_num_from_hex!(u8);
+impl_num_from_hex!(u16);
+impl_num_from_hex!(u32);
+impl_num_from_hex!(u64);
+impl_num_from_hex!(u128);
 
 // #[derive(Debug, ThisError)]
 // #[cfg_attr(test, derive(PartialEq))]
@@ -30,9 +64,10 @@ pub type ArrayBytesResult<T> = Result<T, Error>;
 pub enum Error {
 	InvalidLength { length: usize },
 	InvalidCharBoundary { index: usize },
+	ParseIntError(ParseIntError),
 }
 
-/// `Slice`/`Vec` to `[u8; _]`
+/// `Slice`/`Vec`([`Bytes`]) to `[u8; _]`
 ///
 /// # Examples
 ///
@@ -71,7 +106,7 @@ pub fn hex2bytes(hex: impl AsRef<str>) -> ArrayBytesResult<Bytes> {
 		});
 	}
 
-	let mut bytes = Vec::new();
+	let mut bytes = Bytes::new();
 
 	for i in (if hex.starts_with("0x") { 2 } else { 0 }..hex.len()).step_by(2) {
 		for i in i + 1..i + 3 {
@@ -97,7 +132,7 @@ pub fn hex2bytes(hex: impl AsRef<str>) -> ArrayBytesResult<Bytes> {
 /// 	*b"Love Jane Forever"
 /// );
 /// ```
-pub fn hex2bytes_unchecked(hex: impl AsRef<str>) -> Vec<u8> {
+pub fn hex2bytes_unchecked(hex: impl AsRef<str>) -> Bytes {
 	let hex = hex.as_ref();
 
 	(if hex.starts_with("0x") { 2 } else { 0 }..hex.len())
@@ -119,7 +154,7 @@ pub fn hex2bytes_unchecked(hex: impl AsRef<str>) -> Vec<u8> {
 pub fn hex2array<const N: usize>(hex: impl AsRef<str>) -> ArrayBytesResult<[u8; N]> {
 	hex2bytes(hex)?
 		.try_into()
-		.map_err(|e: Vec<_>| Error::InvalidLength { length: e.len() })
+		.map_err(|e: Bytes| Error::InvalidLength { length: e.len() })
 }
 
 /// Just like [`hex2array`] but without checking
@@ -206,6 +241,36 @@ where
 	hex2array_unchecked(hex).into()
 }
 
+#[cfg(feature = "serde")]
+pub fn hex_deserialize_into<'de, D, T, const N: usize>(hex: D) -> Result<T, D::Error>
+where
+	D: Deserializer<'de>,
+	T: From<[u8; N]>,
+{
+	Ok(hex2array_unchecked(<&str>::deserialize(hex)?).into())
+}
+
+#[cfg(feature = "serde")]
+pub fn hexd2num<'de, D, T>(hex: D) -> Result<T, D::Error>
+where
+	D: Deserializer<'de>,
+	T: TryFromHex,
+{
+	let hex = <&str>::deserialize(hex)?;
+
+	T::try_from_hex(hex).map_err(|_| D::Error::custom(alloc::format!("Invalid hex str `{}`", hex)))
+}
+
+#[cfg(feature = "serde")]
+pub fn hexd2bytes<'de, D>(hex: D) -> Result<Bytes, D::Error>
+where
+	D: Deserializer<'de>,
+{
+	let hex = <&str>::deserialize(hex)?;
+
+	hex2bytes(hex).map_err(|_| D::Error::custom(alloc::format!("Invalid hex str `{}`", hex)))
+}
+
 /// [`Bytes`] to [`Hex`]
 ///
 /// # Examples
@@ -239,9 +304,9 @@ mod test {
 	// --- array-bytes ---
 	use crate::*;
 
-	macro_rules! vec {
+	macro_rules! bytes {
 		($v:expr; $n:expr) => {{
-			let mut v = Vec::new();
+			let mut v = Bytes::new();
 
 			for _ in 0..$n {
 				v.push($v);
@@ -254,7 +319,7 @@ mod test {
 	#[test]
 	fn dyn2array_should_work() {
 		for v in 0u8..16 {
-			assert_eq!([v; 8], dyn2array!(vec![v; 10], 8));
+			assert_eq!([v; 8], dyn2array!(bytes![v; 10], 8));
 		}
 	}
 
