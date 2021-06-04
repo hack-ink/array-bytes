@@ -10,7 +10,6 @@ homepage    = "https://array-bytes.l2ust.world"
 keywords    = [
 	"array",
 	"bytes",
-	"deserialize",
 	"hex",
 	"no-std",
 	"serde",
