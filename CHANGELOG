@@ -1,3 +1,7 @@
+## v1.3.0
+Add `hex2array`, `hex_try_into` and `hex_into_unchecked`
+Support `serde`
+
 ## v1.2.0
 Deprecated macro `hex2array_unchecked`
 Introduce function `hex2array_unchecked`
