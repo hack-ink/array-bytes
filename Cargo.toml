@@ -1,8 +1,8 @@
 [package]
 authors     = ["Xavier Lau <c.estlavie@icloud.com>"]
 categories  = [
-	"encoding data",
-	"no standard library",
+	"encoding",
+	"no-std",
 ]
 description = "array-bytes"
 edition     = "2018"
