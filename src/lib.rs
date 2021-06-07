@@ -81,6 +81,34 @@ macro_rules! dyn2array {
 	}};
 }
 
+///  Convert `Slice`/`Vec`([`Bytes`]) to a type directly
+///
+/// # Examples
+///
+/// ```
+/// #[derive(Debug, PartialEq)]
+/// struct LJF([u8; 17]);
+/// impl From<[u8; 17]> for LJF {
+/// 	fn from(array: [u8; 17]) -> Self {
+/// 		Self(array)
+/// 	}
+/// }
+///
+/// let ljf: LJF = array_bytes::dyn_into!(*b"Love Jane Forever Forever Forever", 17);
+///
+/// assert_eq!(ljf, LJF(*b"Love Jane Forever"));
+///
+/// let ljf: LJF = array_bytes::dyn_into!(b"Love Jane Forever Forever Forever".to_vec(), 17);
+///
+/// assert_eq!(ljf, LJF(*b"Love Jane Forever"));
+/// ```
+#[macro_export]
+macro_rules! dyn_into {
+	($dyn:expr, $len:expr) => {{
+		unsafe { *($dyn.as_ptr() as *const [u8; $len]) }.into()
+	}};
+}
+
 /// [`Hex`] to [`Bytes`]
 ///
 /// Return error while length is a odd number or any byte out of radix
@@ -316,11 +344,30 @@ mod test {
 		}};
 	}
 
+	#[derive(Debug, PartialEq)]
+	struct LJF([u8; 17]);
+	impl From<[u8; 17]> for LJF {
+		fn from(array: [u8; 17]) -> Self {
+			Self(array)
+		}
+	}
+
 	#[test]
 	fn dyn2array_should_work() {
 		for v in 0u8..16 {
 			assert_eq!([v; 8], dyn2array!(bytes![v; 10], 8));
 		}
+	}
+
+	#[test]
+	fn dyn_into_should_work() {
+		let ljf: LJF = dyn_into!(*b"Love Jane Forever Forever Forever", 17);
+
+		assert_eq!(ljf, LJF(*b"Love Jane Forever"));
+
+		let ljf: LJF = dyn_into!(b"Love Jane Forever Forever Forever".to_vec(), 17);
+
+		assert_eq!(ljf, LJF(*b"Love Jane Forever"));
 	}
 
 	#[test]
@@ -400,14 +447,6 @@ mod test {
 
 	#[test]
 	fn hex_try_into_should_work() {
-		#[derive(Debug, PartialEq)]
-		struct LJF([u8; 17]);
-		impl From<[u8; 17]> for LJF {
-			fn from(array: [u8; 17]) -> Self {
-				Self(array)
-			}
-		}
-
 		assert_eq!(
 			hex_try_into::<_, LJF, 17>("0x4c6f7665204a616e6520466f7265766572").unwrap(),
 			LJF(*b"Love Jane Forever")
@@ -416,14 +455,6 @@ mod test {
 
 	#[test]
 	fn hex_into_should_work() {
-		#[derive(Debug, PartialEq)]
-		struct LJF([u8; 17]);
-		impl From<[u8; 17]> for LJF {
-			fn from(array: [u8; 17]) -> Self {
-				Self(array)
-			}
-		}
-
 		assert_eq!(
 			hex_into_unchecked::<_, LJF, 17>("0x4c6f7665204a616e6520466f7265766572"),
 			LJF(*b"Love Jane Forever")
