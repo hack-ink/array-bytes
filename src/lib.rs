@@ -179,7 +179,10 @@ pub fn hex2bytes_unchecked(hex: impl AsRef<str>) -> Bytes {
 /// 	*b"Love Jane Forever"
 /// );
 /// ```
-pub fn hex2array<const N: usize>(hex: impl AsRef<str>) -> ArrayBytesResult<[u8; N]> {
+pub fn hex2array<H, const N: usize>(hex: H) -> ArrayBytesResult<[u8; N]>
+where
+	H: AsRef<str>,
+{
 	hex2bytes(hex)?
 		.try_into()
 		.map_err(|e: Bytes| Error::InvalidLength { length: e.len() })
@@ -195,7 +198,10 @@ pub fn hex2array<const N: usize>(hex: impl AsRef<str>) -> ArrayBytesResult<[u8; 
 /// 	*b"Love Jane Forever"
 /// );
 /// ```
-pub fn hex2array_unchecked<const N: usize>(hex: impl AsRef<str>) -> [u8; N] {
+pub fn hex2array_unchecked<H, const N: usize>(hex: H) -> [u8; N]
+where
+	H: AsRef<str>,
+{
 	hex2bytes_unchecked(hex).try_into().unwrap()
 }
 
