@@ -1,3 +1,9 @@
+## v1.4.0
+Bump `serde`
+Add more documents
+Add more tests
+Rename `hexd2num` to `de_hex2num`, `hexd2bytes` to `de_hex2bytes`
+
 ## v1.3.3
 Allow explicit generic argument
 
