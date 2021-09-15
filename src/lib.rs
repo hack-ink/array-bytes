@@ -205,24 +205,6 @@ where
 	hex2bytes_unchecked(hex).try_into().unwrap()
 }
 
-/// Just like [`hex2array`] but without checking
-///
-/// # Examples
-///
-/// ```
-/// assert_eq!(
-/// 	array_bytes::hex2array_unchecked!("0x4c6f7665204a616e6520466f7265766572", 17),
-/// 	*b"Love Jane Forever"
-/// );
-/// ```
-#[deprecated(since = "1.2.0", note = "use `fn hex2array_unchecked` instead.")]
-#[macro_export]
-macro_rules! hex2array_unchecked {
-	($hex:expr, $len:expr) => {{
-		$crate::dyn2array!($crate::hex2bytes_unchecked($hex), $len)
-	}};
-}
-
 /// Try to convert [`Hex`] to a type directly
 ///
 /// # Examples
@@ -464,15 +446,6 @@ mod test {
 		);
 		assert_eq!(
 			hex2array_unchecked("4c6f7665204a616e6520466f7265766572"),
-			*b"Love Jane Forever"
-		);
-
-		assert_eq!(
-			hex2array_unchecked!("0x4c6f7665204a616e6520466f7265766572", 17),
-			*b"Love Jane Forever"
-		);
-		assert_eq!(
-			hex2array_unchecked!("4c6f7665204a616e6520466f7265766572", 17),
 			*b"Love Jane Forever"
 		);
 	}
