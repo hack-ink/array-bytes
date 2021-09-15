@@ -95,11 +95,9 @@ macro_rules! dyn2array {
 /// }
 ///
 /// let ljf: LJF = array_bytes::dyn_into!(*b"Love Jane Forever Forever Forever", 17);
-///
 /// assert_eq!(ljf, LJF(*b"Love Jane Forever"));
 ///
 /// let ljf: LJF = array_bytes::dyn_into!(b"Love Jane Forever Forever Forever".to_vec(), 17);
-///
 /// assert_eq!(ljf, LJF(*b"Love Jane Forever"));
 /// ```
 #[macro_export]
@@ -257,6 +255,34 @@ where
 	hex2array_unchecked(hex).into()
 }
 
+/// ```
+/// use serde::Deserialize;
+///
+/// #[derive(Debug, PartialEq)]
+/// struct LJF([u8; 17]);
+/// impl From<[u8; 17]> for LJF {
+/// 	fn from(array: [u8; 17]) -> Self {
+/// 		Self(array)
+/// 	}
+/// }
+///
+/// #[derive(Debug, PartialEq, Deserialize)]
+/// struct WrappedLJF {
+/// 	#[serde(deserialize_with = "array_bytes::hex_deserialize_into")]
+/// 	ljf: LJF,
+/// }
+///
+/// assert_eq!(
+/// 	serde_json::from_str::<WrappedLJF>(
+/// 		r#"{
+/// 		"ljf": "0x4c6f7665204a616e6520466f7265766572"
+/// 	}"#
+/// 	)
+/// 	.unwrap(),
+/// 	WrappedLJF {
+/// 		ljf: LJF(*b"Love Jane Forever")
+/// 	}
+/// );
 #[cfg(feature = "serde")]
 pub fn hex_deserialize_into<'de, D, T, const N: usize>(hex: D) -> Result<T, D::Error>
 where
@@ -266,6 +292,43 @@ where
 	Ok(hex2array_unchecked(<&str>::deserialize(hex)?).into())
 }
 
+/// Deserialize [`Hex`] to any Rust primitive num type
+///
+/// # Examples
+///
+/// ```
+/// use serde::Deserialize;
+///
+/// #[derive(Debug, PartialEq, Deserialize)]
+/// struct LJF {
+/// 	#[serde(deserialize_with = "array_bytes::de_hex2num")]
+/// 	_0: u8,
+/// 	#[serde(deserialize_with = "array_bytes::de_hex2num")]
+/// 	_1: u8,
+/// 	#[serde(deserialize_with = "array_bytes::de_hex2num")]
+/// 	_2: u8,
+/// 	#[serde(deserialize_with = "array_bytes::de_hex2num")]
+/// 	_3: u32,
+/// }
+///
+/// assert_eq!(
+/// 	serde_json::from_str::<LJF>(
+/// 		r#"{
+/// 		"_0": "0x5",
+/// 		"_1": "0x2",
+/// 		"_2": "0x0",
+/// 		"_3": "0x522"
+/// 	}"#
+/// 	)
+/// 	.unwrap(),
+/// 	LJF {
+/// 		_0: 5,
+/// 		_1: 2,
+/// 		_2: 0,
+/// 		_3: 1314
+/// 	}
+/// );
+/// ```
 #[cfg(feature = "serde")]
 pub fn de_hex2num<'de, D, T>(hex: D) -> Result<T, D::Error>
 where
@@ -282,7 +345,7 @@ where
 /// # Examples
 ///
 /// ```
-/// use array_bytes::{Bytes, Hex};
+/// use array_bytes::Bytes;
 /// use serde::Deserialize;
 ///
 /// #[derive(Debug, PartialEq, Deserialize)]
@@ -474,6 +537,108 @@ mod test {
 		);
 	}
 
+	#[cfg(feature = "serde")]
+	#[test]
+	fn hex_deserialize_into_should_work() {
+		#[derive(Debug, PartialEq, Deserialize)]
+		struct WrappedLJF {
+			#[serde(deserialize_with = "hex_deserialize_into")]
+			ljf: LJF,
+		}
+
+		assert_eq!(
+			serde_json::from_str::<WrappedLJF>(
+				r#"{
+				"ljf": "0x4c6f7665204a616e6520466f7265766572"
+			}"#
+			)
+			.unwrap(),
+			WrappedLJF {
+				ljf: LJF(*b"Love Jane Forever")
+			}
+		);
+		assert_eq!(
+			serde_json::from_str::<WrappedLJF>(
+				r#"{
+				"ljf": "4c6f7665204a616e6520466f7265766572"
+			}"#
+			)
+			.unwrap(),
+			WrappedLJF {
+				ljf: LJF(*b"Love Jane Forever")
+			}
+		);
+	}
+
+	#[cfg(feature = "serde")]
+	#[test]
+	fn de_hex2num_should_work() {
+		macro_rules! assert_de_hex2num {
+			($num_type:ty) => {{
+				#[derive(Debug, PartialEq, Deserialize)]
+				struct LJF {
+					#[serde(deserialize_with = "de_hex2num")]
+					_0: $num_type,
+					#[serde(deserialize_with = "de_hex2num")]
+					_1: $num_type,
+					#[serde(deserialize_with = "de_hex2num")]
+					_2: $num_type,
+					#[serde(deserialize_with = "de_hex2num")]
+					_3: u32,
+				}
+
+				assert_eq!(
+					serde_json::from_str::<LJF>(
+						r#"{
+						"_0": "0x5",
+						"_1": "0x2",
+						"_2": "0x0",
+						"_3": "0x522"
+					}"#
+					)
+					.unwrap(),
+					LJF {
+						_0: 5,
+						_1: 2,
+						_2: 0,
+						_3: 1314
+					}
+				);
+				assert_eq!(
+					serde_json::from_str::<LJF>(
+						r#"{
+						"_0": "5",
+						"_1": "2",
+						"_2": "0",
+						"_3": "522"
+					}"#
+					)
+					.unwrap(),
+					LJF {
+						_0: 5,
+						_1: 2,
+						_2: 0,
+						_3: 1314
+					}
+				);
+			}};
+		}
+
+		assert_de_hex2num!(isize);
+		assert_de_hex2num!(i8);
+		assert_de_hex2num!(i16);
+		assert_de_hex2num!(i32);
+		assert_de_hex2num!(i64);
+		assert_de_hex2num!(i128);
+		assert_de_hex2num!(usize);
+		assert_de_hex2num!(u8);
+		assert_de_hex2num!(u16);
+		assert_de_hex2num!(u32);
+		assert_de_hex2num!(u64);
+		assert_de_hex2num!(u128);
+	}
+
+	#[cfg(feature = "serde")]
 	#[test]
 	fn de_hex2bytes_should_work() {
 		#[derive(Debug, PartialEq, Deserialize)]
