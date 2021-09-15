@@ -285,7 +285,7 @@ where
 }
 
 #[cfg(feature = "serde")]
-pub fn hexd2num<'de, D, T>(hex: D) -> Result<T, D::Error>
+pub fn de_hex2num<'de, D, T>(hex: D) -> Result<T, D::Error>
 where
 	D: Deserializer<'de>,
 	T: TryFromHex,
@@ -295,8 +295,34 @@ where
 	T::try_from_hex(hex).map_err(|_| D::Error::custom(alloc::format!("Invalid hex str `{}`", hex)))
 }
 
+/// Deserialize [`Hex`] to [`Bytes`]
+///
+/// # Examples
+///
+/// ```
+/// use array_bytes::{Bytes, Hex};
+/// use serde::Deserialize;
+///
+/// #[derive(Debug, PartialEq, Deserialize)]
+/// struct LJF {
+/// 	#[serde(deserialize_with = "array_bytes::de_hex2bytes")]
+/// 	ljf: Bytes,
+/// }
+///
+/// assert_eq!(
+/// 	serde_json::from_str::<LJF>(
+/// 		r#"{
+/// 		"ljf": "0x4c6f7665204a616e6520466f7265766572"
+/// 	}"#
+/// 	)
+/// 	.unwrap(),
+/// 	LJF {
+/// 		ljf: (*b"Love Jane Forever").to_vec()
+/// 	}
+/// );
+/// ```
 #[cfg(feature = "serde")]
-pub fn hexd2bytes<'de, D>(hex: D) -> Result<Bytes, D::Error>
+pub fn de_hex2bytes<'de, D>(hex: D) -> Result<Bytes, D::Error>
 where
 	D: Deserializer<'de>,
 {
@@ -379,11 +405,11 @@ mod test {
 	#[test]
 	fn hex2bytes_should_work() {
 		assert_eq!(
-			hex2bytes("4c6f7665204a616e6520466f7265766572").unwrap(),
+			hex2bytes("0x4c6f7665204a616e6520466f7265766572").unwrap(),
 			*b"Love Jane Forever"
 		);
 		assert_eq!(
-			hex2bytes("0x4c6f7665204a616e6520466f7265766572").unwrap(),
+			hex2bytes("4c6f7665204a616e6520466f7265766572").unwrap(),
 			*b"Love Jane Forever"
 		);
 
@@ -409,11 +435,11 @@ mod test {
 	#[test]
 	fn hex2bytes_unchecked_should_work() {
 		assert_eq!(
-			hex2bytes_unchecked("4c6f7665204a616e6520466f7265766572"),
+			hex2bytes_unchecked("0x4c6f7665204a616e6520466f7265766572"),
 			*b"Love Jane Forever"
 		);
 		assert_eq!(
-			hex2bytes_unchecked("0x4c6f7665204a616e6520466f7265766572"),
+			hex2bytes_unchecked("4c6f7665204a616e6520466f7265766572"),
 			*b"Love Jane Forever"
 		);
 	}
@@ -421,11 +447,11 @@ mod test {
 	#[test]
 	fn hex2array_should_work() {
 		assert_eq!(
-			hex2array("4c6f7665204a616e6520466f7265766572").unwrap(),
+			hex2array("0x4c6f7665204a616e6520466f7265766572").unwrap(),
 			*b"Love Jane Forever"
 		);
 		assert_eq!(
-			hex2array("0x4c6f7665204a616e6520466f7265766572").unwrap(),
+			hex2array("4c6f7665204a616e6520466f7265766572").unwrap(),
 			*b"Love Jane Forever"
 		);
 	}
@@ -433,20 +459,20 @@ mod test {
 	#[test]
 	fn hex2array_unchecked_should_work() {
 		assert_eq!(
-			hex2array_unchecked("4c6f7665204a616e6520466f7265766572"),
+			hex2array_unchecked("0x4c6f7665204a616e6520466f7265766572"),
 			*b"Love Jane Forever"
 		);
 		assert_eq!(
-			hex2array_unchecked("0x4c6f7665204a616e6520466f7265766572"),
+			hex2array_unchecked("4c6f7665204a616e6520466f7265766572"),
 			*b"Love Jane Forever"
 		);
 
 		assert_eq!(
-			hex2array_unchecked!("4c6f7665204a616e6520466f7265766572", 17),
+			hex2array_unchecked!("0x4c6f7665204a616e6520466f7265766572", 17),
 			*b"Love Jane Forever"
 		);
 		assert_eq!(
-			hex2array_unchecked!("0x4c6f7665204a616e6520466f7265766572", 17),
+			hex2array_unchecked!("4c6f7665204a616e6520466f7265766572", 17),
 			*b"Love Jane Forever"
 		);
 	}
@@ -457,6 +483,10 @@ mod test {
 			hex_try_into::<_, LJF, 17>("0x4c6f7665204a616e6520466f7265766572").unwrap(),
 			LJF(*b"Love Jane Forever")
 		);
+		assert_eq!(
+			hex_try_into::<_, LJF, 17>("4c6f7665204a616e6520466f7265766572").unwrap(),
+			LJF(*b"Love Jane Forever")
+		);
 	}
 
 	#[test]
@@ -465,17 +495,53 @@ mod test {
 			hex_into_unchecked::<_, LJF, 17>("0x4c6f7665204a616e6520466f7265766572"),
 			LJF(*b"Love Jane Forever")
 		);
+		assert_eq!(
+			hex_into_unchecked::<_, LJF, 17>("4c6f7665204a616e6520466f7265766572"),
+			LJF(*b"Love Jane Forever")
+		);
+	}
+
+	#[test]
+	fn de_hex2bytes_should_work() {
+		#[derive(Debug, PartialEq, Deserialize)]
+		struct LJF {
+			#[serde(deserialize_with = "de_hex2bytes")]
+			ljf: Bytes,
+		}
+
+		assert_eq!(
+			serde_json::from_str::<LJF>(
+				r#"{
+				"ljf": "0x4c6f7665204a616e6520466f7265766572"
+			}"#
+			)
+			.unwrap(),
+			LJF {
+				ljf: (*b"Love Jane Forever").to_vec()
+			}
+		);
+		assert_eq!(
+			serde_json::from_str::<LJF>(
+				r#"{
+				"ljf": "4c6f7665204a616e6520466f7265766572"
+			}"#
+			)
+			.unwrap(),
+			LJF {
+				ljf: (*b"Love Jane Forever").to_vec()
+			}
+		);
 	}
 
 	#[test]
 	fn bytes2hex_should_work() {
 		assert_eq!(
-			bytes2hex("", b"Love Jane Forever"),
-			Hex::from("4c6f7665204a616e6520466f7265766572")
-		);
-		assert_eq!(
 			bytes2hex("0x", b"Love Jane Forever"),
 			Hex::from("0x4c6f7665204a616e6520466f7265766572")
+		);
+		assert_eq!(
+			bytes2hex("", b"Love Jane Forever"),
+			Hex::from("4c6f7665204a616e6520466f7265766572")
 		);
 	}
 }
