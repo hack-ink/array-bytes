@@ -1,3 +1,6 @@
+## v1.4.1
+Use `String` Instead `&str` in `serde`
+
 ## v1.4.0
 Bump `serde`
 Add more documents
