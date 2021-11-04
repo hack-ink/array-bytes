@@ -58,6 +58,7 @@ impl_num_from_hex!(u128);
 // 	#[error("Invalid char boundary at: {}", index)]
 // 	InvalidCharBoundary { index: usize },
 // }
+
 /// The main error of crate array-bytes
 #[derive(Debug)]
 #[cfg_attr(test, derive(PartialEq))]
@@ -289,7 +290,7 @@ where
 	D: Deserializer<'de>,
 	T: From<[u8; N]>,
 {
-	Ok(hex2array_unchecked(<&str>::deserialize(hex)?).into())
+	Ok(hex2array_unchecked(Hex::deserialize(hex)?).into())
 }
 
 /// Deserialize [`Hex`] to any Rust primitive num type
@@ -335,9 +336,9 @@ where
 	D: Deserializer<'de>,
 	T: TryFromHex,
 {
-	let hex = <&str>::deserialize(hex)?;
+	let hex = Hex::deserialize(hex)?;
 
-	T::try_from_hex(hex).map_err(|_| D::Error::custom(alloc::format!("Invalid hex str `{}`", hex)))
+	T::try_from_hex(&hex).map_err(|_| D::Error::custom(alloc::format!("Invalid hex str `{}`", hex)))
 }
 
 /// Deserialize [`Hex`] to [`Bytes`]
@@ -371,9 +372,9 @@ pub fn de_hex2bytes<'de, D>(hex: D) -> Result<Bytes, D::Error>
 where
 	D: Deserializer<'de>,
 {
-	let hex = <&str>::deserialize(hex)?;
+	let hex = Hex::deserialize(hex)?;
 
-	hex2bytes(hex).map_err(|_| D::Error::custom(alloc::format!("Invalid hex str `{}`", hex)))
+	hex2bytes(&hex).map_err(|_| D::Error::custom(alloc::format!("Invalid hex str `{}`", hex)))
 }
 
 /// [`Bytes`] to [`Hex`]
