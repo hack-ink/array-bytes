@@ -290,7 +290,7 @@ where
 	D: Deserializer<'de>,
 	T: From<[u8; N]>,
 {
-	Ok(hex2array_unchecked(Hex::deserialize(hex)?).into())
+	Ok(hex2array_unchecked(<&str>::deserialize(hex)?).into())
 }
 
 /// Deserialize [`Hex`] to any Rust primitive num type
@@ -336,7 +336,7 @@ where
 	D: Deserializer<'de>,
 	T: TryFromHex,
 {
-	let hex = Hex::deserialize(hex)?;
+	let hex = <&str>::deserialize(hex)?;
 
 	T::try_from_hex(&hex).map_err(|_| D::Error::custom(alloc::format!("Invalid hex str `{}`", hex)))
 }
@@ -372,7 +372,7 @@ pub fn de_hex2bytes<'de, D>(hex: D) -> Result<Bytes, D::Error>
 where
 	D: Deserializer<'de>,
 {
-	let hex = Hex::deserialize(hex)?;
+	let hex = <&str>::deserialize(hex)?;
 
 	hex2bytes(&hex).map_err(|_| D::Error::custom(alloc::format!("Invalid hex str `{}`", hex)))
 }
