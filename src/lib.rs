@@ -5,7 +5,7 @@ extern crate alloc;
 // --- alloc ---
 use alloc::{string::String, vec::Vec};
 // --- core ---
-use core::{char, convert::TryInto, i16, i32, num::ParseIntError};
+use core::{char, convert::TryInto, num::ParseIntError};
 // --- crates.io ---
 #[cfg(feature = "serde")]
 use serde::{de::Error as DeError, Deserialize, Deserializer};
