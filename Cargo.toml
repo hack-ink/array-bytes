@@ -5,7 +5,7 @@ categories  = [
 	"no-std",
 ]
 description = "array-bytes"
-edition     = "2018"
+edition     = "2021"
 homepage    = "https://array-bytes.l2ust.world"
 keywords    = [
 	"array",
