@@ -2,22 +2,22 @@
 
 extern crate alloc;
 
-// --- alloc ---
-use alloc::{string::String, vec::Vec};
-// --- core ---
+// core
 use core::{char, convert::TryInto, num::ParseIntError};
-// --- crates.io ---
-#[cfg(feature = "serde")]
-use serde::{de::Error as DeError, Deserialize, Deserializer};
+// alloc
+use alloc::{string::String, vec::Vec};
+// crates.io
+#[cfg(feature = "serde")] use serde::{de::Error as DeError, Deserialize, Deserializer};
 // use thiserror::Error as ThisError;
 
-/// Alias for `Vec<u8>`
+/// Alias for `Vec<u8>`.
 pub type Bytes = Vec<u8>;
-/// Alias for `String`
+/// Alias for `String`.
 pub type Hex = String;
-/// The generic main result of crate array-bytes
+/// The generic main result of crate array-bytes.
 pub type ArrayBytesResult<T> = Result<T, Error>;
 
+/// Simple and safe [`Bytes`]/[`Hex`] conversions that may fail in a controlled way under some circumstances.
 pub trait TryFromHex
 where
 	Self: Sized,
@@ -50,8 +50,8 @@ impl_num_from_hex!(u32);
 impl_num_from_hex!(u64);
 impl_num_from_hex!(u128);
 
-// #[derive(Debug, ThisError)]
 // #[cfg_attr(test, derive(PartialEq))]
+// #[derive(Debug, ThisError)]
 // pub enum Error {
 // 	#[error("Invalid length: {}", length)]
 // 	InvalidLength { length: usize },
@@ -59,16 +59,16 @@ impl_num_from_hex!(u128);
 // 	InvalidCharBoundary { index: usize },
 // }
 
-/// The main error of crate array-bytes
-#[derive(Debug)]
+/// The main error of this crate.
 #[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug)]
 pub enum Error {
 	InvalidLength { length: usize },
 	InvalidCharBoundary { index: usize },
 	ParseIntError(ParseIntError),
 }
 
-/// `Slice`/`Vec`([`Bytes`]) to `[u8; _]`
+/// `Slice`/`Vec`([`Bytes`]) to `[u8; _]`.
 ///
 /// # Examples
 ///
@@ -82,7 +82,7 @@ macro_rules! dyn2array {
 	}};
 }
 
-///  Convert `Slice`/`Vec`([`Bytes`]) to a type directly
+///  Convert `Slice`/`Vec`([`Bytes`]) to a type directly.
 ///
 /// # Examples
 ///
@@ -108,9 +108,9 @@ macro_rules! dyn_into {
 	}};
 }
 
-/// [`Hex`] to [`Bytes`]
+/// [`Hex`] to [`Bytes`].
 ///
-/// Return error while length is a odd number or any byte out of radix
+/// Return error while length is a odd number or any byte out of radix.
 ///
 /// # Examples
 ///
@@ -125,11 +125,7 @@ pub fn hex2bytes(hex: impl AsRef<str>) -> ArrayBytesResult<Bytes> {
 
 	if hex.len() % 2 != 0 {
 		return Err(Error::InvalidLength {
-			length: if hex.starts_with("0x") {
-				hex.len() - 2
-			} else {
-				hex.len()
-			},
+			length: if hex.starts_with("0x") { hex.len() - 2 } else { hex.len() },
 		});
 	}
 
@@ -149,7 +145,7 @@ pub fn hex2bytes(hex: impl AsRef<str>) -> ArrayBytesResult<Bytes> {
 	Ok(bytes)
 }
 
-/// Just like [`hex2bytes`] but without checking
+/// Just like [`hex2bytes`] but without checking.
 ///
 /// # Examples
 ///
@@ -168,7 +164,7 @@ pub fn hex2bytes_unchecked(hex: impl AsRef<str>) -> Bytes {
 		.collect()
 }
 
-/// Just like [`hex2bytes`] but to a fixed length array
+/// Just like [`hex2bytes`] but to a fixed length array.
 ///
 /// # Examples
 ///
@@ -182,12 +178,10 @@ pub fn hex2array<H, const N: usize>(hex: H) -> ArrayBytesResult<[u8; N]>
 where
 	H: AsRef<str>,
 {
-	hex2bytes(hex)?
-		.try_into()
-		.map_err(|e: Bytes| Error::InvalidLength { length: e.len() })
+	hex2bytes(hex)?.try_into().map_err(|e: Bytes| Error::InvalidLength { length: e.len() })
 }
 
-/// Just like [`hex2array`] but without checking
+/// Just like [`hex2array`] but without checking.
 ///
 /// # Examples
 ///
@@ -204,7 +198,7 @@ where
 	hex2bytes_unchecked(hex).try_into().unwrap()
 }
 
-/// Try to convert [`Hex`] to a type directly
+/// Try to convert [`Hex`] to a type directly.
 ///
 /// # Examples
 ///
@@ -230,7 +224,7 @@ where
 	Ok(hex2array(hex)?.into())
 }
 
-/// Just like [`hex_try_into`] but without checking
+/// Just like [`hex_try_into`] but without checking.
 ///
 /// # Examples
 ///
@@ -293,7 +287,7 @@ where
 	Ok(hex2array_unchecked(<&str>::deserialize(hex)?).into())
 }
 
-/// Deserialize [`Hex`] to any Rust primitive num type
+/// Deserialize [`Hex`] to any Rust primitive num type.
 ///
 /// # Examples
 ///
@@ -322,12 +316,7 @@ where
 /// 	}"#
 /// 	)
 /// 	.unwrap(),
-/// 	LJF {
-/// 		_0: 5,
-/// 		_1: 2,
-/// 		_2: 0,
-/// 		_3: 1314
-/// 	}
+/// 	LJF { _0: 5, _1: 2, _2: 0, _3: 1314 }
 /// );
 /// ```
 #[cfg(feature = "serde")]
@@ -341,7 +330,7 @@ where
 	T::try_from_hex(&hex).map_err(|_| D::Error::custom(alloc::format!("Invalid hex str `{}`", hex)))
 }
 
-/// Deserialize [`Hex`] to [`Bytes`]
+/// Deserialize [`Hex`] to [`Bytes`].
 ///
 /// # Examples
 ///
@@ -362,9 +351,7 @@ where
 /// 	}"#
 /// 	)
 /// 	.unwrap(),
-/// 	LJF {
-/// 		ljf: (*b"Love Jane Forever").to_vec()
-/// 	}
+/// 	LJF { ljf: (*b"Love Jane Forever").to_vec() }
 /// );
 /// ```
 #[cfg(feature = "serde")]
@@ -377,7 +364,7 @@ where
 	hex2bytes(&hex).map_err(|_| D::Error::custom(alloc::format!("Invalid hex str `{}`", hex)))
 }
 
-/// [`Bytes`] to [`Hex`]
+/// [`Bytes`] to [`Hex`].
 ///
 /// # Examples
 ///
@@ -454,15 +441,9 @@ mod test {
 			hex2bytes("0x4c6f7665204a616e6520466f7265766572").unwrap(),
 			*b"Love Jane Forever"
 		);
-		assert_eq!(
-			hex2bytes("4c6f7665204a616e6520466f7265766572").unwrap(),
-			*b"Love Jane Forever"
-		);
+		assert_eq!(hex2bytes("4c6f7665204a616e6520466f7265766572").unwrap(), *b"Love Jane Forever");
 
-		assert_eq!(
-			hex2bytes(Hex::from("我爱你")).unwrap_err(),
-			Error::InvalidLength { length: 9 }
-		);
+		assert_eq!(hex2bytes(Hex::from("我爱你")).unwrap_err(), Error::InvalidLength { length: 9 });
 		assert_eq!(
 			hex2bytes(Hex::from("0x我爱你")).unwrap_err(),
 			Error::InvalidLength { length: 9 }
@@ -496,10 +477,7 @@ mod test {
 			hex2array("0x4c6f7665204a616e6520466f7265766572").unwrap(),
 			*b"Love Jane Forever"
 		);
-		assert_eq!(
-			hex2array("4c6f7665204a616e6520466f7265766572").unwrap(),
-			*b"Love Jane Forever"
-		);
+		assert_eq!(hex2array("4c6f7665204a616e6520466f7265766572").unwrap(), *b"Love Jane Forever");
 	}
 
 	#[test]
@@ -554,9 +532,7 @@ mod test {
 			}"#
 			)
 			.unwrap(),
-			WrappedLJF {
-				ljf: LJF(*b"Love Jane Forever")
-			}
+			WrappedLJF { ljf: LJF(*b"Love Jane Forever") }
 		);
 		assert_eq!(
 			serde_json::from_str::<WrappedLJF>(
@@ -565,9 +541,7 @@ mod test {
 			}"#
 			)
 			.unwrap(),
-			WrappedLJF {
-				ljf: LJF(*b"Love Jane Forever")
-			}
+			WrappedLJF { ljf: LJF(*b"Love Jane Forever") }
 		);
 	}
 
@@ -598,12 +572,7 @@ mod test {
 					}"#
 					)
 					.unwrap(),
-					LJF {
-						_0: 5,
-						_1: 2,
-						_2: 0,
-						_3: 1314
-					}
+					LJF { _0: 5, _1: 2, _2: 0, _3: 1314 }
 				);
 				assert_eq!(
 					serde_json::from_str::<LJF>(
@@ -615,12 +584,7 @@ mod test {
 					}"#
 					)
 					.unwrap(),
-					LJF {
-						_0: 5,
-						_1: 2,
-						_2: 0,
-						_3: 1314
-					}
+					LJF { _0: 5, _1: 2, _2: 0, _3: 1314 }
 				);
 			}};
 		}
@@ -655,9 +619,7 @@ mod test {
 			}"#
 			)
 			.unwrap(),
-			LJF {
-				ljf: (*b"Love Jane Forever").to_vec()
-			}
+			LJF { ljf: (*b"Love Jane Forever").to_vec() }
 		);
 		assert_eq!(
 			serde_json::from_str::<LJF>(
@@ -666,9 +628,7 @@ mod test {
 			}"#
 			)
 			.unwrap(),
-			LJF {
-				ljf: (*b"Love Jane Forever").to_vec()
-			}
+			LJF { ljf: (*b"Love Jane Forever").to_vec() }
 		);
 	}
 
