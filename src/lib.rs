@@ -110,7 +110,7 @@ macro_rules! dyn_into {
 
 /// [`Hex`] to [`Bytes`].
 ///
-/// Return error while length is a odd number or any byte out of radix.
+/// Return error while length is an odd number or any byte out of radix.
 ///
 /// # Examples
 ///
@@ -181,7 +181,7 @@ where
 	hex2bytes(hex)?.try_into().map_err(|e: Bytes| Error::InvalidLength { length: e.len() })
 }
 
-/// Just like [`hex2array`] but without checking.
+/// Just like [`hex2array`] but without the checking.
 ///
 /// # Examples
 ///
@@ -224,7 +224,7 @@ where
 	Ok(hex2array(hex)?.into())
 }
 
-/// Just like [`hex_try_into`] but without checking.
+/// Just like [`hex_try_into`] but without the checking.
 ///
 /// # Examples
 ///
