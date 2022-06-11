@@ -17,20 +17,19 @@ pub type Hex = String;
 /// The generic main result of crate array-bytes.
 pub type ArrayBytesResult<T> = Result<T, Error>;
 
-/// Simple and safe [`Bytes`]/[`Hex`] conversions that may fail in a controlled way under some circumstances.
+/// Simple and safe [`Bytes`]/[`Hex`] conversions that may fail in a controlled way under some
+/// circumstances.
 pub trait TryFromHex
 where
 	Self: Sized,
 {
-	fn try_from_hex(hex: impl AsRef<str>) -> ArrayBytesResult<Self>;
+	fn try_from_hex(hex: &str) -> ArrayBytesResult<Self>;
 }
 
 macro_rules! impl_num_from_hex {
 	($t:ty) => {
 		impl TryFromHex for $t {
-			fn try_from_hex(hex: impl AsRef<str>) -> ArrayBytesResult<Self> {
-				let hex = hex.as_ref();
-
+			fn try_from_hex(hex: &str) -> ArrayBytesResult<Self> {
 				Self::from_str_radix(&hex[if hex.starts_with("0x") { 2 } else { 0 }..], 16)
 					.map_err(|e| Error::ParseIntError(e))
 			}
@@ -120,9 +119,7 @@ macro_rules! dyn_into {
 /// 	*b"Love Jane Forever"
 /// );
 /// ```
-pub fn hex2bytes(hex: impl AsRef<str>) -> ArrayBytesResult<Bytes> {
-	let hex = hex.as_ref();
-
+pub fn hex2bytes(hex: &str) -> ArrayBytesResult<Bytes> {
 	if hex.len() % 2 != 0 {
 		return Err(Error::InvalidLength {
 			length: if hex.starts_with("0x") { hex.len() - 2 } else { hex.len() },
@@ -155,9 +152,7 @@ pub fn hex2bytes(hex: impl AsRef<str>) -> ArrayBytesResult<Bytes> {
 /// 	*b"Love Jane Forever"
 /// );
 /// ```
-pub fn hex2bytes_unchecked(hex: impl AsRef<str>) -> Bytes {
-	let hex = hex.as_ref();
-
+pub fn hex2bytes_unchecked(hex: &str) -> Bytes {
 	(if hex.starts_with("0x") { 2 } else { 0 }..hex.len())
 		.step_by(2)
 		.map(|i| u8::from_str_radix(&hex[i..i + 2], 16).unwrap())
@@ -174,10 +169,7 @@ pub fn hex2bytes_unchecked(hex: impl AsRef<str>) -> Bytes {
 /// 	*b"Love Jane Forever"
 /// );
 /// ```
-pub fn hex2array<H, const N: usize>(hex: H) -> ArrayBytesResult<[u8; N]>
-where
-	H: AsRef<str>,
-{
+pub fn hex2array<const N: usize>(hex: &str) -> ArrayBytesResult<[u8; N]> {
 	hex2bytes(hex)?.try_into().map_err(|e: Bytes| Error::InvalidLength { length: e.len() })
 }
 
@@ -191,10 +183,7 @@ where
 /// 	*b"Love Jane Forever"
 /// );
 /// ```
-pub fn hex2array_unchecked<H, const N: usize>(hex: H) -> [u8; N]
-where
-	H: AsRef<str>,
-{
+pub fn hex2array_unchecked<const N: usize>(hex: &str) -> [u8; N] {
 	hex2bytes_unchecked(hex).try_into().unwrap()
 }
 
@@ -212,13 +201,12 @@ where
 /// }
 ///
 /// assert_eq!(
-/// 	array_bytes::hex_try_into::<_, LJF, 17>("0x4c6f7665204a616e6520466f7265766572").unwrap(),
+/// 	array_bytes::hex_try_into::<LJF, 17>("0x4c6f7665204a616e6520466f7265766572").unwrap(),
 /// 	LJF(*b"Love Jane Forever")
 /// );
 /// ```
-pub fn hex_try_into<H, T, const N: usize>(hex: H) -> ArrayBytesResult<T>
+pub fn hex_try_into<T, const N: usize>(hex: &str) -> ArrayBytesResult<T>
 where
-	H: AsRef<str>,
 	T: From<[u8; N]>,
 {
 	Ok(hex2array(hex)?.into())
@@ -238,13 +226,12 @@ where
 /// }
 ///
 /// assert_eq!(
-/// 	array_bytes::hex_into_unchecked::<_, LJF, 17>("0x4c6f7665204a616e6520466f7265766572"),
+/// 	array_bytes::hex_into_unchecked::<LJF, 17>("0x4c6f7665204a616e6520466f7265766572"),
 /// 	LJF(*b"Love Jane Forever")
 /// );
 /// ```
-pub fn hex_into_unchecked<H, T, const N: usize>(hex: H) -> T
+pub fn hex_into_unchecked<T, const N: usize>(hex: &str) -> T
 where
-	H: AsRef<str>,
 	T: From<[u8; N]>,
 {
 	hex2array_unchecked(hex).into()
@@ -376,9 +363,7 @@ where
 /// 	Hex::from("0x4c6f7665204a616e6520466f7265766572")
 /// );
 /// ```
-pub fn bytes2hex(prefix: impl AsRef<str>, bytes: impl AsRef<[u8]>) -> Hex {
-	let prefix = prefix.as_ref();
-	let bytes = bytes.as_ref();
+pub fn bytes2hex(prefix: &str, bytes: &[u8]) -> Hex {
 	let mut hex = Hex::with_capacity(prefix.len() + bytes.len() * 2);
 
 	for byte in prefix.chars() {
@@ -443,20 +428,11 @@ mod test {
 		);
 		assert_eq!(hex2bytes("4c6f7665204a616e6520466f7265766572").unwrap(), *b"Love Jane Forever");
 
-		assert_eq!(hex2bytes(Hex::from("我爱你")).unwrap_err(), Error::InvalidLength { length: 9 });
-		assert_eq!(
-			hex2bytes(Hex::from("0x我爱你")).unwrap_err(),
-			Error::InvalidLength { length: 9 }
-		);
+		assert_eq!(hex2bytes("我爱你").unwrap_err(), Error::InvalidLength { length: 9 });
+		assert_eq!(hex2bytes("0x我爱你").unwrap_err(), Error::InvalidLength { length: 9 });
 
-		assert_eq!(
-			hex2bytes(Hex::from("我爱你 ")).unwrap_err(),
-			Error::InvalidCharBoundary { index: 1 }
-		);
-		assert_eq!(
-			hex2bytes(Hex::from(" 我爱你")).unwrap_err(),
-			Error::InvalidCharBoundary { index: 2 }
-		);
+		assert_eq!(hex2bytes("我爱你 ").unwrap_err(), Error::InvalidCharBoundary { index: 1 });
+		assert_eq!(hex2bytes(" 我爱你").unwrap_err(), Error::InvalidCharBoundary { index: 2 });
 	}
 
 	#[test]
@@ -495,11 +471,11 @@ mod test {
 	#[test]
 	fn hex_try_into_should_work() {
 		assert_eq!(
-			hex_try_into::<_, LJF, 17>("0x4c6f7665204a616e6520466f7265766572").unwrap(),
+			hex_try_into::<LJF, 17>("0x4c6f7665204a616e6520466f7265766572").unwrap(),
 			LJF(*b"Love Jane Forever")
 		);
 		assert_eq!(
-			hex_try_into::<_, LJF, 17>("4c6f7665204a616e6520466f7265766572").unwrap(),
+			hex_try_into::<LJF, 17>("4c6f7665204a616e6520466f7265766572").unwrap(),
 			LJF(*b"Love Jane Forever")
 		);
 	}
@@ -507,11 +483,11 @@ mod test {
 	#[test]
 	fn hex_into_should_work() {
 		assert_eq!(
-			hex_into_unchecked::<_, LJF, 17>("0x4c6f7665204a616e6520466f7265766572"),
+			hex_into_unchecked::<LJF, 17>("0x4c6f7665204a616e6520466f7265766572"),
 			LJF(*b"Love Jane Forever")
 		);
 		assert_eq!(
-			hex_into_unchecked::<_, LJF, 17>("4c6f7665204a616e6520466f7265766572"),
+			hex_into_unchecked::<LJF, 17>("4c6f7665204a616e6520466f7265766572"),
 			LJF(*b"Love Jane Forever")
 		);
 	}

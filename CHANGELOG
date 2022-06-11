@@ -1,3 +1,7 @@
+## v1.6.0
+ - Disable generic input. (people should know what are they going to do)
+ - Bump dependencies.
+
 ## v1.5.2
 - Update documents.
 - Update code format.
