@@ -9,10 +9,8 @@ edition = "2021"
 homepage = "https://array-bytes.hack.ink"
 keywords = [
 	"array",
-	"bytes",
 	"hex",
 	"no-std",
-	"serde",
 	"slice",
 	"vec",
 ]
