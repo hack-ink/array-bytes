@@ -1,3 +1,6 @@
+## v2.0.1
+- Fix tests.
+
 ## v2.0.0
 - Split `dyn_*` to `slice_*` and `vec_*`.
 - Remove all the unsafe usage.

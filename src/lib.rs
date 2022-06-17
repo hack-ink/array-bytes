@@ -385,11 +385,11 @@ where
 ///
 /// assert_eq!(
 /// 	serde_json::from_str::<WrappedLJF>(r#"{
-/// 		ljf": "0x4c6f7665204a616e6520466f7265766572"
-/// 	}"#),
-/// 	Ok(WrappedLJF {
+/// 		"ljf": "0x4c6f7665204a616e6520466f7265766572"
+/// 	}"#).unwrap(),
+/// 	WrappedLJF {
 /// 		ljf: LJF(*b"Love Jane Forever")
-/// 	})
+/// 	}
 /// );
 #[cfg(feature = "serde")]
 pub fn hex_deserialize_into<'de, D, T, const N: usize>(hex: D) -> Result<T, D::Error>
@@ -427,8 +427,9 @@ where
 /// 		"_2": "0x0",
 /// 		"_3": "0x522"
 /// 	}"#
-/// 	),
-/// 	Ok(LJF { _0: 5, _1: 2, _2: 0, _3: 1314 })
+/// 	)
+/// 	.unwrap(),
+/// 	LJF { _0: 5, _1: 2, _2: 0, _3: 1314 }
 /// );
 /// ```
 #[cfg(feature = "serde")]
@@ -461,8 +462,9 @@ where
 /// 		r#"{
 /// 		"ljf": "0x4c6f7665204a616e6520466f7265766572"
 /// 	}"#
-/// 	),
-/// 	Ok(LJF { ljf: (*b"Love Jane Forever").to_vec() })
+/// 	)
+/// 	.unwrap(),
+/// 	LJF { ljf: (*b"Love Jane Forever").to_vec() }
 /// );
 /// ```
 #[cfg(feature = "serde")]
@@ -628,16 +630,18 @@ mod test {
 				r#"{
 				"ljf": "0x4c6f7665204a616e6520466f7265766572"
 			}"#
-			),
-			Ok(WrappedLJF { ljf: LJF(*b"Love Jane Forever") })
+			)
+			.unwrap(),
+			WrappedLJF { ljf: LJF(*b"Love Jane Forever") }
 		);
 		assert_eq!(
 			serde_json::from_str::<WrappedLJF>(
 				r#"{
 				"ljf": "4c6f7665204a616e6520466f7265766572"
 			}"#
-			),
-			Ok(WrappedLJF { ljf: LJF(*b"Love Jane Forever") })
+			)
+			.unwrap(),
+			WrappedLJF { ljf: LJF(*b"Love Jane Forever") }
 		);
 	}
 
@@ -666,8 +670,9 @@ mod test {
 						"_2": "0x0",
 						"_3": "0x522"
 					}"#
-					),
-					Ok(LJF { _0: 5, _1: 2, _2: 0, _3: 1314 })
+					)
+					.unwrap(),
+					LJF { _0: 5, _1: 2, _2: 0, _3: 1314 }
 				);
 				assert_eq!(
 					serde_json::from_str::<LJF>(
@@ -677,8 +682,9 @@ mod test {
 						"_2": "0",
 						"_3": "522"
 					}"#
-					),
-					Ok(LJF { _0: 5, _1: 2, _2: 0, _3: 1314 })
+					)
+					.unwrap(),
+					LJF { _0: 5, _1: 2, _2: 0, _3: 1314 }
 				);
 			}};
 		}
@@ -711,16 +717,18 @@ mod test {
 				r#"{
 				"ljf": "0x4c6f7665204a616e6520466f7265766572"
 			}"#
-			),
-			Ok(LJF { ljf: (*b"Love Jane Forever").to_vec() })
+			)
+			.unwrap(),
+			LJF { ljf: (*b"Love Jane Forever").to_vec() }
 		);
 		assert_eq!(
 			serde_json::from_str::<LJF>(
 				r#"{
 				"ljf": "4c6f7665204a616e6520466f7265766572"
 			}"#
-			),
-			Ok(LJF { ljf: (*b"Love Jane Forever").to_vec() })
+			)
+			.unwrap(),
+			LJF { ljf: (*b"Love Jane Forever").to_vec() }
 		);
 	}
 }
