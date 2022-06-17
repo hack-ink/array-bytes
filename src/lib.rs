@@ -10,12 +10,13 @@ use alloc::{string::String, vec::Vec};
 #[cfg(feature = "serde")] use serde::{de::Error as DeError, Deserialize, Deserializer};
 // use thiserror::Error as ThisError;
 
+/// The generic main result of crate array-bytes.
+pub type ArrayBytesResult<T> = Result<T, Error>;
+
 /// Alias for `Vec<u8>`.
 pub type Bytes = Vec<u8>;
 /// Alias for `String`.
 pub type Hex = String;
-/// The generic main result of crate array-bytes.
-pub type ArrayBytesResult<T> = Result<T, Error>;
 
 /// Simple and safe [`Bytes`]/[`Hex`] conversions that may fail in a controlled way under some
 /// circumstances.
@@ -49,39 +50,43 @@ impl_num_from_hex!(u32);
 impl_num_from_hex!(u64);
 impl_num_from_hex!(u128);
 
-// #[cfg_attr(test, derive(PartialEq))]
-// #[derive(Debug, ThisError)]
-// pub enum Error {
-// 	#[error("Invalid length: {}", length)]
-// 	InvalidLength { length: usize },
-// 	#[error("Invalid char boundary at: {}", index)]
-// 	InvalidCharBoundary { index: usize },
-// }
-
 /// The main error of this crate.
-#[cfg_attr(test, derive(PartialEq))]
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum Error {
 	InvalidLength { length: usize },
 	InvalidCharBoundary { index: usize },
 	ParseIntError(ParseIntError),
 }
 
-/// `Slice`/`Vec`([`Bytes`]) to `[u8; _]`.
+/// `Vec<T>` to `[T; N]`.
 ///
 /// # Examples
 ///
 /// ```
-/// assert_eq!([0; 8], array_bytes::dyn2array!(vec![0; 10], 8));
+/// assert_eq!(array_bytes::slice2array::<8, _>(&[0; 8]), Ok([0; 8]));
 /// ```
-#[macro_export]
-macro_rules! dyn2array {
-	($dyn:expr, $len:expr) => {{
-		unsafe { *($dyn.as_ptr() as *const [u8; $len]) }
-	}};
+pub fn slice2array<const N: usize, T>(slice: &[T]) -> ArrayBytesResult<[T; N]>
+where
+	T: Copy,
+{
+	slice.try_into().map_err(|_| Error::InvalidLength { length: slice.len() })
 }
 
-///  Convert `Slice`/`Vec`([`Bytes`]) to a type directly.
+/// Just like [`slice2array`] but without the checking.
+///
+/// # Examples
+///
+/// ```
+/// assert_eq!(array_bytes::slice2array_unchecked::<8, _>(&[0; 8]), [0; 8]);
+/// ```
+pub fn slice2array_unchecked<const N: usize, T>(slice: &[T]) -> [T; N]
+where
+	T: Copy,
+{
+	slice2array(slice).unwrap()
+}
+
+///  Convert `&[T]` to a type directly.
 ///
 /// # Examples
 ///
@@ -94,17 +99,169 @@ macro_rules! dyn2array {
 /// 	}
 /// }
 ///
-/// let ljf: LJF = array_bytes::dyn_into!(*b"Love Jane Forever Forever Forever", 17);
-/// assert_eq!(ljf, LJF(*b"Love Jane Forever"));
-///
-/// let ljf: LJF = array_bytes::dyn_into!(b"Love Jane Forever Forever Forever".to_vec(), 17);
-/// assert_eq!(ljf, LJF(*b"Love Jane Forever"));
+/// assert_eq!(
+/// 	array_bytes::slice_n_into::<17, u8, LJF>(b"Love Jane Forever"),
+/// 	Ok(LJF(*b"Love Jane Forever"))
+/// );
 /// ```
-#[macro_export]
-macro_rules! dyn_into {
-	($dyn:expr, $len:expr) => {{
-		unsafe { *($dyn.as_ptr() as *const [u8; $len]) }.into()
-	}};
+pub fn slice_n_into<const N: usize, T, V>(slice: &[T]) -> ArrayBytesResult<V>
+where
+	T: Copy,
+	V: From<[T; N]>,
+{
+	Ok(slice2array(slice)?.into())
+}
+
+/// Just like [`slice_n_into`] but without the checking.
+///
+/// # Examples
+///
+/// ```
+/// #[derive(Debug, PartialEq)]
+/// struct LJF([u8; 17]);
+/// impl From<[u8; 17]> for LJF {
+/// 	fn from(array: [u8; 17]) -> Self {
+/// 		Self(array)
+/// 	}
+/// }
+///
+/// assert_eq!(
+/// 	array_bytes::slice_n_into_unchecked::<17, u8, LJF>(b"Love Jane Forever"),
+/// 	LJF(*b"Love Jane Forever")
+/// );
+/// ```
+pub fn slice_n_into_unchecked<const N: usize, T, V>(slice: &[T]) -> V
+where
+	T: Copy,
+	V: From<[T; N]>,
+{
+	slice2array_unchecked(slice).into()
+}
+
+/// `Vec<T>` to `[T; M]`.
+///
+/// # Examples
+///
+/// ```
+/// assert_eq!(array_bytes::vec2array::<8, _>(vec![0; 8]), Ok([0; 8]));
+/// ```
+pub fn vec2array<const N: usize, T>(vec: Vec<T>) -> ArrayBytesResult<[T; N]> {
+	vec.try_into().map_err(|v: Vec<_>| Error::InvalidLength { length: v.len() })
+}
+
+/// Just like [`vec2array`] but without the checking.
+///
+/// # Examples
+///
+/// ```
+/// assert_eq!(array_bytes::vec2array_unchecked::<8, _>(vec![0; 8]), [0; 8]);
+/// ```
+pub fn vec2array_unchecked<const N: usize, T>(vec: Vec<T>) -> [T; N] {
+	vec2array(vec).unwrap()
+}
+
+///  Convert `Vec<T>` to a type directly.
+///
+/// # Examples
+///
+/// ```
+/// #[derive(Debug, PartialEq)]
+/// struct LJF([u8; 17]);
+/// impl From<[u8; 17]> for LJF {
+/// 	fn from(array: [u8; 17]) -> Self {
+/// 		Self(array)
+/// 	}
+/// }
+///
+/// assert_eq!(
+/// 	array_bytes::vec_n_into::<17, u8, LJF>(b"Love Jane Forever".to_vec()),
+/// 	Ok(LJF(*b"Love Jane Forever"))
+/// );
+/// ```
+pub fn vec_n_into<const N: usize, T, V>(vec: Vec<T>) -> ArrayBytesResult<V>
+where
+	V: From<[T; N]>,
+{
+	Ok(vec2array(vec)?.into())
+}
+
+/// Just like [`vec_n_into`] but without the checking.
+///
+/// # Examples
+///
+/// ```
+/// #[derive(Debug, PartialEq)]
+/// struct LJF([u8; 17]);
+/// impl From<[u8; 17]> for LJF {
+/// 	fn from(array: [u8; 17]) -> Self {
+/// 		Self(array)
+/// 	}
+/// }
+///
+/// assert_eq!(
+/// 	array_bytes::vec_n_into_unchecked::<17, u8, LJF>(b"Love Jane Forever".to_vec()),
+/// 	LJF(*b"Love Jane Forever")
+/// );
+/// ```
+pub fn vec_n_into_unchecked<const N: usize, T, V>(vec: Vec<T>) -> V
+where
+	V: From<[T; N]>,
+{
+	vec2array_unchecked(vec).into()
+}
+
+/// [`Bytes`] to [`Hex`].
+///
+/// # Examples
+///
+/// ```
+/// use array_bytes::Hex;
+///
+/// assert_eq!(
+/// 	array_bytes::bytes2hex("0x", b"Love Jane Forever"),
+/// 	Hex::from("0x4c6f7665204a616e6520466f7265766572")
+/// );
+/// ```
+pub fn bytes2hex(prefix: &str, bytes: &[u8]) -> Hex {
+	let mut hex = Hex::with_capacity(prefix.len() + bytes.len() * 2);
+
+	for byte in prefix.chars() {
+		hex.push(byte);
+	}
+	for byte in bytes.iter() {
+		hex.push(char::from_digit((byte >> 4) as _, 16).unwrap());
+		hex.push(char::from_digit((byte & 0xf) as _, 16).unwrap());
+	}
+
+	hex
+}
+
+/// Just like [`hex2bytes`] but to a fixed length array.
+///
+/// # Examples
+///
+/// ```
+/// assert_eq!(
+/// 	array_bytes::hex2array("0x4c6f7665204a616e6520466f7265766572"),
+/// 	Ok(*b"Love Jane Forever")
+/// );
+/// ```
+pub fn hex2array<const N: usize>(hex: &str) -> ArrayBytesResult<[u8; N]> {
+	vec2array(hex2bytes(hex)?)
+}
+
+/// Just like [`hex2array`] but without the checking.
+///
+/// # Examples
+///
+/// ```
+/// assert_eq!(
+/// 	array_bytes::hex2array_unchecked("0x4c6f7665204a616e6520466f7265766572"),
+/// 	*b"Love Jane Forever"
+/// );
+/// ```
+pub fn hex2array_unchecked<const N: usize>(hex: &str) -> [u8; N] {
+	hex2bytes_unchecked(hex).try_into().unwrap()
 }
 
 /// [`Hex`] to [`Bytes`].
@@ -115,8 +272,8 @@ macro_rules! dyn_into {
 ///
 /// ```
 /// assert_eq!(
-/// 	array_bytes::hex2bytes("0x4c6f7665204a616e6520466f7265766572").unwrap(),
-/// 	*b"Love Jane Forever"
+/// 	array_bytes::hex2bytes("0x4c6f7665204a616e6520466f7265766572"),
+/// 	Ok(b"Love Jane Forever".to_vec())
 /// );
 /// ```
 pub fn hex2bytes(hex: &str) -> ArrayBytesResult<Bytes> {
@@ -159,34 +316,6 @@ pub fn hex2bytes_unchecked(hex: &str) -> Bytes {
 		.collect()
 }
 
-/// Just like [`hex2bytes`] but to a fixed length array.
-///
-/// # Examples
-///
-/// ```
-/// assert_eq!(
-/// 	array_bytes::hex2array("0x4c6f7665204a616e6520466f7265766572").unwrap(),
-/// 	*b"Love Jane Forever"
-/// );
-/// ```
-pub fn hex2array<const N: usize>(hex: &str) -> ArrayBytesResult<[u8; N]> {
-	hex2bytes(hex)?.try_into().map_err(|e: Bytes| Error::InvalidLength { length: e.len() })
-}
-
-/// Just like [`hex2array`] but without the checking.
-///
-/// # Examples
-///
-/// ```
-/// assert_eq!(
-/// 	array_bytes::hex2array_unchecked("0x4c6f7665204a616e6520466f7265766572"),
-/// 	*b"Love Jane Forever"
-/// );
-/// ```
-pub fn hex2array_unchecked<const N: usize>(hex: &str) -> [u8; N] {
-	hex2bytes_unchecked(hex).try_into().unwrap()
-}
-
 /// Try to convert [`Hex`] to a type directly.
 ///
 /// # Examples
@@ -201,18 +330,18 @@ pub fn hex2array_unchecked<const N: usize>(hex: &str) -> [u8; N] {
 /// }
 ///
 /// assert_eq!(
-/// 	array_bytes::hex_try_into::<LJF, 17>("0x4c6f7665204a616e6520466f7265766572").unwrap(),
-/// 	LJF(*b"Love Jane Forever")
+/// 	array_bytes::hex_into::<LJF, 17>("0x4c6f7665204a616e6520466f7265766572"),
+/// 	Ok(LJF(*b"Love Jane Forever"))
 /// );
 /// ```
-pub fn hex_try_into<T, const N: usize>(hex: &str) -> ArrayBytesResult<T>
+pub fn hex_into<T, const N: usize>(hex: &str) -> ArrayBytesResult<T>
 where
 	T: From<[u8; N]>,
 {
 	Ok(hex2array(hex)?.into())
 }
 
-/// Just like [`hex_try_into`] but without the checking.
+/// Just like [`hex_into`] but without the checking.
 ///
 /// # Examples
 ///
@@ -255,15 +384,12 @@ where
 /// }
 ///
 /// assert_eq!(
-/// 	serde_json::from_str::<WrappedLJF>(
-/// 		r#"{
-/// 		"ljf": "0x4c6f7665204a616e6520466f7265766572"
-/// 	}"#
-/// 	)
-/// 	.unwrap(),
-/// 	WrappedLJF {
+/// 	serde_json::from_str::<WrappedLJF>(r#"{
+/// 		ljf": "0x4c6f7665204a616e6520466f7265766572"
+/// 	}"#),
+/// 	Ok(WrappedLJF {
 /// 		ljf: LJF(*b"Love Jane Forever")
-/// 	}
+/// 	})
 /// );
 #[cfg(feature = "serde")]
 pub fn hex_deserialize_into<'de, D, T, const N: usize>(hex: D) -> Result<T, D::Error>
@@ -301,9 +427,8 @@ where
 /// 		"_2": "0x0",
 /// 		"_3": "0x522"
 /// 	}"#
-/// 	)
-/// 	.unwrap(),
-/// 	LJF { _0: 5, _1: 2, _2: 0, _3: 1314 }
+/// 	),
+/// 	Ok(LJF { _0: 5, _1: 2, _2: 0, _3: 1314 })
 /// );
 /// ```
 #[cfg(feature = "serde")]
@@ -314,7 +439,7 @@ where
 {
 	let hex = <&str>::deserialize(hex)?;
 
-	T::try_from_hex(&hex).map_err(|_| D::Error::custom(alloc::format!("Invalid hex str `{}`", hex)))
+	T::try_from_hex(hex).map_err(|_| D::Error::custom(alloc::format!("Invalid hex str `{}`", hex)))
 }
 
 /// Deserialize [`Hex`] to [`Bytes`].
@@ -336,9 +461,8 @@ where
 /// 		r#"{
 /// 		"ljf": "0x4c6f7665204a616e6520466f7265766572"
 /// 	}"#
-/// 	)
-/// 	.unwrap(),
-/// 	LJF { ljf: (*b"Love Jane Forever").to_vec() }
+/// 	),
+/// 	Ok(LJF { ljf: (*b"Love Jane Forever").to_vec() })
 /// );
 /// ```
 #[cfg(feature = "serde")]
@@ -348,33 +472,7 @@ where
 {
 	let hex = <&str>::deserialize(hex)?;
 
-	hex2bytes(&hex).map_err(|_| D::Error::custom(alloc::format!("Invalid hex str `{}`", hex)))
-}
-
-/// [`Bytes`] to [`Hex`].
-///
-/// # Examples
-///
-/// ```
-/// use array_bytes::Hex;
-///
-/// assert_eq!(
-/// 	array_bytes::bytes2hex("0x", b"Love Jane Forever"),
-/// 	Hex::from("0x4c6f7665204a616e6520466f7265766572")
-/// );
-/// ```
-pub fn bytes2hex(prefix: &str, bytes: &[u8]) -> Hex {
-	let mut hex = Hex::with_capacity(prefix.len() + bytes.len() * 2);
-
-	for byte in prefix.chars() {
-		hex.push(byte);
-	}
-	for byte in bytes.iter() {
-		hex.push(char::from_digit((byte >> 4) as _, 16).unwrap());
-		hex.push(char::from_digit((byte & 0xf) as _, 16).unwrap());
-	}
-
-	hex
+	hex2bytes(hex).map_err(|_| D::Error::custom(alloc::format!("Invalid hex str `{}`", hex)))
 }
 
 #[cfg(test)]
@@ -403,30 +501,75 @@ mod test {
 	}
 
 	#[test]
-	fn dyn2array_should_work() {
-		for v in 0u8..16 {
-			assert_eq!([v; 8], dyn2array!(bytes![v; 10], 8));
-		}
+	fn slice2array_should_work() {
+		assert_eq!(slice2array::<8, _>(&[0; 8]), Ok([0; 8]));
 	}
 
 	#[test]
-	fn dyn_into_should_work() {
-		let ljf: LJF = dyn_into!(*b"Love Jane Forever Forever Forever", 17);
+	fn slice_n_into_should_work() {
+		assert_eq!(
+			slice_n_into::<17, u8, LJF>(b"Love Jane Forever"),
+			Ok(LJF(*b"Love Jane Forever"))
+		);
+	}
 
-		assert_eq!(ljf, LJF(*b"Love Jane Forever"));
+	#[test]
+	fn slice_n_into_unchecked_should_work() {
+		assert_eq!(
+			slice_n_into_unchecked::<17, u8, LJF>(b"Love Jane Forever"),
+			LJF(*b"Love Jane Forever")
+		);
+	}
 
-		let ljf: LJF = dyn_into!(b"Love Jane Forever Forever Forever".to_vec(), 17);
+	#[test]
+	fn vec2array_should_work() {
+		assert_eq!(vec2array::<8, _>(bytes![0; 8]), Ok([0; 8]));
+	}
 
-		assert_eq!(ljf, LJF(*b"Love Jane Forever"));
+	#[test]
+	fn vec_n_into_should_work() {
+		assert_eq!(
+			vec_n_into::<17, u8, LJF>(b"Love Jane Forever".to_vec()),
+			Ok(LJF(*b"Love Jane Forever"))
+		);
+	}
+
+	#[test]
+	fn vec_n_into_unchecked_should_work() {
+		assert_eq!(
+			vec_n_into_unchecked::<17, u8, LJF>(b"Love Jane Forever".to_vec()),
+			LJF(*b"Love Jane Forever")
+		);
+	}
+
+	#[test]
+	fn bytes2hex_should_work() {
+		assert_eq!(
+			bytes2hex("0x", b"Love Jane Forever"),
+			Hex::from("0x4c6f7665204a616e6520466f7265766572")
+		);
+		assert_eq!(
+			bytes2hex("", b"Love Jane Forever"),
+			Hex::from("4c6f7665204a616e6520466f7265766572")
+		);
+	}
+
+	#[test]
+	fn hex2array_should_work() {
+		assert_eq!(hex2array("0x4c6f7665204a616e6520466f7265766572"), Ok(*b"Love Jane Forever"));
+		assert_eq!(hex2array("4c6f7665204a616e6520466f7265766572"), Ok(*b"Love Jane Forever"));
 	}
 
 	#[test]
 	fn hex2bytes_should_work() {
 		assert_eq!(
-			hex2bytes("0x4c6f7665204a616e6520466f7265766572").unwrap(),
-			*b"Love Jane Forever"
+			hex2bytes("0x4c6f7665204a616e6520466f7265766572"),
+			Ok(b"Love Jane Forever".to_vec())
 		);
-		assert_eq!(hex2bytes("4c6f7665204a616e6520466f7265766572").unwrap(), *b"Love Jane Forever");
+		assert_eq!(
+			hex2bytes("4c6f7665204a616e6520466f7265766572"),
+			Ok(b"Love Jane Forever".to_vec())
+		);
 
 		assert_eq!(hex2bytes("我爱你").unwrap_err(), Error::InvalidLength { length: 9 });
 		assert_eq!(hex2bytes("0x我爱你").unwrap_err(), Error::InvalidLength { length: 9 });
@@ -448,35 +591,14 @@ mod test {
 	}
 
 	#[test]
-	fn hex2array_should_work() {
-		assert_eq!(
-			hex2array("0x4c6f7665204a616e6520466f7265766572").unwrap(),
-			*b"Love Jane Forever"
-		);
-		assert_eq!(hex2array("4c6f7665204a616e6520466f7265766572").unwrap(), *b"Love Jane Forever");
-	}
-
-	#[test]
-	fn hex2array_unchecked_should_work() {
-		assert_eq!(
-			hex2array_unchecked("0x4c6f7665204a616e6520466f7265766572"),
-			*b"Love Jane Forever"
-		);
-		assert_eq!(
-			hex2array_unchecked("4c6f7665204a616e6520466f7265766572"),
-			*b"Love Jane Forever"
-		);
-	}
-
-	#[test]
 	fn hex_try_into_should_work() {
 		assert_eq!(
-			hex_try_into::<LJF, 17>("0x4c6f7665204a616e6520466f7265766572").unwrap(),
-			LJF(*b"Love Jane Forever")
+			hex_into::<LJF, 17>("0x4c6f7665204a616e6520466f7265766572"),
+			Ok(LJF(*b"Love Jane Forever"))
 		);
 		assert_eq!(
-			hex_try_into::<LJF, 17>("4c6f7665204a616e6520466f7265766572").unwrap(),
-			LJF(*b"Love Jane Forever")
+			hex_into::<LJF, 17>("4c6f7665204a616e6520466f7265766572"),
+			Ok(LJF(*b"Love Jane Forever"))
 		);
 	}
 
@@ -506,18 +628,16 @@ mod test {
 				r#"{
 				"ljf": "0x4c6f7665204a616e6520466f7265766572"
 			}"#
-			)
-			.unwrap(),
-			WrappedLJF { ljf: LJF(*b"Love Jane Forever") }
+			),
+			Ok(WrappedLJF { ljf: LJF(*b"Love Jane Forever") })
 		);
 		assert_eq!(
 			serde_json::from_str::<WrappedLJF>(
 				r#"{
 				"ljf": "4c6f7665204a616e6520466f7265766572"
 			}"#
-			)
-			.unwrap(),
-			WrappedLJF { ljf: LJF(*b"Love Jane Forever") }
+			),
+			Ok(WrappedLJF { ljf: LJF(*b"Love Jane Forever") })
 		);
 	}
 
@@ -546,9 +666,8 @@ mod test {
 						"_2": "0x0",
 						"_3": "0x522"
 					}"#
-					)
-					.unwrap(),
-					LJF { _0: 5, _1: 2, _2: 0, _3: 1314 }
+					),
+					Ok(LJF { _0: 5, _1: 2, _2: 0, _3: 1314 })
 				);
 				assert_eq!(
 					serde_json::from_str::<LJF>(
@@ -558,9 +677,8 @@ mod test {
 						"_2": "0",
 						"_3": "522"
 					}"#
-					)
-					.unwrap(),
-					LJF { _0: 5, _1: 2, _2: 0, _3: 1314 }
+					),
+					Ok(LJF { _0: 5, _1: 2, _2: 0, _3: 1314 })
 				);
 			}};
 		}
@@ -593,30 +711,16 @@ mod test {
 				r#"{
 				"ljf": "0x4c6f7665204a616e6520466f7265766572"
 			}"#
-			)
-			.unwrap(),
-			LJF { ljf: (*b"Love Jane Forever").to_vec() }
+			),
+			Ok(LJF { ljf: (*b"Love Jane Forever").to_vec() })
 		);
 		assert_eq!(
 			serde_json::from_str::<LJF>(
 				r#"{
 				"ljf": "4c6f7665204a616e6520466f7265766572"
 			}"#
-			)
-			.unwrap(),
-			LJF { ljf: (*b"Love Jane Forever").to_vec() }
-		);
-	}
-
-	#[test]
-	fn bytes2hex_should_work() {
-		assert_eq!(
-			bytes2hex("0x", b"Love Jane Forever"),
-			Hex::from("0x4c6f7665204a616e6520466f7265766572")
-		);
-		assert_eq!(
-			bytes2hex("", b"Love Jane Forever"),
-			Hex::from("4c6f7665204a616e6520466f7265766572")
+			),
+			Ok(LJF { ljf: (*b"Love Jane Forever").to_vec() })
 		);
 	}
 }

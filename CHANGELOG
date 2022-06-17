@@ -1,6 +1,10 @@
+## v2.0.0
+- Split `dyn_*` to `slice_*` and `vec_*`.
+- Remove all the unsafe usage.
+
 ## v1.6.0
- - Disable generic input. (people should know what are they going to do)
- - Bump dependencies.
+- Disable generic input. (people should know what are they going to do)
+- Bump dependencies.
 
 ## v1.5.2
 - Update documents.
@@ -25,16 +29,16 @@
 - Rename `hexd2num` to `de_hex2num`, `hexd2bytes` to `de_hex2bytes`.
 
 ## v1.3.3
-Allow explicit generic argument.
+- Allow explicit generic argument.
 
 ## v1.3.2
-Add `dyn_into`.
+- Add `dyn_into`.
 
 ## v1.3.0
-Add `hex2array`, `hex_try_into` and `hex_into_unchecked`.
-Support `serde`.
+- Add `hex2array`, `hex_try_into` and `hex_into_unchecked`.
+- Support `serde`.
 
 ## v1.2.0
-Deprecated macro `hex2array_unchecked`.
-Introduce function `hex2array_unchecked`.
-Require at least Rust `1.51.0`.
+- Deprecated macro `hex2array_unchecked`.
+- Introduce function `hex2array_unchecked`.
+- Require at least Rust `1.51.0`.
