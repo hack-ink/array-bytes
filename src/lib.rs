@@ -1,3 +1,4 @@
+#![allow(clippy::tabs_in_doc_comments)]
 #![no_std]
 
 extern crate alloc;
@@ -479,6 +480,8 @@ where
 
 #[cfg(test)]
 mod test {
+	#![allow(clippy::upper_case_acronyms)]
+
 	// --- array-bytes ---
 	use crate::*;
 
