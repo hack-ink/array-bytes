@@ -18,21 +18,22 @@
 > Full docs: https://docs.rs/array-bytes/latest/array_bytes
 
 ### `TryFromHex` Trait
-- type `&str -> isize`
-- type `&str -> i8`
-- type `&str -> i16`
-- type `&str -> i32`
-- type `&str -> i64`
-- type `&str -> i128`
-- type `&str -> usize`
-- type `&str -> u8`
-- type `&str -> u16`
-- type `&str -> u32`
-- type `&str -> u64`
-- type `&str -> u128`
+- Convert `Hex` to `Num`
+	- type `&str -> isize`
+	- type `&str -> i8`
+	- type `&str -> i16`
+	- type `&str -> i32`
+	- type `&str -> i64`
+	- type `&str -> i128`
+	- type `&str -> usize`
+	- type `&str -> u8`
+	- type `&str -> u16`
+	- type `&str -> u32`
+	- type `&str -> u64`
+	- type `&str -> u128`
 
 ### `bytes` Prefixed Functions
-- Convert `Bytes` to `Hex`， type `&[u8] -> String`
+- Convert `Bytes` to `Hex`, type `&[u8] -> String`
 
 ### `hex` Prefixed Functions
 - Build fixed length `Array` from `Hex`, type `&str -> [u8; N]`
