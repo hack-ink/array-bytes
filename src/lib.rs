@@ -1,3 +1,4 @@
+#![allow(clippy::tabs_in_doc_comments)]
 #![no_std]
 
 extern crate alloc;
@@ -18,7 +19,7 @@ pub type Bytes = Vec<u8>;
 /// Alias for `String`.
 pub type Hex = String;
 
-/// Simple and safe [`Bytes`]/[`Hex`] conversions that may fail in a controlled way under some
+/// Simple and safe `T`/[`Hex`] conversions that may fail in a controlled way under some
 /// circumstances.
 pub trait TryFromHex
 where
@@ -58,7 +59,7 @@ pub enum Error {
 	ParseIntError(ParseIntError),
 }
 
-/// `Vec<T>` to `[T; N]`.
+/// `&[T]` to `[T; N]`.
 ///
 /// # Examples
 ///
@@ -479,6 +480,8 @@ where
 
 #[cfg(test)]
 mod test {
+	#![allow(clippy::upper_case_acronyms)]
+
 	// --- array-bytes ---
 	use crate::*;
 

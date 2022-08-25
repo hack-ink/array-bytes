@@ -1,3 +1,8 @@
+## v2.0.2
+- Bump dependencies.
+- Update README.
+- Update CI.
+
 ## v2.0.1
 - Fix tests.
 
