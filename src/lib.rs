@@ -58,7 +58,7 @@ pub enum Error {
 	ParseIntError(ParseIntError),
 }
 
-/// `Vec<T>` to `[T; N]`.
+/// `&[T]` to `[T; N]`.
 ///
 /// # Examples
 ///
