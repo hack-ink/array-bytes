@@ -18,7 +18,7 @@ pub type Bytes = Vec<u8>;
 /// Alias for `String`.
 pub type Hex = String;
 
-/// Simple and safe [`Bytes`]/[`Hex`] conversions that may fail in a controlled way under some
+/// Simple and safe `T`/[`Hex`] conversions that may fail in a controlled way under some
 /// circumstances.
 pub trait TryFromHex
 where
