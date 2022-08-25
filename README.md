@@ -33,22 +33,39 @@
 	- type `&str -> u128`
 
 #### `bytes` Prefixed Functions
-- Convert `Bytes` to `Hex`, type `&[u8] -> String`
+- Convert `Bytes` to `Hex`
+  - type `&[u8] -> String`
 
 #### `hex` Prefixed Functions
-- Build fixed length `Array` from `Hex`, type `&str -> [u8; N]`
-- Convert `Hex` to `Bytes`, type  `&str -> Vec<u8>`
-- Transform `Hex` to `T`, type `&str -> T`, e.g. `"0x..." -> [u8; 20] -> H160`
+- Build fixed length `Array` from `Hex`
+  - type `&str -> [u8; N]`
+- Convert `Hex` to `Bytes`
+  - type  `&str -> Vec<u8>`
+- Transform `Hex` to `T`
+  - type `&str -> T`
+  - e.g. `"0x..." -> [u8; 20] -> H160`
 
 #### `slice` Prefixed Functions
-- Build fixed length `Array` from `Slice`, type `&[T] -> [T; N]`
-- Transform `Slice` to `G`, type `&[T] -> G`, e.g. `&[0_u8, ...] -> [u8; 20] -> H160`
+- Build fixed length `Array` from `Slice`
+  - type `&[T] -> [T; N]`
+- Transform `Slice` to `G`
+  - type `&[T] -> G`
+  - e.g. `&[0_u8, ...] -> [u8; 20] -> H160`
 
 #### `vec` Prefixed Functions
-- Build fixed length `Array` from `Vec`, type `Vec<T> -> [T; N]`
-- Transform `Vec` to `G`, type `Vec<T> -> G`, e.g. `vec![0_u8,  ...] -> [u8; 20] -> H160`
+- Build fixed length `Array` from `Vec`
+  - type `Vec<T> -> [T; N]`
+- Transform `Vec` to `G`
+  - type `Vec<T> -> G`
+  - e.g. `vec![0_u8,  ...] -> [u8; 20] -> H160`
 
 #### Serde Support (require feature `serde`)
-- `#[serde(deserialize_with = "array_bytes::hex_deserialize_into")]`, type `S -> T`, e.g. `"0x..." -> H160`
-- `#[serde(deserialize_with = "array_bytes::de_hex2num")]`, type `S -> Num`, e.g. `"0xA" -> 10_u32`
-- `#[serde(deserialize_with = "array_bytes::de_hex2bytes")]`, type `S -> Vec<u8>`, e.g. `"0x00" -> vec![0_u8]`
+- `#[serde(deserialize_with = "array_bytes::hex_deserialize_into")]`
+  - type `S -> T`
+  - e.g. `"0x..." -> H160`
+- `#[serde(deserialize_with = "array_bytes::de_hex2num")]`
+  - type `S -> Num`
+  - e.g. `"0xA" -> 10_u32`
+- `#[serde(deserialize_with = "array_bytes::de_hex2bytes")]`
+  - type `S -> Vec<u8>`
+  - e.g. `"0x00" -> vec![0_u8]`
