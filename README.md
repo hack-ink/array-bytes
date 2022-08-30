@@ -60,7 +60,7 @@
   - e.g. `vec![0_u8,  ...] -> [u8; 20] -> H160`
 
 #### Serde Support (require feature `serde`)
-- `#[serde(deserialize_with = "array_bytes::hex_deserialize_into")]`
+- `#[serde(deserialize_with = "array_bytes::hex_deserialize_n_into")]`
   - type `S -> T`
   - e.g. `"0x..." -> H160`
 - `#[serde(deserialize_with = "array_bytes::de_hex2num")]`

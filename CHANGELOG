@@ -1,3 +1,7 @@
+## v3.0.0
+- Break `hex_into` into `hex_into` and `hex_n_into`.
+- Break `hex_into_unchecked` into `hex_into_unchecked` and `hex_n_into_unchecked`.
+
 ## v2.0.2
 - Bump dependencies.
 - Update README.
