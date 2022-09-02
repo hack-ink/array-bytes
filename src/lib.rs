@@ -6,7 +6,7 @@ extern crate alloc;
 #[cfg(test)] mod test;
 
 // core
-use core::{char, convert::TryInto, num::ParseIntError};
+use core::{char, convert::TryInto, mem};
 // alloc
 use alloc::{string::String, vec::Vec};
 // crates.io
@@ -35,7 +35,7 @@ macro_rules! impl_num_from_hex {
 		impl TryFromHex for $t {
 			fn try_from_hex(hex: &str) -> ArrayBytesResult<Self> {
 				Self::from_str_radix(&hex[if hex.starts_with("0x") { 2 } else { 0 }..], 16)
-					.map_err(|e| Error::ParseIntError(e))
+					.map_err(Error::ParseIntError)
 			}
 		}
 	};
@@ -57,8 +57,8 @@ impl_num_from_hex!(u128);
 #[derive(Debug, PartialEq, Eq)]
 pub enum Error {
 	InvalidLength { length: usize },
-	InvalidCharBoundary { index: usize },
-	ParseIntError(ParseIntError),
+	InvalidChar { index: usize },
+	ParseIntError(core::num::ParseIntError),
 }
 
 /// `&[T]` to `[T; N]`.
@@ -87,7 +87,7 @@ where
 	slice2array(slice).unwrap()
 }
 
-///  Convert `&[T]` to a type directly.
+/// Convert `&[T]` to a type directly.
 ///
 /// # Examples
 /// ```
@@ -157,7 +157,7 @@ pub fn vec2array_unchecked<const N: usize, T>(vec: Vec<T>) -> [T; N] {
 	vec2array(vec).unwrap()
 }
 
-///  Convert `Vec<T>` to a type directly.
+/// Convert `Vec<T>` to a type directly.
 ///
 /// # Examples
 ///
@@ -204,6 +204,31 @@ where
 	V: From<[T; N]>,
 {
 	vec2array_unchecked(vec).into()
+}
+
+/// Convert hex bytes to hex string.
+///
+/// This is useful when you are interacting with the IO.
+///
+/// # Examples
+/// ```
+/// assert_eq!(
+/// 	array_bytes::hex_bytes2hex_str(b"0x4c6f7665204a616e6520466f7265766572"),
+/// 	Ok("0x4c6f7665204a616e6520466f7265766572"),
+/// );
+/// ```
+pub fn hex_bytes2hex_str(bytes: &[u8]) -> ArrayBytesResult<&str> {
+	for (i, byte) in bytes.iter().enumerate().skip(if bytes.starts_with(b"0x") { 2 } else { 0 }) {
+		if !is_hex_ascii(byte) {
+			Err(Error::InvalidChar { index: i })?;
+		}
+	}
+
+	Ok(unsafe {
+		// Validated in previous step, never fails here; qed.
+		#[allow(clippy::transmute_bytes_to_str)]
+		mem::transmute(bytes)
+	})
 }
 
 /// [`Bytes`] to [`Hex`].
@@ -269,6 +294,9 @@ pub fn hex2array_unchecked<const N: usize>(hex: &str) -> [u8; N] {
 /// );
 /// ```
 pub fn hex2bytes(hex: &str) -> ArrayBytesResult<Bytes> {
+	if hex.is_empty() || hex == "0x" {
+		return Err(Error::InvalidLength { length: 0 });
+	}
 	if hex.len() % 2 != 0 {
 		return Err(Error::InvalidLength {
 			length: if hex.starts_with("0x") { hex.len() - 2 } else { hex.len() },
@@ -278,9 +306,9 @@ pub fn hex2bytes(hex: &str) -> ArrayBytesResult<Bytes> {
 	let mut bytes = Bytes::new();
 
 	for i in (if hex.starts_with("0x") { 2 } else { 0 }..hex.len()).step_by(2) {
-		for i in i + 1..i + 3 {
-			if !hex.is_char_boundary(i) {
-				return Err(Error::InvalidCharBoundary { index: i });
+		for i in i..i + 2 {
+			if !is_hex_ascii(hex.as_bytes().get(i).unwrap()) {
+				return Err(Error::InvalidChar { index: i });
 			}
 		}
 
@@ -550,4 +578,8 @@ where
 	let hex = <&str>::deserialize(hex)?;
 
 	hex2bytes(hex).map_err(|_| D::Error::custom(alloc::format!("Invalid hex str `{}`", hex)))
+}
+
+fn is_hex_ascii(byte: &u8) -> bool {
+	matches!(*byte, b'0'..=b'9' | b'A'..=b'F' | b'a'..=b'f')
 }

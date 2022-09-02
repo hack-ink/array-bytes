@@ -83,6 +83,27 @@ fn bytes2hex_should_work() {
 }
 
 #[test]
+fn hex_bytes2hex_str_should_work() {
+	assert_eq!(
+		hex_bytes2hex_str(b"0x4c6f7665204a616e6520466f7265766572"),
+		Ok("0x4c6f7665204a616e6520466f7265766572"),
+	);
+	assert_eq!(
+		hex_bytes2hex_str(b"4c6f7665204a616e6520466f7265766572"),
+		Ok("4c6f7665204a616e6520466f7265766572"),
+	);
+
+	assert_eq!(
+		hex_bytes2hex_str(b"4c6f766 5204a616e6520466f7265766572"),
+		Err(Error::InvalidChar { index: 7 }),
+	);
+	assert_eq!(
+		hex_bytes2hex_str(b"4c6f766520 4a616e6520466f7265766572"),
+		Err(Error::InvalidChar { index: 10 }),
+	);
+}
+
+#[test]
 fn hex2array_should_work() {
 	assert_eq!(hex2array("0x4c6f7665204a616e6520466f7265766572"), Ok(*b"Love Jane Forever"));
 	assert_eq!(hex2array("4c6f7665204a616e6520466f7265766572"), Ok(*b"Love Jane Forever"));
@@ -96,11 +117,11 @@ fn hex2bytes_should_work() {
 	);
 	assert_eq!(hex2bytes("4c6f7665204a616e6520466f7265766572"), Ok(b"Love Jane Forever".to_vec()));
 
-	assert_eq!(hex2bytes("我爱你").unwrap_err(), Error::InvalidLength { length: 9 });
-	assert_eq!(hex2bytes("0x我爱你").unwrap_err(), Error::InvalidLength { length: 9 });
+	assert_eq!(hex2bytes("我爱你"), Err(Error::InvalidLength { length: 9 }));
+	assert_eq!(hex2bytes("0x我爱你"), Err(Error::InvalidLength { length: 9 }));
 
-	assert_eq!(hex2bytes("我爱你 ").unwrap_err(), Error::InvalidCharBoundary { index: 1 });
-	assert_eq!(hex2bytes(" 我爱你").unwrap_err(), Error::InvalidCharBoundary { index: 2 });
+	assert_eq!(hex2bytes("我爱你 "), Err(Error::InvalidChar { index: 0 }));
+	assert_eq!(hex2bytes(" 我爱你"), Err(Error::InvalidChar { index: 0 }));
 }
 
 #[test]
