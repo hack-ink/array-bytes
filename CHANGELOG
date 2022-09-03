@@ -1,3 +1,9 @@
+## v4.0.0
+- Use `is_hex_ascii` to optimize performance.
+- Add benchmark results.
+- Add `hex_bytes2hex_str` and `hex_bytes2hex_str_unchecked`.
+- Add fuzzing.
+
 ## v3.0.0
 - Break `hex_into` into `hex_into` and `hex_n_into`.
 - Break `hex_into_unchecked` into `hex_into_unchecked` and `hex_n_into_unchecked`.
