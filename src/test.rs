@@ -334,3 +334,43 @@ fn de_hex2bytes_should_work() {
 		LJFN { ljf: (*b"Love Jane Forever").to_vec() }
 	);
 }
+
+#[test]
+fn random_input_should_work() {
+	const DATA_1: &[u8] = include_bytes!("lib.rs");
+	const DATA_2: &[u8] = include_bytes!("test.rs");
+
+	let data = [DATA_1, DATA_2].concat();
+
+	for chunks_size in [8, 16, 32, 64, 128, 256, 512, 1024] {
+		let mut data_pieces = Vec::new();
+
+		data.chunks(chunks_size).enumerate().for_each(|(i, chunk)| {
+			data_pieces.push(bytes2hex(if i % 2 == 0 { "0x" } else { "" }, chunk))
+		});
+
+		let data_pieces = data_pieces
+			.into_iter()
+			.enumerate()
+			.map(|(i, piece)| {
+				if i % 2 == 0 {
+					match piece.trim_start_matches("0x").len() {
+						8 => hex2array_unchecked::<8>(&piece).to_vec(),
+						32 => hex2array_unchecked::<16>(&piece).to_vec(),
+						64 => hex2array_unchecked::<32>(&piece).to_vec(),
+						128 => hex2array_unchecked::<64>(&piece).to_vec(),
+						256 => hex2array_unchecked::<128>(&piece).to_vec(),
+						512 => hex2array_unchecked::<256>(&piece).to_vec(),
+						1024 => hex2array_unchecked::<512>(&piece).to_vec(),
+						2048 => hex2array_unchecked::<1024>(&piece).to_vec(),
+						_ => hex2bytes_unchecked(&piece),
+					}
+				} else {
+					hex2bytes_unchecked(&piece)
+				}
+			})
+			.collect::<Vec<_>>();
+
+		assert_eq!(data_pieces.concat(), data)
+	}
+}
