@@ -231,6 +231,22 @@ pub fn hex_bytes2hex_str(bytes: &[u8]) -> ArrayBytesResult<&str> {
 	})
 }
 
+/// Just like [`hex_bytes2hex_str`] but without the checking.
+///
+/// # Examples
+/// ```
+/// assert_eq!(
+/// 	array_bytes::hex_bytes2hex_str_unchecked(b"0x4c6f7665204a616e6520466f7265766572"),
+/// 	"0x4c6f7665204a616e6520466f7265766572",
+/// );
+/// ```
+pub fn hex_bytes2hex_str_unchecked(bytes: &[u8]) -> &str {
+	unsafe {
+		#[allow(clippy::transmute_bytes_to_str)]
+		mem::transmute(bytes)
+	}
+}
+
 /// [`Bytes`] to [`Hex`].
 ///
 /// # Examples

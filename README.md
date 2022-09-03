@@ -37,6 +37,9 @@
   - type `&[u8] -> String`
 
 #### `hex` Prefixed Functions
+- Convert `HexBytes` to `Hex`
+  - type `&[u8] -> &str`
+  - e.g. `b"0x..." -> "0x..."`
 - Build fixed length `Array` from `Hex`
   - type `&str -> [u8; N]`
 - Convert `Hex` to `Bytes`
