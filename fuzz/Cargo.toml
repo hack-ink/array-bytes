@@ -1,0 +1,20 @@
+[package]
+authors  = ["Xavier Lau <xavier@inv.cafe>"]
+edition  = "2021"
+metadata = { cargo-fuzz = true }
+name     = "array-bytes-fuzz"
+publish  = false
+version  = "4.0.0"
+
+[dependencies]
+array-bytes   = { path = ".." }
+libfuzzer-sys = "0.4"
+
+[workspace]
+members = ["."]
+
+[[bin]]
+doc  = false
+name = "bytes-hex-conversion"
+path = "fuzz_targets/bytes_hex_conversion.rs"
+test = false
