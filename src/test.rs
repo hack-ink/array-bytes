@@ -105,14 +105,16 @@ fn hex_bytes2hex_str_should_work() {
 
 #[test]
 fn hex_bytes2hex_str_unchecked_should_work() {
-	assert_eq!(
-		hex_bytes2hex_str_unchecked(b"0x4c6f7665204a616e6520466f7265766572"),
-		"0x4c6f7665204a616e6520466f7265766572",
-	);
-	assert_eq!(
-		hex_bytes2hex_str_unchecked(b"4c6f7665204a616e6520466f7265766572"),
-		"4c6f7665204a616e6520466f7265766572",
-	);
+	unsafe {
+		assert_eq!(
+			hex_bytes2hex_str_unchecked(b"0x4c6f7665204a616e6520466f7265766572"),
+			"0x4c6f7665204a616e6520466f7265766572",
+		);
+		assert_eq!(
+			hex_bytes2hex_str_unchecked(b"4c6f7665204a616e6520466f7265766572"),
+			"4c6f7665204a616e6520466f7265766572",
+		);
+	}
 }
 
 #[test]

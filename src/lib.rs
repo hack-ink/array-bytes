@@ -235,16 +235,16 @@ pub fn hex_bytes2hex_str(bytes: &[u8]) -> ArrayBytesResult<&str> {
 ///
 /// # Examples
 /// ```
-/// assert_eq!(
-/// 	array_bytes::hex_bytes2hex_str_unchecked(b"0x4c6f7665204a616e6520466f7265766572"),
-/// 	"0x4c6f7665204a616e6520466f7265766572",
-/// );
+/// unsafe {
+/// 	assert_eq!(
+/// 		array_bytes::hex_bytes2hex_str_unchecked(b"0x4c6f7665204a616e6520466f7265766572"),
+/// 		"0x4c6f7665204a616e6520466f7265766572",
+/// 	);
+/// }
 /// ```
-pub fn hex_bytes2hex_str_unchecked(bytes: &[u8]) -> &str {
-	unsafe {
-		#[allow(clippy::transmute_bytes_to_str)]
-		mem::transmute(bytes)
-	}
+pub unsafe fn hex_bytes2hex_str_unchecked(bytes: &[u8]) -> &str {
+	#[allow(clippy::transmute_bytes_to_str)]
+	mem::transmute(bytes)
 }
 
 /// [`Bytes`] to [`Hex`].
@@ -599,5 +599,6 @@ where
 fn is_hex_ascii(byte: &u8) -> bool {
 	// Convert to lowercase.
 	let byte = byte | 0b10_0000;
+
 	matches!(byte, b'0'..=b'9' | b'a'..=b'f')
 }
