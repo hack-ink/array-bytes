@@ -8,9 +8,7 @@ use rustc_hex::{FromHex, ToHex};
 const DATA: &[u8] = include_bytes!("../src/lib.rs");
 
 fn bench_encode(c: &mut Criterion) {
-	c.bench_function("array_bytes::bytes2hex", |b| {
-		b.iter(|| array_bytes::bytes2hex("", DATA))
-	});
+	c.bench_function("array_bytes::bytes2hex", |b| b.iter(|| array_bytes::bytes2hex("", DATA)));
 
 	c.bench_function("hex::encode", |b| b.iter(|| hex::encode(DATA)));
 
