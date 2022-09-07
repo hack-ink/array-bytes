@@ -1,3 +1,6 @@
+## v4.1.0
+- Mark `hex_bytes2hex_str_unchecked` as unsafe.
+
 ## v4.0.0
 - Use `is_hex_ascii` to optimize performance.
 - Add benchmark results.
