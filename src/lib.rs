@@ -597,11 +597,7 @@ where
 }
 
 fn is_hex_ascii(byte: &u8) -> bool {
-	// (Tricks from std lib)
-	if byte.wrapping_sub(b'0') < 10 {
-		return true;
-	}
-	// Force the 6th bit to be set to ensure ascii is lower case.
+	// Convert to lowercase.
 	let byte = byte | 0b10_0000;
-	b'a' <= byte && byte <= b'f'
+	matches!(byte, b'0'..=b'9' | b'a'..=b'f')
 }
