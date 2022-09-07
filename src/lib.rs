@@ -597,5 +597,7 @@ where
 }
 
 fn is_hex_ascii(byte: &u8) -> bool {
-	matches!(*byte, b'0'..=b'9' | b'A'..=b'F' | b'a'..=b'f')
+	// Convert to lowercase.
+	let byte = byte | 0b10_0000;
+	matches!(byte, b'0'..=b'9' | b'a'..=b'f')
 }
