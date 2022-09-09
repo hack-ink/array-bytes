@@ -73,89 +73,93 @@
   - type `S -> Vec<u8>`
   - e.g. `"0x00" -> vec![0_u8]`
 
-## Benchmark Results (09/02/2022)
+## Benchmark Results
+<sub>Friday, September 9, 2022</sub>
 ```
-array_bytes::bytes2hex  time:   [33.899 µs 34.282 µs 34.708 µs]
-                        change: [-0.3915% +1.1844% +2.5863%] (p = 0.13 > 0.05)
+array_bytes::bytes2hex  time:   [37.577 µs 37.755 µs 37.914 µs]
+                        change: [+0.1343% +0.9208% +1.7020%] (p = 0.03 < 0.05)
+                        Change within noise threshold.
+
+hex::encode             time:   [56.832 µs 57.056 µs 57.258 µs]
+                        change: [-0.3311% +0.1929% +0.7251%] (p = 0.47 > 0.05)
                         No change in performance detected.
-Found 17 outliers among 100 measurements (17.00%)
-  3 (3.00%) high mild
-  14 (14.00%) high severe
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) low mild
 
-hex::encode             time:   [51.175 µs 51.264 µs 51.363 µs]
-                        change: [+2.0994% +2.4153% +2.7523%] (p = 0.00 < 0.05)
-                        Performance has regressed.
-Found 8 outliers among 100 measurements (8.00%)
-  2 (2.00%) high mild
-  6 (6.00%) high severe
+rustc_hex::to_hex       time:   [33.522 µs 33.611 µs 33.690 µs]
+                        change: [+0.0534% +0.4709% +0.9031%] (p = 0.03 < 0.05)
+                        Change within noise threshold.
+Found 10 outliers among 100 measurements (10.00%)
+  10 (10.00%) low mild
 
-rustc_hex::to_hex       time:   [29.986 µs 30.047 µs 30.109 µs]
-                        change: [+2.8693% +3.1627% +3.4581%] (p = 0.00 < 0.05)
+faster_hex::hex_string  time:   [7.7683 µs 7.8169 µs 7.8819 µs]
+                        change: [+3.7564% +4.6695% +5.6205%] (p = 0.00 < 0.05)
                         Performance has regressed.
-Found 3 outliers among 100 measurements (3.00%)
-  3 (3.00%) high mild
-
-faster_hex::hex_string  time:   [8.9542 µs 8.9779 µs 9.0060 µs]
-                        change: [+4.2246% +5.4001% +7.1149%] (p = 0.00 < 0.05)
-                        Performance has regressed.
-Found 2 outliers among 100 measurements (2.00%)
-  2 (2.00%) high severe
+Found 14 outliers among 100 measurements (14.00%)
+  5 (5.00%) low severe
+  5 (5.00%) low mild
+  1 (1.00%) high mild
+  3 (3.00%) high severe
 
 faster_hex::hex_encode_fallback
-                        time:   [7.0233 µs 7.0515 µs 7.0826 µs]
-                        change: [+3.5567% +4.0274% +4.4658%] (p = 0.00 < 0.05)
+                        time:   [7.7536 µs 7.7740 µs 7.7936 µs]
+                        change: [+1.3656% +1.9964% +2.6314%] (p = 0.00 < 0.05)
                         Performance has regressed.
-Found 5 outliers among 100 measurements (5.00%)
-  4 (4.00%) high mild
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) low mild
+
+array_bytes::hex2bytes  time:   [136.78 µs 137.66 µs 138.57 µs]
+                        change: [+0.1075% +0.8175% +1.5436%] (p = 0.02 < 0.05)
+                        Change within noise threshold.
+Found 6 outliers among 100 measurements (6.00%)
+  5 (5.00%) low mild
   1 (1.00%) high severe
 
-array_bytes::hex2bytes  time:   [100.96 µs 101.50 µs 102.36 µs]
-                        change: [+2.0328% +2.4346% +2.9052%] (p = 0.00 < 0.05)
-                        Performance has regressed.
-Found 10 outliers among 100 measurements (10.00%)
-  7 (7.00%) high mild
-  3 (3.00%) high severe
-
 array_bytes::hex2bytes_unchecked
-                        time:   [92.686 µs 92.884 µs 93.105 µs]
-                        change: [+2.5338% +2.9441% +3.3840%] (p = 0.00 < 0.05)
-                        Performance has regressed.
-Found 10 outliers among 100 measurements (10.00%)
-  7 (7.00%) high mild
-  3 (3.00%) high severe
+                        time:   [103.12 µs 103.49 µs 103.82 µs]
+                        change: [-0.7568% -0.2119% +0.3349%] (p = 0.44 > 0.05)
+                        No change in performance detected.
+Found 6 outliers among 100 measurements (6.00%)
+  2 (2.00%) low severe
+  4 (4.00%) low mild
 
-hex::decode             time:   [101.49 µs 101.79 µs 102.07 µs]
-                        change: [+2.1031% +2.5239% +2.9717%] (p = 0.00 < 0.05)
-                        Performance has regressed.
-Found 1 outliers among 100 measurements (1.00%)
+hex::decode             time:   [105.65 µs 106.15 µs 106.65 µs]
+                        change: [-1.4824% -0.9722% -0.4135%] (p = 0.00 < 0.05)
+                        Change within noise threshold.
+Found 2 outliers among 100 measurements (2.00%)
+  1 (1.00%) low mild
   1 (1.00%) high mild
 
-rustc_hex::from_hex     time:   [66.393 µs 66.582 µs 66.771 µs]
-                        change: [+2.4947% +2.8302% +3.1924%] (p = 0.00 < 0.05)
-                        Performance has regressed.
-Found 5 outliers among 100 measurements (5.00%)
-  3 (3.00%) high mild
+rustc_hex::from_hex     time:   [66.218 µs 66.473 µs 66.750 µs]
+                        change: [-0.0431% +0.6585% +1.4552%] (p = 0.08 > 0.05)
+                        No change in performance detected.
+Found 9 outliers among 100 measurements (9.00%)
+  1 (1.00%) low severe
+  2 (2.00%) low mild
+  4 (4.00%) high mild
   2 (2.00%) high severe
 
-faster_hex::hex_decode  time:   [14.691 µs 14.721 µs 14.755 µs]
-                        change: [+2.2650% +2.5324% +2.8132%] (p = 0.00 < 0.05)
-                        Performance has regressed.
-Found 10 outliers among 100 measurements (10.00%)
-  7 (7.00%) high mild
+faster_hex::hex_decode  time:   [16.136 µs 16.211 µs 16.324 µs]
+                        change: [-2.4694% -1.9531% -1.4089%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Found 7 outliers among 100 measurements (7.00%)
+  2 (2.00%) low mild
+  2 (2.00%) high mild
   3 (3.00%) high severe
 
 faster_hex::hex_decode_unchecked
-                        time:   [6.2365 µs 6.2541 µs 6.2712 µs]
-                        change: [+2.8963% +3.1983% +3.5016%] (p = 0.00 < 0.05)
-                        Performance has regressed.
-Found 2 outliers among 100 measurements (2.00%)
-  2 (2.00%) high mild
+                        time:   [6.7977 µs 6.8215 µs 6.8475 µs]
+                        change: [-1.4235% -0.5587% +0.2182%] (p = 0.20 > 0.05)
+                        No change in performance detected.
+Found 5 outliers among 100 measurements (5.00%)
+  1 (1.00%) low mild
+  3 (3.00%) high mild
+  1 (1.00%) high severe
 
 faster_hex::hex_decode_fallback
-                        time:   [6.2442 µs 6.2607 µs 6.2774 µs]
-                        change: [+2.4825% +2.8756% +3.2449%] (p = 0.00 < 0.05)
-                        Performance has regressed.
-Found 2 outliers among 100 measurements (2.00%)
-  1 (1.00%) high mild
-  1 (1.00%) high sever
+                        time:   [6.7799 µs 6.8003 µs 6.8209 µs]
+                        change: [-1.9470% -1.3817% -0.8203%] (p = 0.00 < 0.05)
+                        Change within noise threshold.
+Found 4 outliers among 100 measurements (4.00%)
+  4 (4.00%) high mild
 ```
