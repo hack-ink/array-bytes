@@ -4,7 +4,7 @@
 <!-- ![array-bytes]() -->
 
 # array-bytes
-### Collection of Array/Bytes/Hex Utilities.
+### A Collection of Array/Bytes/Hex Utilities.
 
 [![License](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Checks](https://github.com/hack-ink/array-bytes/actions/workflows/checks.yml/badge.svg?branch=main)](https://github.com/hack-ink/array-bytes/actions/workflows/checks.yml)
@@ -16,7 +16,7 @@
 </div>
 
 ## Abilities
-#### `TryFromHex` Trait
+#### `TryFromHex` trait
 - Convert `Hex` to `Num`
 	- type `&str -> isize`
 	- type `&str -> i8`
@@ -31,11 +31,11 @@
 	- type `&str -> u64`
 	- type `&str -> u128`
 
-#### `bytes` Prefixed Functions
+#### `bytes` prefixed functions
 - Convert `Bytes` to `Hex`
   - type `&[u8] -> String`
 
-#### `hex` Prefixed Functions
+#### `hex` prefixed functions
 - Convert `HexBytes` to `Hex`
   - type `&[u8] -> &str`
   - e.g. `b"0x..." -> "0x..."`
@@ -47,21 +47,21 @@
   - type `&str -> T`
   - e.g. `"0x..." -> [u8; 20] -> H160`
 
-#### `slice` Prefixed Functions
+#### `slice` prefixed functions
 - Build fixed length `Array` from `Slice`
   - type `&[T] -> [T; N]`
 - Transform `Slice` to `G`
   - type `&[T] -> G`
   - e.g. `&[0_u8, ...] -> [u8; 20] -> H160`
 
-#### `vec` Prefixed Functions
+#### `vec` prefixed functions
 - Build fixed length `Array` from `Vec`
   - type `Vec<T> -> [T; N]`
 - Transform `Vec` to `G`
   - type `Vec<T> -> G`
   - e.g. `vec![0_u8,  ...] -> [u8; 20] -> H160`
 
-#### Serde Support (require feature `serde`)
+#### Serde support (require feature `serde`)
 - `#[serde(deserialize_with = "array_bytes::hex_deserialize_n_into")]`
   - type `S -> T`
   - e.g. `"0x..." -> H160`
@@ -72,10 +72,8 @@
   - type `S -> Vec<u8>`
   - e.g. `"0x00" -> vec![0_u8]`
 
-## Benchmark Results
-<div align="right">
-<sub>Friday, September 9, 2022</sub>
-</div>
+## Benchmark results
+<div align="right"><sub>Friday, September 9, 2022</sub></div>
 
 ```rs
 array_bytes::bytes2hex  time:   [37.577 µs 37.755 µs 37.914 µs]
