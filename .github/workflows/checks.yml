@@ -14,13 +14,8 @@ jobs:
     steps:
       - name: Fetch latest code
         uses: actions/checkout@v3
-      - name: Install Rust nightly toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-          default: true
       - name: Cargo test
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all --all-features
+          args: --workspace --all-features --all-targets --locked
