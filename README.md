@@ -165,8 +165,6 @@ Found 4 outliers among 100 measurements (4.00%)
   4 (4.00%) high mild
 ```
 
-<br>
-
 #### License
 <sup>
 Licensed under either of <a href="LICENSE-APACHE">Apache-2.0</a> or <a href="LICENSE-GPL3">GPL-3.0</a> at your option.
