@@ -15,7 +15,7 @@
 
 </div>
 
-### Abilities
+## Abilities
 #### `TryFromHex` Trait
 - Convert `Hex` to `Num`
 	- type `&str -> isize`
