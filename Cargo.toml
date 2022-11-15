@@ -4,7 +4,7 @@ categories = [
 	"encoding",
 	"no-std",
 ]
-description = "Collection of array/bytes/hex utilities."
+description = "A collection of array/bytes/hex utilities."
 edition = "2021"
 homepage = "https://array-bytes.hack.ink"
 keywords = [
