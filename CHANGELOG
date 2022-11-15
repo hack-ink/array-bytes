@@ -1,3 +1,8 @@
+## v4.2.0
+- Bump dependencies.
+- Update CI.
+- Update license.
+
 ## v4.1.0
 - Mark `hex_bytes2hex_str_unchecked` as unsafe.
 
