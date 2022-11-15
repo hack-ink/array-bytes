@@ -15,9 +15,7 @@
 
 </div>
 
-## Abilities
-> Full docs: https://docs.rs/array-bytes/latest/array_bytes
-
+### Abilities
 #### `TryFromHex` Trait
 - Convert `Hex` to `Num`
 	- type `&str -> isize`
