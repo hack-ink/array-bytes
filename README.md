@@ -72,7 +72,8 @@
   - type `S -> Vec<u8>`
   - e.g. `"0x00" -> vec![0_u8]`
 
-<h2>Benchmark Results <sub style="font-size:12px;left:62%">Friday, September 9, 2022</sub></h2>
+## Benchmark results
+<div align="right"><sub>Friday, September 9, 2022</sub></div>
 
 ```rs
 array_bytes::bytes2hex  time:   [37.577 µs 37.755 µs 37.914 µs]
