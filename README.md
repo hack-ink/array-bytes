@@ -74,7 +74,7 @@
 
 ## Benchmark Results
 <sub>Friday, September 9, 2022</sub>
-```
+```rs
 array_bytes::bytes2hex  time:   [37.577 µs 37.755 µs 37.914 µs]
                         change: [+0.1343% +0.9208% +1.7020%] (p = 0.03 < 0.05)
                         Change within noise threshold.
