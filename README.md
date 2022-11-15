@@ -73,7 +73,10 @@
   - e.g. `"0x00" -> vec![0_u8]`
 
 ## Benchmark Results
+<div align="right">
 <sub>Friday, September 9, 2022</sub>
+</div>
+
 ```rs
 array_bytes::bytes2hex  time:   [37.577 µs 37.755 µs 37.914 µs]
                         change: [+0.1343% +0.9208% +1.7020%] (p = 0.03 < 0.05)
@@ -166,8 +169,6 @@ Found 4 outliers among 100 measurements (4.00%)
 <div align="right">
 
 #### License
-<sup>
-Licensed under either of <a href="LICENSE-APACHE">Apache-2.0</a> or <a href="LICENSE-GPL3">GPL-3.0</a> at your option.
-</sup>
+<sup>Licensed under either of <a href="LICENSE-APACHE">Apache-2.0</a> or <a href="LICENSE-GPL3">GPL-3.0</a> at your option.</sup>
 
 </div>
