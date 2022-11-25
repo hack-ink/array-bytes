@@ -5,7 +5,7 @@
 use criterion::Criterion;
 use rustc_hex::{FromHex, ToHex};
 
-const DATA: &[u8] = include_bytes!("../src/lib.rs");
+const DATA: &[u8] = include_bytes!("../LICENSE-GPL3");
 
 fn bench_encode(c: &mut Criterion) {
 	c.bench_function("array_bytes::bytes2hex", |b| b.iter(|| array_bytes::bytes2hex("", DATA)));
@@ -19,7 +19,9 @@ fn bench_encode(c: &mut Criterion) {
 	c.bench_function("faster_hex::hex_encode_fallback", |b| {
 		b.iter(|| {
 			let mut dst = vec![0; DATA.len() * 2];
+
 			faster_hex::hex_encode_fallback(DATA, &mut dst);
+
 			dst
 		})
 	});
@@ -28,21 +30,61 @@ fn bench_encode(c: &mut Criterion) {
 fn bench_decode(c: &mut Criterion) {
 	c.bench_function("array_bytes::hex2bytes", |b| {
 		let hex = array_bytes::bytes2hex("", DATA);
+
 		b.iter(|| array_bytes::hex2bytes(&hex).unwrap())
 	});
 
 	c.bench_function("array_bytes::hex2bytes_unchecked", |b| {
 		let hex = array_bytes::bytes2hex("", DATA);
+
 		b.iter(|| array_bytes::hex2bytes_unchecked(&hex))
+	});
+
+	c.bench_function("array_bytes::hex2slice", |b| {
+		let hex = array_bytes::bytes2hex("", DATA);
+
+		b.iter(|| {
+			let mut v = vec![0; DATA.len()];
+
+			array_bytes::hex2slice(&hex, &mut v).unwrap();
+
+			v
+		})
+	});
+
+	c.bench_function("array_bytes::hex2slice_unchecked", |b| {
+		let hex = array_bytes::bytes2hex("", DATA);
+
+		b.iter(|| {
+			let mut v = vec![0; DATA.len()];
+
+			array_bytes::hex2slice_unchecked(&hex, &mut v);
+
+			v
+		})
 	});
 
 	c.bench_function("hex::decode", |b| {
 		let hex = hex::encode(DATA);
+
 		b.iter(|| hex::decode(&hex).unwrap())
+	});
+
+	c.bench_function("hex::decode_to_slice", |b| {
+		let hex = array_bytes::bytes2hex("", DATA);
+
+		b.iter(|| {
+			let mut v = vec![0; DATA.len()];
+
+			hex::decode_to_slice(&hex, &mut v).unwrap();
+
+			v
+		})
 	});
 
 	c.bench_function("rustc_hex::from_hex", |b| {
 		let hex = DATA.to_hex::<String>();
+
 		b.iter(|| hex.from_hex::<Vec<u8>>().unwrap())
 	});
 
