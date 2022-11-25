@@ -1,3 +1,9 @@
+## v5.0.0
+- Optimize algorithm.
+- Improve documentation.
+- Support `AsRef<T>` input.
+- Add `hex2slice` and `hex2slice_unchecked`.
+
 ## v4.2.0
 - Bump dependencies.
 - Update CI.
@@ -33,7 +39,7 @@
 - Bump dependencies.
 
 ## v1.5.2
-- Update documents.
+- Update documentation.
 - Update code format.
 - Bump dependencies.
 
@@ -50,7 +56,7 @@
 
 ## v1.4.0
 - Bump `serde`.
-- Add more documents.
+- Add more documentation.
 - Add more tests.
 - Rename `hexd2num` to `de_hex2num`, `hexd2bytes` to `de_hex2bytes`.
 
