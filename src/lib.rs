@@ -72,9 +72,9 @@ pub enum Error {
 	/// The length must not be odd.
 	InvalidLength,
 	/// Found the invalid character at `index`.
-	InvalidChar {
+	InvalidCharacter {
 		/// The invalid character.
-		char: char,
+		character: char,
 		/// The invalid character's index.
 		index: usize,
 	},
@@ -246,7 +246,7 @@ where
 pub fn hex_bytes2hex_str(bytes: &[u8]) -> Result<&str> {
 	for (i, byte) in bytes.iter().enumerate().skip(if bytes.starts_with(b"0x") { 2 } else { 0 }) {
 		if !is_hex_ascii(byte) {
-			Err(Error::InvalidChar { char: *byte as _, index: i })?;
+			Err(Error::InvalidCharacter { character: *byte as _, index: i })?;
 		}
 	}
 
@@ -360,17 +360,20 @@ where
 
 	for i in (0..hex.len()).step_by(2) {
 		let Some(str) = hex.get(i..i + 2) else {
-			Err(Error::InvalidChar { char: hex.as_bytes()[i] as _, index: i })?
+			Err(Error::InvalidCharacter { character: hex.as_bytes()[i] as _, index: i })?
 		};
 
 		match u8::from_str_radix(str, 16) {
 			Ok(byte_) => bytes.push(byte_),
 			Err(e) => {
 				if !is_hex_ascii(&hex.as_bytes()[i]) {
-					Err(Error::InvalidChar { char: hex.as_bytes()[i] as _, index: i })?;
+					Err(Error::InvalidCharacter { character: hex.as_bytes()[i] as _, index: i })?;
 				}
 				if !is_hex_ascii(&hex.as_bytes()[i + 1]) {
-					Err(Error::InvalidChar { char: hex.as_bytes()[i + 1] as _, index: i + 1 })?;
+					Err(Error::InvalidCharacter {
+						character: hex.as_bytes()[i + 1] as _,
+						index: i + 1,
+					})?;
 				}
 
 				// This will never happen, but for more safety
@@ -432,17 +435,20 @@ where
 
 	for (byte, i) in slice.iter_mut().zip((0..hex.len()).step_by(2)) {
 		let Some(str) = hex.get(i..i + 2) else {
-			Err(Error::InvalidChar { char: hex.as_bytes()[i] as _, index: i })?
+			Err(Error::InvalidCharacter { character: hex.as_bytes()[i] as _, index: i })?
 		};
 
 		match u8::from_str_radix(str, 16) {
 			Ok(byte_) => *byte = byte_,
 			Err(e) => {
 				if !is_hex_ascii(&hex.as_bytes()[i]) {
-					Err(Error::InvalidChar { char: hex.as_bytes()[i] as _, index: i })?;
+					Err(Error::InvalidCharacter { character: hex.as_bytes()[i] as _, index: i })?;
 				}
 				if !is_hex_ascii(&hex.as_bytes()[i + 1]) {
-					Err(Error::InvalidChar { char: hex.as_bytes()[i + 1] as _, index: i + 1 })?;
+					Err(Error::InvalidCharacter {
+						character: hex.as_bytes()[i + 1] as _,
+						index: i + 1,
+					})?;
 				}
 
 				// This will never happen, but for more safety
