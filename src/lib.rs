@@ -1,41 +1,54 @@
 #![allow(clippy::tabs_in_doc_comments)]
+#![deny(missing_docs)]
 #![no_std]
+
+//! A collection of array/bytes/hex utilities.
+//!
+//! Completely optimized for blockchain development.
+//! Especially the Substrate.
 
 extern crate alloc;
 
 #[cfg(test)] mod test;
 
 // core
-use core::{char, convert::TryInto, mem};
+use core::{convert::TryInto, mem, result::Result as CoreResult};
 // alloc
 use alloc::{string::String, vec::Vec};
 // crates.io
 #[cfg(feature = "serde")] use serde::{de::Error as DeError, Deserialize, Deserializer};
 // use thiserror::Error as ThisError;
 
-/// The generic main result of crate array-bytes.
-pub type ArrayBytesResult<T> = Result<T, Error>;
+/// The main result of array-bytes.
+pub type Result<T> = CoreResult<T, Error>;
 
 /// Alias for `Vec<u8>`.
 pub type Bytes = Vec<u8>;
 /// Alias for `String`.
 pub type Hex = String;
 
-/// Simple and safe `T`/[`Hex`] conversions that may fail in a controlled way under some
+/// Simple and safe `T`/[`AsRef<str>`] conversions that may fail in a controlled way under some
 /// circumstances.
 pub trait TryFromHex
 where
 	Self: Sized,
 {
-	fn try_from_hex(hex: &str) -> ArrayBytesResult<Self>;
+	/// Try to convert the [`Self`] from hex.
+	fn try_from_hex<H>(hex: H) -> Result<Self>
+	where
+		H: AsRef<str>;
 }
 
 macro_rules! impl_num_from_hex {
 	($t:ty) => {
 		impl TryFromHex for $t {
-			fn try_from_hex(hex: &str) -> ArrayBytesResult<Self> {
-				Self::from_str_radix(&hex[if hex.starts_with("0x") { 2 } else { 0 }..], 16)
-					.map_err(Error::ParseIntError)
+			fn try_from_hex<H>(hex: H) -> Result<Self>
+			where
+				H: AsRef<str>,
+			{
+				let hex = hex.as_ref().trim_start_matches("0x");
+
+				Self::from_str_radix(hex, 16).map_err(Error::ParseIntError)
 			}
 		}
 	};
@@ -53,11 +66,24 @@ impl_num_from_hex!(u32);
 impl_num_from_hex!(u64);
 impl_num_from_hex!(u128);
 
-/// The main error of this crate.
+/// The main error of array-bytes.
 #[derive(Debug, PartialEq, Eq)]
 pub enum Error {
-	InvalidLength { length: usize },
-	InvalidChar { index: usize },
+	/// The length must not be odd.
+	InvalidLength,
+	/// Found the invalid character at `index`.
+	InvalidChar {
+		/// The invalid character.
+		char: char,
+		/// The invalid character's index.
+		index: usize,
+	},
+	/// The data can not fit the array/slice length well.
+	MismatchedLength {
+		/// Expected length.
+		expect: usize,
+	},
+	/// Failed to parse the hex number from hex string.
 	ParseIntError(core::num::ParseIntError),
 }
 
@@ -67,11 +93,11 @@ pub enum Error {
 /// ```
 /// assert_eq!(array_bytes::slice2array::<8, _>(&[0; 8]), Ok([0; 8]));
 /// ```
-pub fn slice2array<const N: usize, T>(slice: &[T]) -> ArrayBytesResult<[T; N]>
+pub fn slice2array<const N: usize, T>(slice: &[T]) -> Result<[T; N]>
 where
 	T: Copy,
 {
-	slice.try_into().map_err(|_| Error::InvalidLength { length: slice.len() })
+	slice.try_into().map_err(|_| Error::MismatchedLength { expect: N })
 }
 
 /// Just like [`slice2array`] but without the checking.
@@ -104,7 +130,7 @@ where
 /// 	Ok(LJF(*b"Love Jane Forever"))
 /// );
 /// ```
-pub fn slice_n_into<const N: usize, T, V>(slice: &[T]) -> ArrayBytesResult<V>
+pub fn slice_n_into<const N: usize, T, V>(slice: &[T]) -> Result<V>
 where
 	T: Copy,
 	V: From<[T; N]>,
@@ -137,14 +163,14 @@ where
 	slice2array_unchecked(slice).into()
 }
 
-/// `Vec<T>` to `[T; M]`.
+/// [`Vec<T>`] to `[T; M]`.
 ///
 /// # Examples
 /// ```
 /// assert_eq!(array_bytes::vec2array::<8, _>(vec![0; 8]), Ok([0; 8]));
 /// ```
-pub fn vec2array<const N: usize, T>(vec: Vec<T>) -> ArrayBytesResult<[T; N]> {
-	vec.try_into().map_err(|v: Vec<_>| Error::InvalidLength { length: v.len() })
+pub fn vec2array<const N: usize, T>(vec: Vec<T>) -> Result<[T; N]> {
+	vec.try_into().map_err(|_| Error::MismatchedLength { expect: N })
 }
 
 /// Just like [`vec2array`] but without the checking.
@@ -157,7 +183,7 @@ pub fn vec2array_unchecked<const N: usize, T>(vec: Vec<T>) -> [T; N] {
 	vec2array(vec).unwrap()
 }
 
-/// Convert `Vec<T>` to a type directly.
+/// Convert [`Vec<T>`] to a type directly.
 ///
 /// # Examples
 ///
@@ -175,7 +201,7 @@ pub fn vec2array_unchecked<const N: usize, T>(vec: Vec<T>) -> [T; N] {
 /// 	Ok(LJF(*b"Love Jane Forever"))
 /// );
 /// ```
-pub fn vec_n_into<const N: usize, T, V>(vec: Vec<T>) -> ArrayBytesResult<V>
+pub fn vec_n_into<const N: usize, T, V>(vec: Vec<T>) -> Result<V>
 where
 	V: From<[T; N]>,
 {
@@ -217,10 +243,10 @@ where
 /// 	Ok("0x4c6f7665204a616e6520466f7265766572"),
 /// );
 /// ```
-pub fn hex_bytes2hex_str(bytes: &[u8]) -> ArrayBytesResult<&str> {
+pub fn hex_bytes2hex_str(bytes: &[u8]) -> Result<&str> {
 	for (i, byte) in bytes.iter().enumerate().skip(if bytes.starts_with(b"0x") { 2 } else { 0 }) {
 		if !is_hex_ascii(byte) {
-			Err(Error::InvalidChar { index: i })?;
+			Err(Error::InvalidChar { char: *byte as _, index: i })?;
 		}
 	}
 
@@ -232,6 +258,9 @@ pub fn hex_bytes2hex_str(bytes: &[u8]) -> ArrayBytesResult<&str> {
 }
 
 /// Just like [`hex_bytes2hex_str`] but without the checking.
+///
+/// # Safety
+/// See the [`mem::transmute`].
 ///
 /// # Examples
 /// ```
@@ -247,7 +276,7 @@ pub unsafe fn hex_bytes2hex_str_unchecked(bytes: &[u8]) -> &str {
 	mem::transmute(bytes)
 }
 
-/// [`Bytes`] to [`Hex`].
+/// `AsRef<[u8]>` to [`Hex`].
 ///
 /// # Examples
 /// ```
@@ -258,16 +287,18 @@ pub unsafe fn hex_bytes2hex_str_unchecked(bytes: &[u8]) -> &str {
 /// 	Hex::from("0x4c6f7665204a616e6520466f7265766572")
 /// );
 /// ```
-pub fn bytes2hex(prefix: &str, bytes: &[u8]) -> Hex {
+pub fn bytes2hex<B>(prefix: &str, bytes: B) -> Hex
+where
+	B: AsRef<[u8]>,
+{
+	let bytes = bytes.as_ref();
 	let mut hex = Hex::with_capacity(prefix.len() + bytes.len() * 2);
 
-	for byte in prefix.chars() {
-		hex.push(byte);
-	}
-	for byte in bytes.iter() {
+	prefix.chars().for_each(|byte| hex.push(byte));
+	bytes.iter().for_each(|byte| {
 		hex.push(char::from_digit((byte >> 4) as _, 16).unwrap());
 		hex.push(char::from_digit((byte & 0xf) as _, 16).unwrap());
-	}
+	});
 
 	hex
 }
@@ -281,8 +312,11 @@ pub fn bytes2hex(prefix: &str, bytes: &[u8]) -> Hex {
 /// 	Ok(*b"Love Jane Forever")
 /// );
 /// ```
-pub fn hex2array<const N: usize>(hex: &str) -> ArrayBytesResult<[u8; N]> {
-	vec2array(hex2bytes(hex)?)
+pub fn hex2array<H, const N: usize>(hex: H) -> Result<[u8; N]>
+where
+	H: AsRef<str>,
+{
+	vec2array(hex2bytes(hex.as_ref())?)
 }
 
 /// Just like [`hex2array`] but without the checking.
@@ -294,11 +328,14 @@ pub fn hex2array<const N: usize>(hex: &str) -> ArrayBytesResult<[u8; N]> {
 /// 	*b"Love Jane Forever"
 /// );
 /// ```
-pub fn hex2array_unchecked<const N: usize>(hex: &str) -> [u8; N] {
+pub fn hex2array_unchecked<H, const N: usize>(hex: H) -> [u8; N]
+where
+	H: AsRef<str>,
+{
 	hex2bytes_unchecked(hex).try_into().unwrap()
 }
 
-/// [`Hex`] to [`Bytes`].
+/// [`AsRef<str>`] to [`Bytes`].
 ///
 /// Return error while length is an odd number or any byte out of radix.
 ///
@@ -309,27 +346,37 @@ pub fn hex2array_unchecked<const N: usize>(hex: &str) -> [u8; N] {
 /// 	Ok(b"Love Jane Forever".to_vec())
 /// );
 /// ```
-pub fn hex2bytes(hex: &str) -> ArrayBytesResult<Bytes> {
-	if hex.is_empty() || hex == "0x" {
-		return Err(Error::InvalidLength { length: 0 });
-	}
+pub fn hex2bytes<H>(hex: H) -> Result<Bytes>
+where
+	H: AsRef<str>,
+{
+	let hex = strip_0x(hex.as_ref());
+
 	if hex.len() % 2 != 0 {
-		return Err(Error::InvalidLength {
-			length: if hex.starts_with("0x") { hex.len() - 2 } else { hex.len() },
-		});
+		Err(Error::InvalidLength)?;
 	}
 
 	let mut bytes = Bytes::new();
 
-	for i in (if hex.starts_with("0x") { 2 } else { 0 }..hex.len()).step_by(2) {
-		for i in i..i + 2 {
-			if !is_hex_ascii(hex.as_bytes().get(i).unwrap()) {
-				return Err(Error::InvalidChar { index: i });
-			}
-		}
+	for i in (0..hex.len()).step_by(2) {
+		let Some(str) = hex.get(i..i + 2) else {
+			Err(Error::InvalidChar { char: hex.as_bytes()[i] as _, index: i })?
+		};
 
-		// radix is always 16 which will never fail this; qed
-		bytes.push(u8::from_str_radix(&hex[i..i + 2], 16).unwrap());
+		match u8::from_str_radix(str, 16) {
+			Ok(byte_) => bytes.push(byte_),
+			Err(e) => {
+				if !is_hex_ascii(&hex.as_bytes()[i]) {
+					Err(Error::InvalidChar { char: hex.as_bytes()[i] as _, index: i })?;
+				}
+				if !is_hex_ascii(&hex.as_bytes()[i + 1]) {
+					Err(Error::InvalidChar { char: hex.as_bytes()[i + 1] as _, index: i + 1 })?;
+				}
+
+				// This will never happen, but for more safety
+				Err(Error::ParseIntError(e))?;
+			},
+		}
 	}
 
 	Ok(bytes)
@@ -344,14 +391,93 @@ pub fn hex2bytes(hex: &str) -> ArrayBytesResult<Bytes> {
 /// 	*b"Love Jane Forever"
 /// );
 /// ```
-pub fn hex2bytes_unchecked(hex: &str) -> Bytes {
-	(if hex.starts_with("0x") { 2 } else { 0 }..hex.len())
-		.step_by(2)
-		.map(|i| u8::from_str_radix(&hex[i..i + 2], 16).unwrap())
-		.collect()
+pub fn hex2bytes_unchecked<H>(hex: H) -> Bytes
+where
+	H: AsRef<str>,
+{
+	let hex = strip_0x(hex.as_ref());
+
+	(0..hex.len()).step_by(2).map(|i| u8::from_str_radix(&hex[i..i + 2], 16).unwrap()).collect()
 }
 
-/// Try to convert [`Hex`] to `T` directly, where `T: From<Vec<u8>>`.
+/// [`AsRef<str>`] to `&[u8]`.
+///
+/// This function will modify the given slice's source and return the revised result.
+///
+/// Return error while the length is an odd number, any byte out of radix, or mismatch in the slice
+/// size.
+///
+/// # Examples
+/// ```
+/// assert_eq!(
+/// 	array_bytes::hex2bytes("0x4c6f7665204a616e6520466f7265766572"),
+/// 	Ok(b"Love Jane Forever".to_vec())
+/// );
+/// ```
+pub fn hex2slice<H>(hex: H, slice: &mut [u8]) -> Result<&[u8]>
+where
+	H: AsRef<str>,
+{
+	let hex = strip_0x(hex.as_ref());
+
+	if hex.len() % 2 != 0 {
+		Err(Error::InvalidLength)?;
+	}
+
+	let expected_len = hex.len() >> 1;
+
+	if expected_len != slice.len() {
+		Err(Error::MismatchedLength { expect: expected_len })?;
+	}
+
+	for (byte, i) in slice.iter_mut().zip((0..hex.len()).step_by(2)) {
+		let Some(str) = hex.get(i..i + 2) else {
+			Err(Error::InvalidChar { char: hex.as_bytes()[i] as _, index: i })?
+		};
+
+		match u8::from_str_radix(str, 16) {
+			Ok(byte_) => *byte = byte_,
+			Err(e) => {
+				if !is_hex_ascii(&hex.as_bytes()[i]) {
+					Err(Error::InvalidChar { char: hex.as_bytes()[i] as _, index: i })?;
+				}
+				if !is_hex_ascii(&hex.as_bytes()[i + 1]) {
+					Err(Error::InvalidChar { char: hex.as_bytes()[i + 1] as _, index: i + 1 })?;
+				}
+
+				// This will never happen, but for more safety
+				Err(Error::ParseIntError(e))?;
+			},
+		}
+	}
+
+	Ok(slice)
+}
+
+/// Just like [`hex2slice`] but without checking.
+///
+/// # Examples
+/// ```
+/// assert_eq!(
+/// 	array_bytes::hex2bytes("0x4c6f7665204a616e6520466f7265766572"),
+/// 	Ok(b"Love Jane Forever".to_vec())
+/// );
+/// ```
+pub fn hex2slice_unchecked<H>(hex: H, slice: &mut [u8]) -> &[u8]
+where
+	H: AsRef<str>,
+{
+	let hex = strip_0x(hex.as_ref());
+
+	slice.iter_mut().zip((0..hex.len()).step_by(2)).for_each(|(byte, i)| {
+		*byte = u8::from_str_radix(&hex[i..i + 2], 16)
+			.expect("radix is always 16 which will never fail this; qed");
+	});
+
+	slice
+}
+
+/// Try to convert [`AsRef<str>`] to `T` directly, where `T: From<Vec<u8>>`.
 ///
 /// # Examples
 /// ```
@@ -364,15 +490,16 @@ pub fn hex2bytes_unchecked(hex: &str) -> Bytes {
 /// }
 ///
 /// assert_eq!(
-/// 	array_bytes::hex_into::<LJF>("0x4c6f7665204a616e6520466f7265766572"),
+/// 	array_bytes::hex_into::<_, LJF>("0x4c6f7665204a616e6520466f7265766572"),
 /// 	Ok(LJF(b"Love Jane Forever".to_vec()))
 /// );
 /// ```
-pub fn hex_into<T>(hex: &str) -> ArrayBytesResult<T>
+pub fn hex_into<H, T>(hex: H) -> Result<T>
 where
+	H: AsRef<str>,
 	T: From<Bytes>,
 {
-	Ok(hex2bytes(hex)?.into())
+	Ok(hex2bytes(hex.as_ref())?.into())
 }
 
 /// Just like [`hex_into`] but without the checking.
@@ -388,18 +515,19 @@ where
 /// }
 ///
 /// assert_eq!(
-/// 	array_bytes::hex_into_unchecked::<LJF>("0x4c6f7665204a616e6520466f7265766572"),
+/// 	array_bytes::hex_into_unchecked::<_, LJF>("0x4c6f7665204a616e6520466f7265766572"),
 /// 	LJF(b"Love Jane Forever".to_vec())
 /// );
 /// ```
-pub fn hex_into_unchecked<T>(hex: &str) -> T
+pub fn hex_into_unchecked<H, T>(hex: H) -> T
 where
+	H: AsRef<str>,
 	T: From<Bytes>,
 {
 	hex2bytes_unchecked(hex).into()
 }
 
-/// Try to convert [`Hex`] to `T` directly, where `T: From<[u8; N]>`.
+/// Try to convert [`AsRef<str>`] to `T` directly, where `T: From<[u8; N]>`.
 ///
 /// # Examples
 /// ```
@@ -412,12 +540,13 @@ where
 /// }
 ///
 /// assert_eq!(
-/// 	array_bytes::hex_n_into::<LJF, 17>("0x4c6f7665204a616e6520466f7265766572"),
+/// 	array_bytes::hex_n_into::<_, LJF, 17>("0x4c6f7665204a616e6520466f7265766572"),
 /// 	Ok(LJF(*b"Love Jane Forever"))
 /// );
 /// ```
-pub fn hex_n_into<T, const N: usize>(hex: &str) -> ArrayBytesResult<T>
+pub fn hex_n_into<H, T, const N: usize>(hex: H) -> Result<T>
 where
+	H: AsRef<str>,
 	T: From<[u8; N]>,
 {
 	Ok(hex2array(hex)?.into())
@@ -436,18 +565,19 @@ where
 /// }
 ///
 /// assert_eq!(
-/// 	array_bytes::hex_n_into_unchecked::<LJF, 17>("0x4c6f7665204a616e6520466f7265766572"),
+/// 	array_bytes::hex_n_into_unchecked::<_, LJF, 17>("0x4c6f7665204a616e6520466f7265766572"),
 /// 	LJF(*b"Love Jane Forever")
 /// );
 /// ```
-pub fn hex_n_into_unchecked<T, const N: usize>(hex: &str) -> T
+pub fn hex_n_into_unchecked<H, T, const N: usize>(hex: H) -> T
 where
+	H: AsRef<str>,
 	T: From<[u8; N]>,
 {
 	hex2array_unchecked(hex).into()
 }
 
-/// Deserialize [`Hex`] to `T`, where `T: From<Vec<u8>>`.
+/// Deserialize hex to `T`, where `T: From<Vec<u8>>`.
 ///
 /// # Examples
 /// ```
@@ -476,7 +606,7 @@ where
 /// 	}
 /// );
 #[cfg(feature = "serde")]
-pub fn hex_deserialize_into<'de, D, T>(hex: D) -> Result<T, D::Error>
+pub fn hex_deserialize_into<'de, D, T>(hex: D) -> CoreResult<T, D::Error>
 where
 	D: Deserializer<'de>,
 	T: From<Bytes>,
@@ -484,7 +614,7 @@ where
 	Ok(hex2bytes_unchecked(<&str>::deserialize(hex)?).into())
 }
 
-/// Deserialize [`Hex`] to `T`, where `T: From<[u8; N]>`.
+/// Deserialize hex to `T`, where `T: From<[u8; N]>`.
 ///
 /// # Examples
 /// ```
@@ -513,7 +643,7 @@ where
 /// 	}
 /// );
 #[cfg(feature = "serde")]
-pub fn hex_deserialize_n_into<'de, D, T, const N: usize>(hex: D) -> Result<T, D::Error>
+pub fn hex_deserialize_n_into<'de, D, T, const N: usize>(hex: D) -> CoreResult<T, D::Error>
 where
 	D: Deserializer<'de>,
 	T: From<[u8; N]>,
@@ -521,7 +651,7 @@ where
 	Ok(hex2array_unchecked(<&str>::deserialize(hex)?).into())
 }
 
-/// Deserialize [`Hex`] to any Rust primitive num type.
+/// Deserialize hex to any Rust primitive num types.
 ///
 /// # Examples
 /// ```
@@ -553,7 +683,7 @@ where
 /// );
 /// ```
 #[cfg(feature = "serde")]
-pub fn de_hex2num<'de, D, T>(hex: D) -> Result<T, D::Error>
+pub fn de_hex2num<'de, D, T>(hex: D) -> CoreResult<T, D::Error>
 where
 	D: Deserializer<'de>,
 	T: TryFromHex,
@@ -563,7 +693,7 @@ where
 	T::try_from_hex(hex).map_err(|_| D::Error::custom(alloc::format!("Invalid hex str `{}`", hex)))
 }
 
-/// Deserialize [`Hex`] to [`Bytes`].
+/// Deserialize hex to [`Bytes`].
 ///
 /// # Examples
 /// ```
@@ -587,13 +717,21 @@ where
 /// );
 /// ```
 #[cfg(feature = "serde")]
-pub fn de_hex2bytes<'de, D>(hex: D) -> Result<Bytes, D::Error>
+pub fn de_hex2bytes<'de, D>(hex: D) -> CoreResult<Bytes, D::Error>
 where
 	D: Deserializer<'de>,
 {
 	let hex = <&str>::deserialize(hex)?;
 
 	hex2bytes(hex).map_err(|_| D::Error::custom(alloc::format!("Invalid hex str `{}`", hex)))
+}
+
+fn strip_0x(hex: &str) -> &str {
+	if let Some(hex) = hex.strip_prefix("0x") {
+		hex
+	} else {
+		hex
+	}
 }
 
 fn is_hex_ascii(byte: &u8) -> bool {
