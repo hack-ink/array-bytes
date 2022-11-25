@@ -4,10 +4,10 @@ edition  = "2021"
 metadata = { cargo-fuzz = true }
 name     = "array-bytes-fuzz"
 publish  = false
-version  = "5.0.0"
+version  = "5.1.0"
 
 [dependencies]
-array-bytes   = { version = "5.0", path = ".." }
+array-bytes   = { version = "5.1", path = ".." }
 libfuzzer-sys = { version = "0.4" }
 
 [workspace]

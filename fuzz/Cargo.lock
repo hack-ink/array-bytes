@@ -10,11 +10,11 @@ checksum = "8931eb436ab9bf1980c6cb2b9d1ba5390cd6793b2c6e2d2ea8147da3570c2a2e"
 
 [[package]]
 name = "array-bytes"
-version = "5.0.0"
+version = "5.1.0"
 
 [[package]]
 name = "array-bytes-fuzz"
-version = "5.0.0"
+version = "5.1.0"
 dependencies = [
  "array-bytes",
  "libfuzzer-sys",

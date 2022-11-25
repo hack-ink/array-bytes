@@ -95,11 +95,11 @@ fn hex_bytes2hex_str_should_work() {
 
 	assert_eq!(
 		hex_bytes2hex_str(b"4c6f766 5204a616e6520466f7265766572"),
-		Err(Error::InvalidChar { char: ' ', index: 7 }),
+		Err(Error::InvalidCharacter { character: ' ', index: 7 }),
 	);
 	assert_eq!(
 		hex_bytes2hex_str(b"4c6f766520 4a616e6520466f7265766572"),
-		Err(Error::InvalidChar { char: ' ', index: 10 }),
+		Err(Error::InvalidCharacter { character: ' ', index: 10 }),
 	);
 }
 
@@ -134,8 +134,8 @@ fn hex2bytes_should_work() {
 	assert_eq!(hex2bytes("我爱你"), Err(Error::InvalidLength));
 	assert_eq!(hex2bytes("0x我爱你"), Err(Error::InvalidLength));
 
-	assert_eq!(hex2bytes("我爱你 "), Err(Error::InvalidChar { char: 'æ', index: 0 }));
-	assert_eq!(hex2bytes(" 我爱你"), Err(Error::InvalidChar { char: ' ', index: 0 }));
+	assert_eq!(hex2bytes("我爱你 "), Err(Error::InvalidCharacter { character: 'æ', index: 0 }));
+	assert_eq!(hex2bytes(" 我爱你"), Err(Error::InvalidCharacter { character: ' ', index: 0 }));
 }
 
 #[test]
@@ -172,8 +172,14 @@ fn hex2slice_should_work() {
 	assert_eq!(hex2slice("00", &mut []), Err(Error::MismatchedLength { expect: 1 }));
 	assert_eq!(hex2slice("0x0001", &mut []), Err(Error::MismatchedLength { expect: 2 }));
 
-	assert_eq!(hex2slice("fg", &mut [0]), Err(Error::InvalidChar { char: 'g', index: 1 }));
-	assert_eq!(hex2slice("0xyz", &mut [0]), Err(Error::InvalidChar { char: 'y', index: 0 }));
+	assert_eq!(
+		hex2slice("fg", &mut [0]),
+		Err(Error::InvalidCharacter { character: 'g', index: 1 })
+	);
+	assert_eq!(
+		hex2slice("0xyz", &mut [0]),
+		Err(Error::InvalidCharacter { character: 'y', index: 0 })
+	);
 }
 
 #[test]
