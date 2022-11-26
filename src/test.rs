@@ -5,7 +5,7 @@ use crate::*;
 
 macro_rules! bytes {
 	($v:expr; $n:expr) => {{
-		let mut v = Bytes::new();
+		let mut v = Vec::new();
 
 		for _ in 0..$n {
 			v.push($v);
@@ -16,9 +16,9 @@ macro_rules! bytes {
 }
 
 #[derive(Debug, PartialEq)]
-struct LJF(Bytes);
-impl From<Bytes> for LJF {
-	fn from(bytes: Bytes) -> Self {
+struct LJF(Vec<u8>);
+impl From<Vec<u8>> for LJF {
+	fn from(bytes: Vec<u8>) -> Self {
 		Self(bytes)
 	}
 }
@@ -74,11 +74,11 @@ fn vec_n_into_unchecked_should_work() {
 fn bytes2hex_should_work() {
 	assert_eq!(
 		bytes2hex("0x", b"Love Jane Forever"),
-		Hex::from("0x4c6f7665204a616e6520466f7265766572")
+		String::from("0x4c6f7665204a616e6520466f7265766572")
 	);
 	assert_eq!(
 		bytes2hex("", b"Love Jane Forever"),
-		Hex::from("4c6f7665204a616e6520466f7265766572")
+		String::from("4c6f7665204a616e6520466f7265766572")
 	);
 }
 
@@ -120,7 +120,15 @@ fn hex_bytes2hex_str_unchecked_should_work() {
 #[test]
 fn hex2array_should_work() {
 	assert_eq!(hex2array("0x4c6f7665204a616e6520466f7265766572"), Ok(*b"Love Jane Forever"));
+	assert_eq!(
+		hex2array("0x4c6f7665204a616e6520466f7265766572".as_bytes()),
+		Ok(*b"Love Jane Forever")
+	);
 	assert_eq!(hex2array("4c6f7665204a616e6520466f7265766572"), Ok(*b"Love Jane Forever"));
+	assert_eq!(
+		hex2array("4c6f7665204a616e6520466f7265766572".as_bytes()),
+		Ok(*b"Love Jane Forever")
+	);
 }
 
 #[test]
@@ -129,7 +137,15 @@ fn hex2bytes_should_work() {
 		hex2bytes("0x4c6f7665204a616e6520466f7265766572"),
 		Ok(b"Love Jane Forever".to_vec())
 	);
+	assert_eq!(
+		hex2bytes("0x4c6f7665204a616e6520466f7265766572".as_bytes()),
+		Ok(b"Love Jane Forever".to_vec())
+	);
 	assert_eq!(hex2bytes("4c6f7665204a616e6520466f7265766572"), Ok(b"Love Jane Forever".to_vec()));
+	assert_eq!(
+		hex2bytes("4c6f7665204a616e6520466f7265766572".as_bytes()),
+		Ok(b"Love Jane Forever".to_vec())
+	);
 
 	assert_eq!(hex2bytes("我爱你"), Err(Error::InvalidLength));
 	assert_eq!(hex2bytes("0x我爱你"), Err(Error::InvalidLength));
@@ -141,7 +157,15 @@ fn hex2bytes_should_work() {
 #[test]
 fn hex2bytes_unchecked_should_work() {
 	assert_eq!(hex2bytes_unchecked("0x4c6f7665204a616e6520466f7265766572"), *b"Love Jane Forever");
+	assert_eq!(
+		hex2bytes_unchecked("0x4c6f7665204a616e6520466f7265766572".as_bytes()),
+		*b"Love Jane Forever"
+	);
 	assert_eq!(hex2bytes_unchecked("4c6f7665204a616e6520466f7265766572"), *b"Love Jane Forever");
+	assert_eq!(
+		hex2bytes_unchecked("4c6f7665204a616e6520466f7265766572".as_bytes()),
+		*b"Love Jane Forever"
+	);
 }
 
 #[test]
@@ -155,12 +179,30 @@ fn hex2slice_should_work() {
 		);
 		assert_eq!(bytes, *b"Love Jane Forever");
 	}
+	{
+		let mut bytes = [0; 17];
+
+		assert_eq!(
+			hex2slice("0x4c6f7665204a616e6520466f7265766572".as_bytes(), &mut bytes),
+			Ok(b"Love Jane Forever".as_slice())
+		);
+		assert_eq!(bytes, *b"Love Jane Forever");
+	}
 
 	{
 		let mut bytes = [0; 17];
 
 		assert_eq!(
 			hex2slice("4c6f7665204a616e6520466f7265766572", &mut bytes),
+			Ok(b"Love Jane Forever".as_slice())
+		);
+		assert_eq!(bytes, *b"Love Jane Forever");
+	}
+	{
+		let mut bytes = [0; 17];
+
+		assert_eq!(
+			hex2slice("4c6f7665204a616e6520466f7265766572".as_bytes(), &mut bytes),
 			Ok(b"Love Jane Forever".as_slice())
 		);
 		assert_eq!(bytes, *b"Love Jane Forever");
@@ -184,21 +226,43 @@ fn hex2slice_should_work() {
 
 #[test]
 fn hex2slice_unchecked_should_work() {
-	let mut bytes = [0; 17];
+	{
+		let mut bytes = [0; 17];
 
-	assert_eq!(
-		hex2slice_unchecked("0x4c6f7665204a616e6520466f7265766572", &mut bytes),
-		b"Love Jane Forever"
-	);
-	assert_eq!(bytes, *b"Love Jane Forever");
+		assert_eq!(
+			hex2slice_unchecked("0x4c6f7665204a616e6520466f7265766572", &mut bytes),
+			b"Love Jane Forever"
+		);
+		assert_eq!(bytes, *b"Love Jane Forever");
+	}
+	{
+		let mut bytes = [0; 17];
 
-	let mut bytes = [0; 17];
+		assert_eq!(
+			hex2slice_unchecked("0x4c6f7665204a616e6520466f7265766572".as_bytes(), &mut bytes),
+			b"Love Jane Forever"
+		);
+		assert_eq!(bytes, *b"Love Jane Forever");
+	}
 
-	assert_eq!(
-		hex2slice_unchecked("4c6f7665204a616e6520466f7265766572", &mut bytes),
-		b"Love Jane Forever"
-	);
-	assert_eq!(bytes, *b"Love Jane Forever");
+	{
+		let mut bytes = [0; 17];
+
+		assert_eq!(
+			hex2slice_unchecked("4c6f7665204a616e6520466f7265766572", &mut bytes),
+			b"Love Jane Forever"
+		);
+		assert_eq!(bytes, *b"Love Jane Forever");
+	}
+	{
+		let mut bytes = [0; 17];
+
+		assert_eq!(
+			hex2slice_unchecked("4c6f7665204a616e6520466f7265766572".as_bytes(), &mut bytes),
+			b"Love Jane Forever"
+		);
+		assert_eq!(bytes, *b"Love Jane Forever");
+	}
 }
 
 #[test]
@@ -208,7 +272,15 @@ fn hex_into_should_work() {
 		Ok(LJF(b"Love Jane Forever".to_vec()))
 	);
 	assert_eq!(
+		hex_into::<_, LJF>("0x4c6f7665204a616e6520466f7265766572".as_bytes()),
+		Ok(LJF(b"Love Jane Forever".to_vec()))
+	);
+	assert_eq!(
 		hex_into::<_, LJF>("4c6f7665204a616e6520466f7265766572"),
+		Ok(LJF(b"Love Jane Forever".to_vec()))
+	);
+	assert_eq!(
+		hex_into::<_, LJF>("4c6f7665204a616e6520466f7265766572".as_bytes()),
 		Ok(LJF(b"Love Jane Forever".to_vec()))
 	);
 }
@@ -220,7 +292,15 @@ fn hex_n_into_should_work() {
 		Ok(LJFN(*b"Love Jane Forever"))
 	);
 	assert_eq!(
+		hex_n_into::<_, LJFN, 17>("0x4c6f7665204a616e6520466f7265766572".as_bytes()),
+		Ok(LJFN(*b"Love Jane Forever"))
+	);
+	assert_eq!(
 		hex_n_into::<_, LJFN, 17>("4c6f7665204a616e6520466f7265766572"),
+		Ok(LJFN(*b"Love Jane Forever"))
+	);
+	assert_eq!(
+		hex_n_into::<_, LJFN, 17>("4c6f7665204a616e6520466f7265766572".as_bytes()),
 		Ok(LJFN(*b"Love Jane Forever"))
 	);
 }
@@ -232,7 +312,15 @@ fn hex_into_unchecked_should_work() {
 		LJF(b"Love Jane Forever".to_vec())
 	);
 	assert_eq!(
+		hex_into_unchecked::<_, LJF>("0x4c6f7665204a616e6520466f7265766572".as_bytes()),
+		LJF(b"Love Jane Forever".to_vec())
+	);
+	assert_eq!(
 		hex_into_unchecked::<_, LJF>("4c6f7665204a616e6520466f7265766572"),
+		LJF(b"Love Jane Forever".to_vec())
+	);
+	assert_eq!(
+		hex_into_unchecked::<_, LJF>("4c6f7665204a616e6520466f7265766572".as_bytes()),
 		LJF(b"Love Jane Forever".to_vec())
 	);
 }
@@ -244,7 +332,15 @@ fn hex_n_into_unchecked_should_work() {
 		LJFN(*b"Love Jane Forever")
 	);
 	assert_eq!(
+		hex_n_into_unchecked::<_, LJFN, 17>("0x4c6f7665204a616e6520466f7265766572".as_bytes()),
+		LJFN(*b"Love Jane Forever")
+	);
+	assert_eq!(
 		hex_n_into_unchecked::<_, LJFN, 17>("4c6f7665204a616e6520466f7265766572"),
+		LJFN(*b"Love Jane Forever")
+	);
+	assert_eq!(
+		hex_n_into_unchecked::<_, LJFN, 17>("4c6f7665204a616e6520466f7265766572".as_bytes()),
 		LJFN(*b"Love Jane Forever")
 	);
 }
@@ -371,7 +467,7 @@ fn de_hex2bytes_should_work() {
 	#[derive(Debug, PartialEq, Deserialize)]
 	struct LJFN {
 		#[serde(deserialize_with = "de_hex2bytes")]
-		ljf: Bytes,
+		ljf: Vec<u8>,
 	}
 
 	assert_eq!(
@@ -413,7 +509,7 @@ fn random_input_should_work() {
 			.enumerate()
 			.map(|(i, piece)| {
 				if i % 2 == 0 {
-					match piece.trim_start_matches("0x").len() {
+					match strip_0x(&piece).len() {
 						8 => hex2array_unchecked::<_, 8>(&piece).to_vec(),
 						32 => hex2array_unchecked::<_, 16>(&piece).to_vec(),
 						64 => hex2array_unchecked::<_, 32>(&piece).to_vec(),
