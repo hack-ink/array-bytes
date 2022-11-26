@@ -1,3 +1,7 @@
+## v6.0.0
+- Optimize algorithm.
+- Bump dependencies.
+
 ## v5.1.0
 - Rename error fields.
 
