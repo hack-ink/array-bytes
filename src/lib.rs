@@ -12,7 +12,7 @@ extern crate alloc;
 #[cfg(test)] mod test;
 
 // core
-use core::{convert::TryInto, mem, result::Result as CoreResult};
+use core::{convert::TryInto, result::Result as CoreResult, str};
 // alloc
 use alloc::{string::String, vec::Vec};
 // crates.io
@@ -245,17 +245,16 @@ pub fn hex_bytes2hex_str(bytes: &[u8]) -> Result<&str> {
 		}
 	}
 
-	Ok(unsafe {
+	Ok(
 		// Validated in previous step, never fails here; qed.
-		#[allow(clippy::transmute_bytes_to_str)]
-		mem::transmute(bytes)
-	})
+		unsafe { str::from_utf8_unchecked(bytes) },
+	)
 }
 
 /// Just like [`hex_bytes2hex_str`] but without the checking.
 ///
 /// # Safety
-/// See the [`mem::transmute`].
+/// See the [`str::from_utf8_unchecked`].
 ///
 /// # Examples
 /// ```
@@ -267,8 +266,7 @@ pub fn hex_bytes2hex_str(bytes: &[u8]) -> Result<&str> {
 /// }
 /// ```
 pub unsafe fn hex_bytes2hex_str_unchecked(bytes: &[u8]) -> &str {
-	#[allow(clippy::transmute_bytes_to_str)]
-	mem::transmute(bytes)
+	str::from_utf8_unchecked(bytes)
 }
 
 /// `AsRef<[u8]>` to [`String`].
