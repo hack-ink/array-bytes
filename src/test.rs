@@ -506,23 +506,16 @@ fn random_input_should_work() {
 
 		let data_pieces = data_pieces
 			.into_iter()
-			.enumerate()
-			.map(|(i, piece)| {
-				if i % 2 == 0 {
-					match strip_0x(&piece).len() {
-						8 => hex2array_unchecked::<_, 8>(&piece).to_vec(),
-						32 => hex2array_unchecked::<_, 16>(&piece).to_vec(),
-						64 => hex2array_unchecked::<_, 32>(&piece).to_vec(),
-						128 => hex2array_unchecked::<_, 64>(&piece).to_vec(),
-						256 => hex2array_unchecked::<_, 128>(&piece).to_vec(),
-						512 => hex2array_unchecked::<_, 256>(&piece).to_vec(),
-						1024 => hex2array_unchecked::<_, 512>(&piece).to_vec(),
-						2048 => hex2array_unchecked::<_, 1024>(&piece).to_vec(),
-						_ => hex2bytes_unchecked(&piece),
-					}
-				} else {
-					hex2bytes_unchecked(&piece)
-				}
+			.map(|piece| match strip_0x(&piece).len() {
+				8 => hex2array_unchecked::<_, 4>(&piece).to_vec(),
+				32 => hex2array_unchecked::<_, 16>(&piece).to_vec(),
+				64 => hex2array_unchecked::<_, 32>(&piece).to_vec(),
+				128 => hex2array_unchecked::<_, 64>(&piece).to_vec(),
+				256 => hex2array_unchecked::<_, 128>(&piece).to_vec(),
+				512 => hex2array_unchecked::<_, 256>(&piece).to_vec(),
+				1024 => hex2array_unchecked::<_, 512>(&piece).to_vec(),
+				2048 => hex2array_unchecked::<_, 1024>(&piece).to_vec(),
+				_ => hex2bytes_unchecked(&piece),
 			})
 			.collect::<Vec<_>>();
 
