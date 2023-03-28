@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        action: [clippy, fmt, nextest]
+        action: [clippy, fmt, test]
     steps:
       - name: Fetch latest code
         uses: actions/checkout@v3
@@ -43,11 +43,8 @@ jobs:
       - name: Cargo ${{ matrix.action }}
         if: matrix.action == 'fmt'
         run: cargo ${{ matrix.action }} --all -- --check
-      - name: Install cargo-nextest
-        if: matrix.action == 'nextest'
-        uses: taiki-e/install-action@nextest
       - name: Cargo ${{ matrix.action }}
-        if: matrix.action == 'nextest'
+        if: matrix.action == 'test'
         run: cargo ${{ matrix.action }} run --release --workspace --all-features --all-targets --locked
       - name: Fast fail
         uses: vishnudxb/cancel-workflow@v1.2
