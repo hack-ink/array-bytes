@@ -14,7 +14,7 @@ extern crate alloc;
 // core
 use core::{convert::TryInto, result::Result as CoreResult, str};
 // alloc
-use alloc::{string::String, vec::Vec};
+use alloc::{format, string::String, vec::Vec};
 // crates.io
 #[cfg(feature = "serde")] use serde::{de::Error as DeError, Deserialize, Deserializer};
 // use thiserror::Error as ThisError;
@@ -22,44 +22,275 @@ use alloc::{string::String, vec::Vec};
 /// The main result of array-bytes.
 pub type Result<T> = CoreResult<T, Error>;
 
-/// Simple and safe `T`/[`AsRef<str>`] conversions that may fail in a controlled way under some
-/// circumstances.
+/// Try to convert the given hex to a specific type.
+///
+/// # Examples
+/// ```
+/// use array_bytes::TryFromHex;
+///
+/// assert_eq!(u128::try_from_hex("0x1a2b3c4d5e6f"), Ok(28772997619311));
+/// ```
 pub trait TryFromHex
 where
 	Self: Sized,
 {
-	/// Try to convert the [`Self`] from hex.
+	/// Try to convert [`Self`] from hex.
 	fn try_from_hex<H>(hex: H) -> Result<Self>
 	where
-		H: AsRef<str>;
+		H: AsRef<[u8]>;
 }
-
-macro_rules! impl_num_from_hex {
-	($t:ty) => {
-		impl TryFromHex for $t {
+macro_rules! impl_num_try_from_hex {
+	($($t:ty,)+) => {
+		$(impl TryFromHex for $t {
 			fn try_from_hex<H>(hex: H) -> Result<Self>
 			where
-				H: AsRef<str>,
+				H: AsRef<[u8]>,
 			{
 				let hex = strip_0x(hex.as_ref());
+				let hex = str::from_utf8(hex).map_err(Error::Utf8Error)?;
 
 				Self::from_str_radix(hex, 16).map_err(Error::ParseIntError)
 			}
-		}
+		})+
 	};
 }
-impl_num_from_hex!(isize);
-impl_num_from_hex!(i8);
-impl_num_from_hex!(i16);
-impl_num_from_hex!(i32);
-impl_num_from_hex!(i64);
-impl_num_from_hex!(i128);
-impl_num_from_hex!(usize);
-impl_num_from_hex!(u8);
-impl_num_from_hex!(u16);
-impl_num_from_hex!(u32);
-impl_num_from_hex!(u64);
-impl_num_from_hex!(u128);
+impl_num_try_from_hex! {
+	isize,
+	i8,
+	i16,
+	i32,
+	i64,
+	i128,
+	usize,
+	u8,
+	u16,
+	u32,
+	u64,
+	u128,
+}
+macro_rules! impl_array_try_from_hex {
+	($($t:ty,)+) => {
+		$(impl TryFromHex for $t {
+			fn try_from_hex<H>(hex: H) -> Result<Self>
+			where
+				H: AsRef<[u8]>,
+			{
+				hex2array(hex)
+			}
+		})+
+	};
+}
+impl_array_try_from_hex! {
+	[u8; 1],
+	[u8; 2],
+	[u8; 3],
+	[u8; 4],
+	[u8; 5],
+	[u8; 6],
+	[u8; 7],
+	[u8; 8],
+	[u8; 9],
+	[u8; 10],
+	[u8; 11],
+	[u8; 12],
+	[u8; 13],
+	[u8; 14],
+	[u8; 15],
+	[u8; 16],
+	[u8; 17],
+	[u8; 18],
+	[u8; 19],
+	[u8; 20],
+	[u8; 21],
+	[u8; 22],
+	[u8; 23],
+	[u8; 24],
+	[u8; 25],
+	[u8; 26],
+	[u8; 27],
+	[u8; 28],
+	[u8; 29],
+	[u8; 30],
+	[u8; 31],
+	[u8; 32],
+	[u8; 33],
+	[u8; 34],
+	[u8; 35],
+	[u8; 36],
+	[u8; 37],
+	[u8; 38],
+	[u8; 39],
+	[u8; 40],
+	[u8; 41],
+	[u8; 42],
+	[u8; 43],
+	[u8; 44],
+	[u8; 45],
+	[u8; 46],
+	[u8; 47],
+	[u8; 48],
+	[u8; 49],
+	[u8; 50],
+	[u8; 51],
+	[u8; 52],
+	[u8; 53],
+	[u8; 54],
+	[u8; 55],
+	[u8; 56],
+	[u8; 57],
+	[u8; 58],
+	[u8; 59],
+	[u8; 60],
+	[u8; 61],
+	[u8; 62],
+	[u8; 63],
+	[u8; 64],
+	[u8; 128],
+	[u8; 256],
+	[u8; 512],
+}
+impl TryFromHex for Vec<u8> {
+	fn try_from_hex<H>(hex: H) -> Result<Self>
+	where
+		H: AsRef<[u8]>,
+	{
+		hex2bytes(hex)
+	}
+}
+
+/// Convert the given type to hex.
+///
+/// # Examples
+/// ```
+/// use array_bytes::Hex;
+///
+/// assert_eq!(28772997619311_u128.hex("0x"), "0x1a2b3c4d5e6f");
+/// ```
+pub trait Hex {
+	/// Convert [`Self`] to hex with the given prefix.
+	fn hex(self, prefix: &str) -> String;
+}
+macro_rules! impl_num_hex {
+	($($t:ty,)+) => {
+		$(
+			impl Hex for $t {
+				fn hex(self, prefix: &str) -> String {
+					format!("{prefix}{self:x}")
+				}
+			}
+			impl Hex for &$t {
+				fn hex(self, prefix: &str) -> String {
+					format!("{prefix}{self:x}")
+				}
+			}
+		)+
+	};
+}
+impl_num_hex! {
+	isize,
+	i8,
+	i16,
+	i32,
+	i64,
+	i128,
+	usize,
+	u8,
+	u16,
+	u32,
+	u64,
+	u128,
+}
+macro_rules! impl_array_hex {
+	($($t:ty,)+) => {
+		$(
+			impl Hex for $t {
+				fn hex(self, prefix: &str) -> String {
+					bytes2hex(prefix, self)
+				}
+			}
+			impl Hex for &$t {
+				fn hex(self, prefix: &str) -> String {
+					bytes2hex(prefix, self)
+				}
+			}
+		)+
+	};
+}
+impl_array_hex! {
+	Vec<u8>,
+	[u8; 1],
+	[u8; 2],
+	[u8; 3],
+	[u8; 4],
+	[u8; 5],
+	[u8; 6],
+	[u8; 7],
+	[u8; 8],
+	[u8; 9],
+	[u8; 10],
+	[u8; 11],
+	[u8; 12],
+	[u8; 13],
+	[u8; 14],
+	[u8; 15],
+	[u8; 16],
+	[u8; 17],
+	[u8; 18],
+	[u8; 19],
+	[u8; 20],
+	[u8; 21],
+	[u8; 22],
+	[u8; 23],
+	[u8; 24],
+	[u8; 25],
+	[u8; 26],
+	[u8; 27],
+	[u8; 28],
+	[u8; 29],
+	[u8; 30],
+	[u8; 31],
+	[u8; 32],
+	[u8; 33],
+	[u8; 34],
+	[u8; 35],
+	[u8; 36],
+	[u8; 37],
+	[u8; 38],
+	[u8; 39],
+	[u8; 40],
+	[u8; 41],
+	[u8; 42],
+	[u8; 43],
+	[u8; 44],
+	[u8; 45],
+	[u8; 46],
+	[u8; 47],
+	[u8; 48],
+	[u8; 49],
+	[u8; 50],
+	[u8; 51],
+	[u8; 52],
+	[u8; 53],
+	[u8; 54],
+	[u8; 55],
+	[u8; 56],
+	[u8; 57],
+	[u8; 58],
+	[u8; 59],
+	[u8; 60],
+	[u8; 61],
+	[u8; 62],
+	[u8; 63],
+	[u8; 64],
+	[u8; 128],
+	[u8; 256],
+	[u8; 512],
+}
+impl Hex for &[u8] {
+	fn hex(self, prefix: &str) -> String {
+		bytes2hex(prefix, self)
+	}
+}
 
 /// The main error of array-bytes.
 #[derive(Debug, PartialEq, Eq)]
@@ -78,6 +309,8 @@ pub enum Error {
 		/// Expected length.
 		expect: usize,
 	},
+	/// Failed to parse the hex number from hex string.
+	Utf8Error(core::str::Utf8Error),
 	/// Failed to parse the hex number from hex string.
 	ParseIntError(core::num::ParseIntError),
 }
@@ -343,7 +576,7 @@ pub fn hex2bytes<H>(hex: H) -> Result<Vec<u8>>
 where
 	H: AsRef<[u8]>,
 {
-	let hex = strip_0x_bytes(hex.as_ref());
+	let hex = strip_0x(hex.as_ref());
 
 	if hex.len() % 2 != 0 {
 		Err(Error::InvalidLength)?;
@@ -371,7 +604,7 @@ pub fn hex2bytes_unchecked<H>(hex: H) -> Vec<u8>
 where
 	H: AsRef<[u8]>,
 {
-	let hex = strip_0x_bytes(hex.as_ref());
+	let hex = strip_0x(hex.as_ref());
 
 	(0..hex.len()).step_by(2).map(|i| hex2byte_unchecked(&hex[i], &hex[i + 1])).collect()
 }
@@ -396,7 +629,7 @@ pub fn hex2slice<H>(hex: H, slice: &mut [u8]) -> Result<&[u8]>
 where
 	H: AsRef<[u8]>,
 {
-	let hex = strip_0x_bytes(hex.as_ref());
+	let hex = strip_0x(hex.as_ref());
 
 	if hex.len() % 2 != 0 {
 		Err(Error::InvalidLength)?;
@@ -428,7 +661,7 @@ pub fn hex2slice_unchecked<H>(hex: H, slice: &mut [u8]) -> &[u8]
 where
 	H: AsRef<[u8]>,
 {
-	let hex = strip_0x_bytes(hex.as_ref());
+	let hex = strip_0x(hex.as_ref());
 
 	slice
 		.iter_mut()
@@ -686,15 +919,7 @@ where
 	hex2bytes(hex).map_err(|_| D::Error::custom(alloc::format!("Invalid hex str `{}`", hex)))
 }
 
-fn strip_0x(hex: &str) -> &str {
-	if let Some(hex) = hex.strip_prefix("0x") {
-		hex
-	} else {
-		hex
-	}
-}
-
-fn strip_0x_bytes(hex: &[u8]) -> &[u8] {
+fn strip_0x(hex: &[u8]) -> &[u8] {
 	if let Some(hex) = hex.strip_prefix(b"0x") {
 		hex
 	} else {

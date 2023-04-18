@@ -1,6 +1,6 @@
 #![allow(clippy::upper_case_acronyms)]
 
-// --- array-bytes ---
+// array-bytes
 use crate::*;
 
 macro_rules! bytes {
@@ -29,6 +29,42 @@ impl From<[u8; 17]> for LJFN {
 	fn from(array: [u8; 17]) -> Self {
 		Self(array)
 	}
+}
+
+#[test]
+fn try_from_hex_should_work() {
+	assert_eq!(u8::try_from_hex("0x8"), Ok(8));
+	assert_eq!(u8::try_from_hex("8"), Ok(8));
+	assert_eq!(u16::try_from_hex("0x10"), Ok(16));
+	assert_eq!(u16::try_from_hex("10"), Ok(16));
+	assert_eq!(u32::try_from_hex("0x20"), Ok(32));
+	assert_eq!(u32::try_from_hex("20"), Ok(32));
+	assert_eq!(u64::try_from_hex("0x40"), Ok(64));
+	assert_eq!(u64::try_from_hex("40"), Ok(64));
+	assert_eq!(u128::try_from_hex("0x80"), Ok(128));
+	assert_eq!(u128::try_from_hex("80"), Ok(128));
+	assert_eq!(u128::try_from_hex("0xabcdef"), Ok(11259375));
+	assert_eq!(u128::try_from_hex("abcdef"), Ok(11259375));
+	assert_eq!(u128::try_from_hex("0x1a2b3c4d5e6f"), Ok(28772997619311));
+	assert_eq!(u128::try_from_hex("1a2b3c4d5e6f"), Ok(28772997619311));
+}
+
+#[test]
+fn hex_should_work() {
+	assert_eq!(8_u8.hex("0x"), "0x8");
+	assert_eq!(8_u8.hex(""), "8");
+	assert_eq!(16_u16.hex("0x"), "0x10");
+	assert_eq!(16_u16.hex(""), "10");
+	assert_eq!(32_u32.hex("0x"), "0x20");
+	assert_eq!(32_u32.hex(""), "20");
+	assert_eq!(64_u64.hex("0x"), "0x40");
+	assert_eq!(64_u64.hex(""), "40");
+	assert_eq!(128_u128.hex("0x"), "0x80");
+	assert_eq!(128_u128.hex(""), "80");
+	assert_eq!(11259375_u128.hex("0x"), "0xabcdef");
+	assert_eq!(11259375_u128.hex(""), "abcdef");
+	assert_eq!(28772997619311_u128.hex("0x"), "0x1a2b3c4d5e6f");
+	assert_eq!(28772997619311_u128.hex(""), "1a2b3c4d5e6f");
 }
 
 #[test]
@@ -506,7 +542,7 @@ fn random_input_should_work() {
 
 		let data_pieces = data_pieces
 			.into_iter()
-			.map(|piece| match strip_0x(&piece).len() {
+			.map(|piece| match strip_0x(piece.as_bytes()).len() {
 				8 => hex2array_unchecked::<_, 4>(&piece).to_vec(),
 				32 => hex2array_unchecked::<_, 16>(&piece).to_vec(),
 				64 => hex2array_unchecked::<_, 32>(&piece).to_vec(),
