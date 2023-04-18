@@ -15,18 +15,40 @@
 ## Abilities
 #### `TryFromHex` trait
 - Convert hex to num
-	- type `AsRef<str> -> isize`
-	- type `AsRef<str> -> i8`
-	- type `AsRef<str> -> i16`
-	- type `AsRef<str> -> i32`
-	- type `AsRef<str> -> i64`
-	- type `AsRef<str> -> i128`
-	- type `AsRef<str> -> usize`
-	- type `AsRef<str> -> u8`
-	- type `AsRef<str> -> u16`
-	- type `AsRef<str> -> u32`
-	- type `AsRef<str> -> u64`
-	- type `AsRef<str> -> u128`
+  - type `AsRef<[u8]> -> isize`
+  - type `AsRef<[u8]> -> i8`
+  - type `AsRef<[u8]> -> i16`
+  - type `AsRef<[u8]> -> i32`
+  - type `AsRef<[u8]> -> i64`
+  - type `AsRef<[u8]> -> i128`
+  - type `AsRef<[u8]> -> usize`
+  - type `AsRef<[u8]> -> u8`
+  - type `AsRef<[u8]> -> u16`
+  - type `AsRef<[u8]> -> u32`
+  - type `AsRef<[u8]> -> u64`
+  - type `AsRef<[u8]> -> u128`
+- Convert hex to array
+  - type `AsRef<[u8]> -> [u8; N]`, `N = { [0, 64], 128, 256, 512 }`
+  - type `AsRef<[u8]> -> Vec<u8>`
+
+#### `Hex` trait
+- Convert num to hex
+  - type `isize -> String`
+  - type `i8 -> String`
+  - type `i16 -> String`
+  - type `i32 -> String`
+  - type `i64 -> String`
+  - type `i128 -> String`
+  - type `usize -> String`
+  - type `u8 -> String`
+  - type `u16 -> String`
+  - type `u32 -> String`
+  - type `u64 -> String`
+  - type `u128 -> String`
+- Convert array to hex
+  - type `Vec<u8> -> String`
+  - type `[u8; N] -> String`, `N = { [0, 64], 128, 256, 512 }`
+  - type `&[u8] -> String`
 
 #### `bytes` prefixed functions
 - Convert bytes to hex
