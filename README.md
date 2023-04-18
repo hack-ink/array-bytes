@@ -28,7 +28,7 @@
   - type `AsRef<[u8]> -> u64`
   - type `AsRef<[u8]> -> u128`
 - Convert hex to array
-  - type `AsRef<[u8]> -> [u8; N]`, `N = { [0, 64], 128, 256, 512 }`
+  - type `AsRef<[u8]> -> [u8; N]`, `N = { [1, 64], 128, 256, 512 }`
   - type `AsRef<[u8]> -> Vec<u8>`
 
 #### `Hex` trait
@@ -47,7 +47,7 @@
   - type `u128 -> String`
 - Convert array to hex
   - type `Vec<u8> -> String`
-  - type `[u8; N] -> String`, `N = { [0, 64], 128, 256, 512 }`
+  - type `[u8; N] -> String`, `N = { [1, 64], 128, 256, 512 }`
   - type `&[u8] -> String`
 
 #### `bytes` prefixed functions
