@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        action: [clippy, fmt, nextest]
+        action: [clippy, fmt, test]
     steps:
       - name: Setup build environment
         run: rustup toolchain install nightly --profile minimal
