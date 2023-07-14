@@ -8,6 +8,16 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish
+        uses: softprops/action-gh-release@v1
+        with:
+          discussion_category_name: Announcements
+          generate_release_notes: true
+
   publish-on-crates-io:
     name: Publish on crates.io
     runs-on: ubuntu-latest
