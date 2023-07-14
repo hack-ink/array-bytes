@@ -8,10 +8,11 @@ on:
       - main
 
 env:
-  CARGO_INCREMENTAL: 1
+  CACHE_VERSION: 0
+
+  CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
   CARGO_TERM_COLOR: always
 
-  GITHUB_CACHE_VERSION: 1
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   RUST_BACKTRACE: full
@@ -24,29 +25,25 @@ jobs:
       matrix:
         action: [clippy, fmt, test]
     steps:
+      - name: Setup build environment
+        run: rustup toolchain install nightly --profile minimal
       - name: Fetch latest code
         uses: actions/checkout@v3
-      - name: Cache cargo
-        uses: actions/cache@v3
+      - uses: Swatinem/rust-cache@v2
         with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: cargo-${{ env.GITHUB_CACHE_VERSION }}-${{ matrix.action }}-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: cargo-${{ env.GITHUB_CACHE_VERSION }}-${{ matrix.action }}-
-      - name: Cargo ${{ matrix.action }}
+          prefix-key: ${{ env.CACHE_VERSION }}
+      - name: Cargo clippy
         if: matrix.action == 'clippy'
         uses: actions-rs/clippy-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --workspace --all-features --all-targets --locked
-      - name: Cargo ${{ matrix.action }}
+      - name: Cargo fmt
         if: matrix.action == 'fmt'
-        run: cargo ${{ matrix.action }} --all -- --check
-      - name: Cargo ${{ matrix.action }}
+        run: cargo fmt --all -- --check
+      - name: Cargo test
         if: matrix.action == 'test'
-        run: cargo ${{ matrix.action }} run --release --workspace --all-features --all-targets --locked
+        run: cargo test --profile ci-dev --workspace --all-features --all-targets --locked
       - name: Fast fail
         uses: vishnudxb/cancel-workflow@v1.2
         if: failure()
