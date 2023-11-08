@@ -319,9 +319,9 @@ pub enum Error {
 ///
 /// # Examples
 /// ```
-/// assert_eq!(array_bytes::slice2array::<8, _>(&[0; 8]), Ok([0; 8]));
+/// assert_eq!(array_bytes::slice2array::<_, 8>(&[0; 8]), Ok([0; 8]));
 /// ```
-pub fn slice2array<const N: usize, T>(slice: &[T]) -> Result<[T; N]>
+pub fn slice2array<T, const N: usize,>(slice: &[T]) -> Result<[T; N]>
 where
 	T: Copy,
 {
@@ -332,9 +332,9 @@ where
 ///
 /// # Examples
 /// ```
-/// assert_eq!(array_bytes::slice2array_unchecked::<8, _>(&[0; 8]), [0; 8]);
+/// assert_eq!(array_bytes::slice2array_unchecked::<_, 8>(&[0; 8]), [0; 8]);
 /// ```
-pub fn slice2array_unchecked<const N: usize, T>(slice: &[T]) -> [T; N]
+pub fn slice2array_unchecked<T, const N: usize>(slice: &[T]) -> [T; N]
 where
 	T: Copy,
 {
@@ -354,11 +354,11 @@ where
 /// }
 ///
 /// assert_eq!(
-/// 	array_bytes::slice_n_into::<17, u8, LJF>(b"Love Jane Forever"),
+/// 	array_bytes::slice_n_into::<u8, LJF, 17>(b"Love Jane Forever"),
 /// 	Ok(LJF(*b"Love Jane Forever"))
 /// );
 /// ```
-pub fn slice_n_into<const N: usize, T, V>(slice: &[T]) -> Result<V>
+pub fn slice_n_into<T, V, const N: usize>(slice: &[T]) -> Result<V>
 where
 	T: Copy,
 	V: From<[T; N]>,
@@ -379,11 +379,11 @@ where
 /// }
 ///
 /// assert_eq!(
-/// 	array_bytes::slice_n_into_unchecked::<17, u8, LJF>(b"Love Jane Forever"),
+/// 	array_bytes::slice_n_into_unchecked::<u8, LJF, 17>(b"Love Jane Forever"),
 /// 	LJF(*b"Love Jane Forever")
 /// );
 /// ```
-pub fn slice_n_into_unchecked<const N: usize, T, V>(slice: &[T]) -> V
+pub fn slice_n_into_unchecked<T, V, const N: usize>(slice: &[T]) -> V
 where
 	T: Copy,
 	V: From<[T; N]>,
@@ -395,9 +395,9 @@ where
 ///
 /// # Examples
 /// ```
-/// assert_eq!(array_bytes::vec2array::<8, _>(vec![0; 8]), Ok([0; 8]));
+/// assert_eq!(array_bytes::vec2array::<_, 8>(vec![0; 8]), Ok([0; 8]));
 /// ```
-pub fn vec2array<const N: usize, T>(vec: Vec<T>) -> Result<[T; N]> {
+pub fn vec2array<T, const N: usize>(vec: Vec<T>) -> Result<[T; N]> {
 	vec.try_into().map_err(|_| Error::MismatchedLength { expect: N })
 }
 
@@ -405,9 +405,9 @@ pub fn vec2array<const N: usize, T>(vec: Vec<T>) -> Result<[T; N]> {
 ///
 /// # Examples
 /// ```
-/// assert_eq!(array_bytes::vec2array_unchecked::<8, _>(vec![0; 8]), [0; 8]);
+/// assert_eq!(array_bytes::vec2array_unchecked::<_, 8>(vec![0; 8]), [0; 8]);
 /// ```
-pub fn vec2array_unchecked<const N: usize, T>(vec: Vec<T>) -> [T; N] {
+pub fn vec2array_unchecked<T, const N: usize>(vec: Vec<T>) -> [T; N] {
 	vec2array(vec).unwrap()
 }
 
@@ -425,11 +425,11 @@ pub fn vec2array_unchecked<const N: usize, T>(vec: Vec<T>) -> [T; N] {
 /// }
 ///
 /// assert_eq!(
-/// 	array_bytes::vec_n_into::<17, u8, LJF>(b"Love Jane Forever".to_vec()),
+/// 	array_bytes::vec_n_into::<u8, LJF, 17>(b"Love Jane Forever".to_vec()),
 /// 	Ok(LJF(*b"Love Jane Forever"))
 /// );
 /// ```
-pub fn vec_n_into<const N: usize, T, V>(vec: Vec<T>) -> Result<V>
+pub fn vec_n_into<T, V, const N: usize>(vec: Vec<T>) -> Result<V>
 where
 	V: From<[T; N]>,
 {
@@ -449,11 +449,11 @@ where
 /// }
 ///
 /// assert_eq!(
-/// 	array_bytes::vec_n_into_unchecked::<17, u8, LJF>(b"Love Jane Forever".to_vec()),
+/// 	array_bytes::vec_n_into_unchecked::<u8, LJF, 17>(b"Love Jane Forever".to_vec()),
 /// 	LJF(*b"Love Jane Forever")
 /// );
 /// ```
-pub fn vec_n_into_unchecked<const N: usize, T, V>(vec: Vec<T>) -> V
+pub fn vec_n_into_unchecked<T, V, const N: usize>(vec: Vec<T>) -> V
 where
 	V: From<[T; N]>,
 {

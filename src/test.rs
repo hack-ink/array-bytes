@@ -69,31 +69,31 @@ fn hex_should_work() {
 
 #[test]
 fn slice2array_should_work() {
-	assert_eq!(slice2array::<8, _>(&[0; 8]), Ok([0; 8]));
+	assert_eq!(slice2array::<_, 8>(&[0; 8]), Ok([0; 8]));
 }
 
 #[test]
 fn slice_n_into_should_work() {
-	assert_eq!(slice_n_into::<17, u8, LJFN>(b"Love Jane Forever"), Ok(LJFN(*b"Love Jane Forever")));
+	assert_eq!(slice_n_into::<u8, LJFN, 17>(b"Love Jane Forever"), Ok(LJFN(*b"Love Jane Forever")));
 }
 
 #[test]
 fn slice_n_into_unchecked_should_work() {
 	assert_eq!(
-		slice_n_into_unchecked::<17, u8, LJFN>(b"Love Jane Forever"),
+		slice_n_into_unchecked::<u8, LJFN, 17>(b"Love Jane Forever"),
 		LJFN(*b"Love Jane Forever")
 	);
 }
 
 #[test]
 fn vec2array_should_work() {
-	assert_eq!(vec2array::<8, _>(bytes![0; 8]), Ok([0; 8]));
+	assert_eq!(vec2array::<_, 8>(bytes![0; 8]), Ok([0; 8]));
 }
 
 #[test]
 fn vec_n_into_should_work() {
 	assert_eq!(
-		vec_n_into::<17, u8, LJFN>(b"Love Jane Forever".to_vec()),
+		vec_n_into::<u8, LJFN, 17>(b"Love Jane Forever".to_vec()),
 		Ok(LJFN(*b"Love Jane Forever"))
 	);
 }
@@ -101,7 +101,7 @@ fn vec_n_into_should_work() {
 #[test]
 fn vec_n_into_unchecked_should_work() {
 	assert_eq!(
-		vec_n_into_unchecked::<17, u8, LJFN>(b"Love Jane Forever".to_vec()),
+		vec_n_into_unchecked::<u8, LJFN, 17>(b"Love Jane Forever".to_vec()),
 		LJFN(*b"Love Jane Forever")
 	);
 }

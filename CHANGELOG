@@ -1,6 +1,10 @@
+## v6.2.0
+- Adjust generics order.
+- Bump dependencies.
+
 ## v6.1.0
-- Improve expression
-- Improve `TryFromHex` and add `Hex`
+- Improve expression.
+- Improve `TryFromHex` and add `Hex`.
 
 ## v6.0.0
 - Optimize algorithm.
