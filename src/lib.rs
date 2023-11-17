@@ -321,7 +321,7 @@ pub enum Error {
 /// ```
 /// assert_eq!(array_bytes::slice2array::<_, 8>(&[0; 8]), Ok([0; 8]));
 /// ```
-pub fn slice2array<T, const N: usize,>(slice: &[T]) -> Result<[T; N]>
+pub fn slice2array<T, const N: usize>(slice: &[T]) -> Result<[T; N]>
 where
 	T: Copy,
 {
