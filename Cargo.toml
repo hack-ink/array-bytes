@@ -18,7 +18,7 @@ license = "Apache-2.0/GPL-3.0"
 name = "array-bytes"
 readme = "README.md"
 repository = "https://github.com/hack-ink/array-bytes"
-version = "6.2.1"
+version = "6.2.2"
 
 [profile.ci-dev]
 incremental = false
