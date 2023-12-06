@@ -12,7 +12,7 @@ extern crate alloc;
 #[cfg(test)] mod test;
 
 // core
-use core::{convert::TryInto, result::Result as CoreResult, str};
+use core::{cmp::Ordering, convert::TryInto, result::Result as CoreResult, str};
 // alloc
 use alloc::{format, string::String, vec::Vec};
 // crates.io
@@ -339,6 +339,74 @@ where
 	T: Copy,
 {
 	slice2array(slice).unwrap()
+}
+
+/// Prefixes the given element to the given slice to make it a fixed-size array of length `N`.
+///
+/// If the length of the slice is already equal to `N`, it returns the slice as a fixed-size array.
+/// If the length of the slice is greater than `N`, it returns the first `N` elements of the slice
+/// as a fixed-size array.
+/// If the length of the slice is less than `N`, it creates a new fixed-size array of length `N` and
+/// copies the slice into it, padding the remaining elements with the given element.
+///
+/// # Examples
+/// ```
+/// assert_eq!(array_bytes::prefix_with::<_, _, 4>([1, 2, 3, 4], 0), [1, 2, 3, 4]);
+/// assert_eq!(array_bytes::prefix_with::<_, _, 4>([1, 2, 3, 4, 5, 6], 0), [1, 2, 3, 4]);
+/// assert_eq!(array_bytes::prefix_with::<_, _, 5>([1, 2, 3], 0), [0, 0, 1, 2, 3]);
+/// ```
+pub fn prefix_with<S, T, const N: usize>(slice: S, element: T) -> [T; N]
+where
+	S: AsRef<[T]>,
+	T: Copy,
+{
+	let s = slice.as_ref();
+
+	match s.len().cmp(&N) {
+		Ordering::Equal => slice2array_unchecked(s),
+		Ordering::Greater => slice2array_unchecked(&s[..N]),
+		Ordering::Less => {
+			let mut padded = [element; N];
+
+			padded[N - s.len()..].copy_from_slice(s);
+
+			padded
+		},
+	}
+}
+
+/// Suffixes the given element to the given slice to make it a fixed-size array of length `N`.
+///
+/// If the length of the slice is already equal to `N`, it returns the slice as a fixed-size array.
+/// If the length of the slice is greater than `N`, it returns the first `N` elements of the slice
+/// as a fixed-size array. If the length of the slice is less than `N`, it creates a new fixed-size
+/// array of length `N` and copies the slice into it, padding the remaining elements with the given
+/// element.
+///
+/// # Examples
+/// ```
+/// assert_eq!(array_bytes::suffix_with::<_, _, 4>([1, 2, 3, 4], 0), [1, 2, 3, 4]);
+/// assert_eq!(array_bytes::suffix_with::<_, _, 4>([1, 2, 3, 4, 5, 6], 0), [1, 2, 3, 4]);
+/// assert_eq!(array_bytes::suffix_with::<_, _, 5>([1, 2, 3], 0), [1, 2, 3, 0, 0]);
+/// ```
+pub fn suffix_with<S, T, const N: usize>(slice: S, element: T) -> [T; N]
+where
+	S: AsRef<[T]>,
+	T: Copy,
+{
+	let s = slice.as_ref();
+
+	match s.len().cmp(&N) {
+		Ordering::Equal => slice2array_unchecked(s),
+		Ordering::Greater => slice2array_unchecked(&s[..N]),
+		Ordering::Less => {
+			let mut padded = [element; N];
+
+			padded[..s.len()].copy_from_slice(s);
+
+			padded
+		},
+	}
 }
 
 /// Convert `&[T]` to a type directly.

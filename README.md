@@ -51,6 +51,16 @@
   - type `[u8; N] -> String`, `N = { [1, 64], 128, 256, 512 }`
   - type `&[u8] -> String`
 
+#### `slice` prefixed functions
+- Build fixed length `Array` from `Slice`
+  - type `&[T] -> [T; N]`
+- Transform `Slice` to `G`
+  - type `&[T] -> G`
+  - e.g. `&[0_u8, ...] -> [u8; 20] -> H160`
+
+#### `prefix` and `suffix` functions
+- Prefixes/suffixes the given element to the given slice to make it a fixed-size array of length `N`.
+
 #### `bytes` prefixed functions
 - Convert bytes to hex
   - type `AsRef<[u8]> -> String`
@@ -68,13 +78,6 @@
 - Transform hex to `T`
   - type `AsRef<[u8]> -> T`
   - e.g. `"0x..." -> [u8; 20] -> H160`
-
-#### `slice` prefixed functions
-- Build fixed length `Array` from `Slice`
-  - type `&[T] -> [T; N]`
-- Transform `Slice` to `G`
-  - type `&[T] -> G`
-  - e.g. `&[0_u8, ...] -> [u8; 20] -> H160`
 
 #### `vec` prefixed functions
 - Build fixed length `Array` from `Vec`

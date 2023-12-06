@@ -73,6 +73,20 @@ fn slice2array_should_work() {
 }
 
 #[test]
+fn prefix_with_should_work() {
+	assert_eq!(prefix_with::<_, _, 4>([1, 2, 3, 4], 0), [1, 2, 3, 4]);
+	assert_eq!(prefix_with::<_, _, 4>([1, 2, 3, 4, 5, 6], 0), [1, 2, 3, 4]);
+	assert_eq!(prefix_with::<_, _, 5>([1, 2, 3], 0), [0, 0, 1, 2, 3]);
+}
+
+#[test]
+fn suffix_with_should_work() {
+	assert_eq!(suffix_with::<_, _, 4>([1, 2, 3, 4], 0), [1, 2, 3, 4]);
+	assert_eq!(suffix_with::<_, _, 4>([1, 2, 3, 4, 5, 6], 0), [1, 2, 3, 4]);
+	assert_eq!(suffix_with::<_, _, 5>([1, 2, 3], 0), [1, 2, 3, 0, 0]);
+}
+
+#[test]
 fn slice_n_into_should_work() {
 	assert_eq!(slice_n_into::<u8, LJFN, 17>(b"Love Jane Forever"), Ok(LJFN(*b"Love Jane Forever")));
 }

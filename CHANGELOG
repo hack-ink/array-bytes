@@ -1,3 +1,7 @@
+## v6.2.1
+- Add `prefix_with` and `suffix_with`.
+- Bump dependencies.
+
 ## v6.2.0
 - Adjust generics order.
 - Bump dependencies.
