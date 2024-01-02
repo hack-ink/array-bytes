@@ -694,10 +694,13 @@ where
 ///
 /// # Examples
 /// ```
+/// let mut bytes = [0; 17];
+///
 /// assert_eq!(
-/// 	array_bytes::hex2bytes("0x4c6f7665204a616e6520466f7265766572"),
-/// 	Ok(b"Love Jane Forever".to_vec())
+/// 	array_bytes::hex2slice("0x4c6f7665204a616e6520466f7265766572", &mut bytes),
+/// 	Ok(b"Love Jane Forever".as_slice())
 /// );
+/// assert_eq!(bytes, *b"Love Jane Forever");
 /// ```
 pub fn hex2slice<H>(hex: H, slice: &mut [u8]) -> Result<&[u8]>
 where
@@ -726,10 +729,13 @@ where
 ///
 /// # Examples
 /// ```
+/// let mut bytes = [0; 17];
+///
 /// assert_eq!(
-/// 	array_bytes::hex2bytes("0x4c6f7665204a616e6520466f7265766572"),
-/// 	Ok(b"Love Jane Forever".to_vec())
+/// 	array_bytes::hex2slice_unchecked("0x4c6f7665204a616e6520466f7265766572", &mut bytes),
+/// 	b"Love Jane Forever"
 /// );
+/// assert_eq!(bytes, *b"Love Jane Forever");
 /// ```
 pub fn hex2slice_unchecked<H>(hex: H, slice: &mut [u8]) -> &[u8]
 where
