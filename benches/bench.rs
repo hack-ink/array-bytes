@@ -12,6 +12,8 @@ fn bench_encode(c: &mut Criterion) {
 
 	c.bench_function("hex::encode", |b| b.iter(|| hex::encode(DATA)));
 
+	c.bench_function("const_hex::encode", |b| b.iter(|| const_hex::encode(DATA)));
+
 	c.bench_function("rustc_hex::to_hex", |b| b.iter(|| DATA.to_hex::<String>()));
 
 	c.bench_function("faster_hex::hex_string", |b| b.iter(|| faster_hex::hex_string(DATA)));
@@ -62,6 +64,12 @@ fn bench_decode(c: &mut Criterion) {
 
 			v
 		})
+	});
+
+	c.bench_function("const_hex::decode", |b| {
+		let hex = const_hex::encode(DATA);
+
+		b.iter(|| const_hex::decode(&hex).unwrap())
 	});
 
 	c.bench_function("hex::decode", |b| {
