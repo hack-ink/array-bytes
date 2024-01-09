@@ -10,11 +10,7 @@ const DATA: &[u8] = include_bytes!("../LICENSE-GPL3");
 fn bench_encode(c: &mut Criterion) {
 	c.bench_function("array_bytes::bytes2hex", |b| b.iter(|| array_bytes::bytes2hex("", DATA)));
 
-	c.bench_function("hex::encode", |b| b.iter(|| hex::encode(DATA)));
-
 	c.bench_function("const_hex::encode", |b| b.iter(|| const_hex::encode(DATA)));
-
-	c.bench_function("rustc_hex::to_hex", |b| b.iter(|| DATA.to_hex::<String>()));
 
 	c.bench_function("faster_hex::hex_string", |b| b.iter(|| faster_hex::hex_string(DATA)));
 
@@ -27,6 +23,10 @@ fn bench_encode(c: &mut Criterion) {
 			dst
 		})
 	});
+
+	c.bench_function("hex::encode", |b| b.iter(|| hex::encode(DATA)));
+
+	c.bench_function("rustc_hex::to_hex", |b| b.iter(|| DATA.to_hex::<String>()));
 }
 
 fn bench_decode(c: &mut Criterion) {
@@ -35,13 +35,11 @@ fn bench_decode(c: &mut Criterion) {
 
 		b.iter(|| array_bytes::hex2bytes(&hex).unwrap())
 	});
-
 	c.bench_function("array_bytes::hex2bytes_unchecked", |b| {
 		let hex = array_bytes::bytes2hex("", DATA);
 
 		b.iter(|| array_bytes::hex2bytes_unchecked(&hex))
 	});
-
 	c.bench_function("array_bytes::hex2slice", |b| {
 		let hex = array_bytes::bytes2hex("", DATA);
 
@@ -53,7 +51,6 @@ fn bench_decode(c: &mut Criterion) {
 			v
 		})
 	});
-
 	c.bench_function("array_bytes::hex2slice_unchecked", |b| {
 		let hex = array_bytes::bytes2hex("", DATA);
 
@@ -72,12 +69,33 @@ fn bench_decode(c: &mut Criterion) {
 		b.iter(|| const_hex::decode(&hex).unwrap())
 	});
 
+	c.bench_function("faster_hex::hex_decode", move |b| {
+		let hex = faster_hex::hex_string(DATA);
+		let len = DATA.len();
+		let mut dst = vec![0; len];
+
+		b.iter(|| faster_hex::hex_decode(hex.as_bytes(), &mut dst).unwrap())
+	});
+	c.bench_function("faster_hex::hex_decode_unchecked", |b| {
+		let hex = faster_hex::hex_string(DATA);
+		let len = DATA.len();
+		let mut dst = vec![0; len];
+
+		b.iter(|| faster_hex::hex_decode_unchecked(hex.as_bytes(), &mut dst))
+	});
+	c.bench_function("faster_hex::hex_decode_fallback", |b| {
+		let hex = faster_hex::hex_string(DATA);
+		let len = DATA.len();
+		let mut dst = vec![0; len];
+
+		b.iter(|| faster_hex::hex_decode_fallback(hex.as_bytes(), &mut dst))
+	});
+
 	c.bench_function("hex::decode", |b| {
 		let hex = hex::encode(DATA);
 
 		b.iter(|| hex::decode(&hex).unwrap())
 	});
-
 	c.bench_function("hex::decode_to_slice", |b| {
 		let hex = array_bytes::bytes2hex("", DATA);
 
@@ -94,30 +112,6 @@ fn bench_decode(c: &mut Criterion) {
 		let hex = DATA.to_hex::<String>();
 
 		b.iter(|| hex.from_hex::<Vec<u8>>().unwrap())
-	});
-
-	c.bench_function("faster_hex::hex_decode", move |b| {
-		let hex = faster_hex::hex_string(DATA);
-		let len = DATA.len();
-		let mut dst = vec![0; len];
-
-		b.iter(|| faster_hex::hex_decode(hex.as_bytes(), &mut dst).unwrap())
-	});
-
-	c.bench_function("faster_hex::hex_decode_unchecked", |b| {
-		let hex = faster_hex::hex_string(DATA);
-		let len = DATA.len();
-		let mut dst = vec![0; len];
-
-		b.iter(|| faster_hex::hex_decode_unchecked(hex.as_bytes(), &mut dst))
-	});
-
-	c.bench_function("faster_hex::hex_decode_fallback", |b| {
-		let hex = faster_hex::hex_string(DATA);
-		let len = DATA.len();
-		let mut dst = vec![0; len];
-
-		b.iter(|| faster_hex::hex_decode_fallback(hex.as_bytes(), &mut dst))
 	});
 }
 
