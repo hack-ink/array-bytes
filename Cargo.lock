@@ -120,9 +120,9 @@ checksum = "702fc72eb24e5a1e48ce58027a675bc24edd52096d5397d4aea7c6dd9eca0bd1"
 
 [[package]]
 name = "const-hex"
-version = "1.11.1"
+version = "1.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "efbd12d49ab0eaf8193ba9175e45f56bbc2e4b27d57b8cfe62aa47942a46b9a9"
+checksum = "b37dae8c8ded08d5ec72caa1b4204a5344047cd4a2c7387e3d150020abfbc1c9"
 dependencies = [
  "cfg-if",
  "cpufeatures",
