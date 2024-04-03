@@ -6,7 +6,7 @@ categories = [
 ]
 description = "A collection of array/bytes/hex utilities."
 edition = "2021"
-homepage = "https://array-bytes.hack.ink"
+homepage = "https://hack.ink/array-bytes"
 keywords = [
 	"array",
 	"hex",
