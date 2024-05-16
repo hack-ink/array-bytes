@@ -54,6 +54,7 @@
 #### `slice` prefixed functions
 - Build fixed length `Array` from `Slice`
   - type `&[T] -> [T; N]`
+  - type `&[T] -> &[T; N]`
 - Transform `Slice` to `G`
   - type `&[T] -> G`
   - e.g. `&[0_u8, ...] -> [u8; 20] -> H160`

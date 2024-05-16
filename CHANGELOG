@@ -1,3 +1,7 @@
+## v6.2.3
+- Add `slice2array_ref` and `slice2array_ref_unchecked`.
+- Bump dependencies.
+
 ## v6.2.2
 - Improve documentation.
 

@@ -341,6 +341,32 @@ where
 	slice2array(slice).unwrap()
 }
 
+/// `&[T]` to `&[T; N]`.
+///
+/// # Examples
+/// ```
+/// assert_eq!(array_bytes::slice2array::<_, 8>(&[0; 8]), Ok(&[0; 8]));
+/// ```
+pub fn slice2array_ref<T, const N: usize>(slice: &[T]) -> Result<&[T; N]>
+where
+	T: Copy,
+{
+	slice.try_into().map_err(|_| Error::MismatchedLength { expect: N })
+}
+
+/// Just like [`slice2array_ref`] but without the checking.
+///
+/// # Examples
+/// ```
+/// assert_eq!(array_bytes::slice2array_unchecked::<_, 8>(&[0; 8]), &[0; 8]);
+/// ```
+pub fn slice2array_ref_unchecked<T, const N: usize>(slice: &[T]) -> &[T; N]
+where
+	T: Copy,
+{
+	slice2array_ref(slice).unwrap()
+}
+
 /// Prefixes the given element to the given array/slice/vector to make it a fixed-size array of
 /// length `N`.
 ///
