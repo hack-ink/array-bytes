@@ -28,7 +28,7 @@ inherits    = "dev"
 serde = { version = "1.0", optional = true, default-features = false }
 
 [dev-dependencies]
-const-hex  = { version = "1.11" }
+const-hex  = { version = "1.12" }
 criterion  = { version = "0.5" }
 faster-hex = { version = "0.9" }
 hex        = { version = "0.4" }
