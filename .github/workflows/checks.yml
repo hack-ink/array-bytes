@@ -41,7 +41,10 @@ jobs:
           clippy_flags: --workspace --all-features --all-targets --locked
       - name: Cargo fmt
         if: matrix.action == 'fmt'
-        run: cargo fmt --all -- --check
+        run: |
+          rustup toolchain install nightly
+          rustup component add rustfmt --toolchain nightly
+          cargo +nightly fmt --all -- --check
       - name: Cargo test
         if: matrix.action == 'test'
         run: cargo test --profile ci-dev --workspace --all-features --all-targets --locked
