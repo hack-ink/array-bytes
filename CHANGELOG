@@ -1,6 +1,7 @@
 ## v7.0.0
 - Improve docs.
 - Improve tests.
+- Bump dependencies.
 - Add `se_hex`, `se_hex_without_prefix`.
 - Rename `de_hex2num` to `de_try_from_hex` and make it support more types.
 - Remove `de_hex2bytes`.
