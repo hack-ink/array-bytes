@@ -47,7 +47,7 @@ jobs:
           cargo +nightly fmt --all -- --check
       - name: Cargo test
         if: matrix.action == 'test'
-        run: cargo test --profile ci-dev --workspace --all-features --all-targets --locked
+        run: RUST_MIN_STACK=67108864 cargo test --profile ci-dev --workspace --all-features --all-targets --locked
       - name: Fast fail
         uses: vishnudxb/cancel-workflow@v1.2
         if: failure()

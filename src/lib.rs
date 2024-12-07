@@ -12,15 +12,15 @@ extern crate alloc;
 #[cfg(test)] mod test;
 
 // core
-use core::{cmp::Ordering, convert::TryInto, result::Result as CoreResult, str};
+use core::{cmp::Ordering, convert::TryInto, str};
 // alloc
 use alloc::{format, string::String, vec::Vec};
 // crates.io
-#[cfg(feature = "serde")] use serde::{de::Error as DeError, Deserialize, Deserializer};
-// use thiserror::Error as ThisError;
+#[cfg(feature = "serde")]
+use serde::{de::Error as DeError, Deserialize, Deserializer, Serializer};
 
 /// The main result of array-bytes.
-pub type Result<T> = CoreResult<T, Error>;
+pub type Result<T, E = Error> = core::result::Result<T, E>;
 
 /// Try to convert the given hex to a specific type.
 ///
@@ -28,7 +28,7 @@ pub type Result<T> = CoreResult<T, Error>;
 /// ```
 /// use array_bytes::TryFromHex;
 ///
-/// assert_eq!(u128::try_from_hex("0x1a2b3c4d5e6f"), Ok(28772997619311));
+/// assert_eq!(u128::try_from_hex("0x5201314"), Ok(85_988_116));
 /// ```
 pub trait TryFromHex
 where
@@ -148,6 +148,13 @@ impl_array_try_from_hex! {
 	[u8; 128],
 	[u8; 256],
 	[u8; 512],
+	[u8; 1024],
+	[u8; 2048],
+	[u8; 4096],
+	[u8; 8192],
+	[u8; 16384],
+	[u8; 32768],
+	[u8; 65536],
 }
 impl TryFromHex for Vec<u8> {
 	fn try_from_hex<H>(hex: H) -> Result<Self>
@@ -164,22 +171,34 @@ impl TryFromHex for Vec<u8> {
 /// ```
 /// use array_bytes::Hex;
 ///
-/// assert_eq!(28772997619311_u128.hex("0x"), "0x1a2b3c4d5e6f");
+/// assert_eq!(5_201_314_u128.hex("0x"), "0x4f5da2");
 /// ```
 pub trait Hex {
 	/// Convert [`Self`] to hex with the given prefix.
-	fn hex(self, prefix: &str) -> String;
+	fn hex<P>(self, prefix: P) -> String
+	where
+		P: AsRef<str>;
 }
 macro_rules! impl_num_hex {
 	($($t:ty,)+) => {
 		$(
 			impl Hex for $t {
-				fn hex(self, prefix: &str) -> String {
+				fn hex<P>(self, prefix: P) -> String
+				where
+					P: AsRef<str>
+				{
+					let prefix = prefix.as_ref();
+
 					format!("{prefix}{self:x}")
 				}
 			}
 			impl Hex for &$t {
-				fn hex(self, prefix: &str) -> String {
+				fn hex<P>(self, prefix: P) -> String
+				where
+					P: AsRef<str>
+				{
+					let prefix = prefix.as_ref();
+
 					format!("{prefix}{self:x}")
 				}
 			}
@@ -204,12 +223,18 @@ macro_rules! impl_array_hex {
 	($($t:ty,)+) => {
 		$(
 			impl Hex for $t {
-				fn hex(self, prefix: &str) -> String {
+				fn hex<P>(self, prefix: P) -> String
+				where
+					P: AsRef<str>
+				{
 					bytes2hex(prefix, self)
 				}
 			}
 			impl Hex for &$t {
-				fn hex(self, prefix: &str) -> String {
+				fn hex<P>(self, prefix: P) -> String
+				where
+					P: AsRef<str>
+				{
 					bytes2hex(prefix, self)
 				}
 			}
@@ -285,9 +310,19 @@ impl_array_hex! {
 	[u8; 128],
 	[u8; 256],
 	[u8; 512],
+	[u8; 1024],
+	[u8; 2048],
+	[u8; 4096],
+	[u8; 8192],
+	[u8; 16384],
+	[u8; 32768],
+	[u8; 65536],
 }
 impl Hex for &[u8] {
-	fn hex(self, prefix: &str) -> String {
+	fn hex<P>(self, prefix: P) -> String
+	where
+		P: AsRef<str>,
+	{
 		bytes2hex(prefix, self)
 	}
 }
@@ -319,7 +354,10 @@ pub enum Error {
 ///
 /// # Examples
 /// ```
-/// assert_eq!(array_bytes::slice2array::<_, 8>(&[0; 8]), Ok([0; 8]));
+/// assert_eq!(
+/// 	array_bytes::slice2array::<_, 8>(&[5, 2, 0, 1, 3, 1, 4, 0]),
+/// 	Ok([5, 2, 0, 1, 3, 1, 4, 0])
+/// );
 /// ```
 pub fn slice2array<T, const N: usize>(slice: &[T]) -> Result<[T; N]>
 where
@@ -332,7 +370,10 @@ where
 ///
 /// # Examples
 /// ```
-/// assert_eq!(array_bytes::slice2array_unchecked::<_, 8>(&[0; 8]), [0; 8]);
+/// assert_eq!(
+/// 	array_bytes::slice2array_unchecked::<_, 8>(&[5, 2, 0, 1, 3, 1, 4, 0]),
+/// 	[5, 2, 0, 1, 3, 1, 4, 0]
+/// );
 /// ```
 pub fn slice2array_unchecked<T, const N: usize>(slice: &[T]) -> [T; N]
 where
@@ -345,7 +386,10 @@ where
 ///
 /// # Examples
 /// ```
-/// assert_eq!(array_bytes::slice2array::<_, 8>(&[0; 8]), Ok(&[0; 8]));
+/// assert_eq!(
+/// 	array_bytes::slice2array_ref::<_, 8>(&[5, 2, 0, 1, 3, 1, 4, 0]),
+/// 	Ok(&[5, 2, 0, 1, 3, 1, 4, 0])
+/// );
 /// ```
 pub fn slice2array_ref<T, const N: usize>(slice: &[T]) -> Result<&[T; N]>
 where
@@ -358,7 +402,10 @@ where
 ///
 /// # Examples
 /// ```
-/// assert_eq!(array_bytes::slice2array_unchecked::<_, 8>(&[0; 8]), &[0; 8]);
+/// assert_eq!(
+/// 	array_bytes::slice2array_ref_unchecked::<_, 8>(&[5, 2, 0, 1, 3, 1, 4, 0]),
+/// 	&[5, 2, 0, 1, 3, 1, 4, 0]
+/// );
 /// ```
 pub fn slice2array_ref_unchecked<T, const N: usize>(slice: &[T]) -> &[T; N]
 where
@@ -380,9 +427,9 @@ where
 ///
 /// # Examples
 /// ```
-/// assert_eq!(array_bytes::prefix_with::<_, _, 4>([1, 2, 3, 4], 0), [1, 2, 3, 4]);
-/// assert_eq!(array_bytes::prefix_with::<_, _, 4>([1, 2, 3, 4, 5, 6], 0), [1, 2, 3, 4]);
-/// assert_eq!(array_bytes::prefix_with::<_, _, 5>([1, 2, 3], 0), [0, 0, 1, 2, 3]);
+/// assert_eq!(array_bytes::prefix_with::<_, _, 4>([5, 2, 0, 1], 0), [5, 2, 0, 1]);
+/// assert_eq!(array_bytes::prefix_with::<_, _, 4>([5, 2, 0, 1, 3, 1, 4], 0), [5, 2, 0, 1]);
+/// assert_eq!(array_bytes::prefix_with::<_, _, 5>([5, 2, 0], 0), [0, 0, 5, 2, 0]);
 /// ```
 pub fn prefix_with<A, T, const N: usize>(any: A, element: T) -> [T; N]
 where
@@ -417,9 +464,9 @@ where
 ///
 /// # Examples
 /// ```
-/// assert_eq!(array_bytes::suffix_with::<_, _, 4>([1, 2, 3, 4], 0), [1, 2, 3, 4]);
-/// assert_eq!(array_bytes::suffix_with::<_, _, 4>([1, 2, 3, 4, 5, 6], 0), [1, 2, 3, 4]);
-/// assert_eq!(array_bytes::suffix_with::<_, _, 5>([1, 2, 3], 0), [1, 2, 3, 0, 0]);
+/// assert_eq!(array_bytes::suffix_with::<_, _, 4>([5, 2, 0, 1], 0), [5, 2, 0, 1]);
+/// assert_eq!(array_bytes::suffix_with::<_, _, 4>([5, 2, 0, 1, 3, 1, 4], 0), [5, 2, 0, 1]);
+/// assert_eq!(array_bytes::suffix_with::<_, _, 5>([5, 2, 0], 0), [5, 2, 0, 0, 0]);
 /// ```
 pub fn suffix_with<A, T, const N: usize>(any: A, element: T) -> [T; N]
 where
@@ -446,16 +493,16 @@ where
 /// # Examples
 /// ```
 /// #[derive(Debug, PartialEq)]
-/// struct LJF([u8; 17]);
-/// impl From<[u8; 17]> for LJF {
+/// struct Ljf([u8; 17]);
+/// impl From<[u8; 17]> for Ljf {
 /// 	fn from(array: [u8; 17]) -> Self {
 /// 		Self(array)
 /// 	}
 /// }
 ///
 /// assert_eq!(
-/// 	array_bytes::slice_n_into::<u8, LJF, 17>(b"Love Jane Forever"),
-/// 	Ok(LJF(*b"Love Jane Forever"))
+/// 	array_bytes::slice_n_into::<u8, Ljf, 17>(b"Love Jane Forever"),
+/// 	Ok(Ljf(*b"Love Jane Forever"))
 /// );
 /// ```
 pub fn slice_n_into<T, V, const N: usize>(slice: &[T]) -> Result<V>
@@ -471,16 +518,16 @@ where
 /// # Examples
 /// ```
 /// #[derive(Debug, PartialEq)]
-/// struct LJF([u8; 17]);
-/// impl From<[u8; 17]> for LJF {
+/// struct Ljf([u8; 17]);
+/// impl From<[u8; 17]> for Ljf {
 /// 	fn from(array: [u8; 17]) -> Self {
 /// 		Self(array)
 /// 	}
 /// }
 ///
 /// assert_eq!(
-/// 	array_bytes::slice_n_into_unchecked::<u8, LJF, 17>(b"Love Jane Forever"),
-/// 	LJF(*b"Love Jane Forever")
+/// 	array_bytes::slice_n_into_unchecked::<u8, Ljf, 17>(b"Love Jane Forever"),
+/// 	Ljf(*b"Love Jane Forever")
 /// );
 /// ```
 pub fn slice_n_into_unchecked<T, V, const N: usize>(slice: &[T]) -> V
@@ -517,16 +564,16 @@ pub fn vec2array_unchecked<T, const N: usize>(vec: Vec<T>) -> [T; N] {
 ///
 /// ```
 /// #[derive(Debug, PartialEq)]
-/// struct LJF([u8; 17]);
-/// impl From<[u8; 17]> for LJF {
+/// struct Ljf([u8; 17]);
+/// impl From<[u8; 17]> for Ljf {
 /// 	fn from(array: [u8; 17]) -> Self {
 /// 		Self(array)
 /// 	}
 /// }
 ///
 /// assert_eq!(
-/// 	array_bytes::vec_n_into::<u8, LJF, 17>(b"Love Jane Forever".to_vec()),
-/// 	Ok(LJF(*b"Love Jane Forever"))
+/// 	array_bytes::vec_n_into::<u8, Ljf, 17>(b"Love Jane Forever".to_vec()),
+/// 	Ok(Ljf(*b"Love Jane Forever"))
 /// );
 /// ```
 pub fn vec_n_into<T, V, const N: usize>(vec: Vec<T>) -> Result<V>
@@ -541,16 +588,16 @@ where
 /// # Examples
 /// ```
 /// #[derive(Debug, PartialEq)]
-/// struct LJF([u8; 17]);
-/// impl From<[u8; 17]> for LJF {
+/// struct Ljf([u8; 17]);
+/// impl From<[u8; 17]> for Ljf {
 /// 	fn from(array: [u8; 17]) -> Self {
 /// 		Self(array)
 /// 	}
 /// }
 ///
 /// assert_eq!(
-/// 	array_bytes::vec_n_into_unchecked::<u8, LJF, 17>(b"Love Jane Forever".to_vec()),
-/// 	LJF(*b"Love Jane Forever")
+/// 	array_bytes::vec_n_into_unchecked::<u8, Ljf, 17>(b"Love Jane Forever".to_vec()),
+/// 	Ljf(*b"Love Jane Forever")
 /// );
 /// ```
 pub fn vec_n_into_unchecked<T, V, const N: usize>(vec: Vec<T>) -> V
@@ -611,10 +658,12 @@ pub unsafe fn hex_bytes2hex_str_unchecked(bytes: &[u8]) -> &str {
 /// 	String::from("0x4c6f7665204a616e6520466f7265766572")
 /// );
 /// ```
-pub fn bytes2hex<B>(prefix: &str, bytes: B) -> String
+pub fn bytes2hex<P, B>(prefix: P, bytes: B) -> String
 where
+	P: AsRef<str>,
 	B: AsRef<[u8]>,
 {
+	let prefix = prefix.as_ref();
 	let bytes = bytes.as_ref();
 	let mut hex = String::with_capacity(prefix.len() + bytes.len() * 2);
 
@@ -782,16 +831,16 @@ where
 /// # Examples
 /// ```
 /// #[derive(Debug, PartialEq)]
-/// struct LJF(Vec<u8>);
-/// impl From<Vec<u8>> for LJF {
+/// struct Ljf(Vec<u8>);
+/// impl From<Vec<u8>> for Ljf {
 /// 	fn from(vec: Vec<u8>) -> Self {
 /// 		Self(vec)
 /// 	}
 /// }
 ///
 /// assert_eq!(
-/// 	array_bytes::hex_into::<_, LJF>("0x4c6f7665204a616e6520466f7265766572"),
-/// 	Ok(LJF(b"Love Jane Forever".to_vec()))
+/// 	array_bytes::hex_into::<_, Ljf>("0x4c6f7665204a616e6520466f7265766572"),
+/// 	Ok(Ljf(b"Love Jane Forever".to_vec()))
 /// );
 /// ```
 pub fn hex_into<H, T>(hex: H) -> Result<T>
@@ -807,16 +856,16 @@ where
 /// # Examples
 /// ```
 /// #[derive(Debug, PartialEq)]
-/// struct LJF(Vec<u8>);
-/// impl From<Vec<u8>> for LJF {
+/// struct Ljf(Vec<u8>);
+/// impl From<Vec<u8>> for Ljf {
 /// 	fn from(vec: Vec<u8>) -> Self {
 /// 		Self(vec)
 /// 	}
 /// }
 ///
 /// assert_eq!(
-/// 	array_bytes::hex_into_unchecked::<_, LJF>("0x4c6f7665204a616e6520466f7265766572"),
-/// 	LJF(b"Love Jane Forever".to_vec())
+/// 	array_bytes::hex_into_unchecked::<_, Ljf>("0x4c6f7665204a616e6520466f7265766572"),
+/// 	Ljf(b"Love Jane Forever".to_vec())
 /// );
 /// ```
 pub fn hex_into_unchecked<H, T>(hex: H) -> T
@@ -832,16 +881,16 @@ where
 /// # Examples
 /// ```
 /// #[derive(Debug, PartialEq)]
-/// struct LJF([u8; 17]);
-/// impl From<[u8; 17]> for LJF {
+/// struct Ljf([u8; 17]);
+/// impl From<[u8; 17]> for Ljf {
 /// 	fn from(array: [u8; 17]) -> Self {
 /// 		Self(array)
 /// 	}
 /// }
 ///
 /// assert_eq!(
-/// 	array_bytes::hex_n_into::<_, LJF, 17>("0x4c6f7665204a616e6520466f7265766572"),
-/// 	Ok(LJF(*b"Love Jane Forever"))
+/// 	array_bytes::hex_n_into::<_, Ljf, 17>("0x4c6f7665204a616e6520466f7265766572"),
+/// 	Ok(Ljf(*b"Love Jane Forever"))
 /// );
 /// ```
 pub fn hex_n_into<H, T, const N: usize>(hex: H) -> Result<T>
@@ -857,16 +906,16 @@ where
 /// # Examples
 /// ```
 /// #[derive(Debug, PartialEq)]
-/// struct LJF([u8; 17]);
-/// impl From<[u8; 17]> for LJF {
+/// struct Ljf([u8; 17]);
+/// impl From<[u8; 17]> for Ljf {
 /// 	fn from(array: [u8; 17]) -> Self {
 /// 		Self(array)
 /// 	}
 /// }
 ///
 /// assert_eq!(
-/// 	array_bytes::hex_n_into_unchecked::<_, LJF, 17>("0x4c6f7665204a616e6520466f7265766572"),
-/// 	LJF(*b"Love Jane Forever")
+/// 	array_bytes::hex_n_into_unchecked::<_, Ljf, 17>("0x4c6f7665204a616e6520466f7265766572"),
+/// 	Ljf(*b"Love Jane Forever")
 /// );
 /// ```
 pub fn hex_n_into_unchecked<H, T, const N: usize>(hex: H) -> T
@@ -884,29 +933,29 @@ where
 /// use serde::Deserialize;
 ///
 /// #[derive(Debug, PartialEq)]
-/// struct LJF(Vec<u8>);
-/// impl From<Vec<u8>> for LJF {
+/// struct Ljf(Vec<u8>);
+/// impl From<Vec<u8>> for Ljf {
 /// 	fn from(vec: Vec<u8>) -> Self {
 /// 		Self(vec)
 /// 	}
 /// }
 ///
 /// #[derive(Debug, PartialEq, Deserialize)]
-/// struct WrappedLJF {
+/// struct WrappedLjf {
 /// 	#[serde(deserialize_with = "array_bytes::hex_deserialize_into")]
-/// 	ljf: LJF,
+/// 	ljf: Ljf,
 /// }
 ///
 /// assert_eq!(
-/// 	serde_json::from_str::<WrappedLJF>(r#"{
+/// 	serde_json::from_str::<WrappedLjf>(r#"{
 /// 		"ljf": "0x4c6f7665204a616e6520466f7265766572"
 /// 	}"#).unwrap(),
-/// 	WrappedLJF {
-/// 		ljf: LJF(b"Love Jane Forever".to_vec())
+/// 	WrappedLjf {
+/// 		ljf: Ljf(b"Love Jane Forever".to_vec())
 /// 	}
 /// );
 #[cfg(feature = "serde")]
-pub fn hex_deserialize_into<'de, D, T>(hex: D) -> CoreResult<T, D::Error>
+pub fn hex_deserialize_into<'de, D, T>(hex: D) -> Result<T, D::Error>
 where
 	D: Deserializer<'de>,
 	T: From<Vec<u8>>,
@@ -921,29 +970,29 @@ where
 /// use serde::Deserialize;
 ///
 /// #[derive(Debug, PartialEq)]
-/// struct LJF([u8; 17]);
-/// impl From<[u8; 17]> for LJF {
+/// struct Ljf([u8; 17]);
+/// impl From<[u8; 17]> for Ljf {
 /// 	fn from(array: [u8; 17]) -> Self {
 /// 		Self(array)
 /// 	}
 /// }
 ///
 /// #[derive(Debug, PartialEq, Deserialize)]
-/// struct WrappedLJF {
+/// struct WrappedLjf {
 /// 	#[serde(deserialize_with = "array_bytes::hex_deserialize_n_into")]
-/// 	ljf: LJF,
+/// 	ljf: Ljf,
 /// }
 ///
 /// assert_eq!(
-/// 	serde_json::from_str::<WrappedLJF>(r#"{
+/// 	serde_json::from_str::<WrappedLjf>(r#"{
 /// 		"ljf": "0x4c6f7665204a616e6520466f7265766572"
 /// 	}"#).unwrap(),
-/// 	WrappedLJF {
-/// 		ljf: LJF(*b"Love Jane Forever")
+/// 	WrappedLjf {
+/// 		ljf: Ljf(*b"Love Jane Forever")
 /// 	}
 /// );
 #[cfg(feature = "serde")]
-pub fn hex_deserialize_n_into<'de, D, T, const N: usize>(hex: D) -> CoreResult<T, D::Error>
+pub fn hex_deserialize_n_into<'de, D, T, const N: usize>(hex: D) -> Result<T, D::Error>
 where
 	D: Deserializer<'de>,
 	T: From<[u8; N]>,
@@ -951,78 +1000,109 @@ where
 	Ok(hex2array_unchecked(<&str>::deserialize(hex)?).into())
 }
 
-/// Deserialize hex to any Rust primitive num types.
+/// Deserialize hex to the pre-defined primitive types.
 ///
 /// # Examples
 /// ```
 /// use serde::Deserialize;
 ///
 /// #[derive(Debug, PartialEq, Deserialize)]
-/// struct LJF {
-/// 	#[serde(deserialize_with = "array_bytes::de_hex2num")]
+/// struct Ljf {
+/// 	#[serde(deserialize_with = "array_bytes::de_try_from_hex")]
 /// 	_0: u8,
-/// 	#[serde(deserialize_with = "array_bytes::de_hex2num")]
-/// 	_1: u8,
-/// 	#[serde(deserialize_with = "array_bytes::de_hex2num")]
-/// 	_2: u8,
-/// 	#[serde(deserialize_with = "array_bytes::de_hex2num")]
-/// 	_3: u32,
+/// 	#[serde(deserialize_with = "array_bytes::de_try_from_hex")]
+/// 	_1: u16,
+/// 	#[serde(deserialize_with = "array_bytes::de_try_from_hex")]
+/// 	_2: u32,
+/// 	#[serde(deserialize_with = "array_bytes::de_try_from_hex")]
+/// 	_3: [u8; 4],
 /// }
 ///
 /// assert_eq!(
-/// 	serde_json::from_str::<LJF>(
+/// 	serde_json::from_str::<Ljf>(
 /// 		r#"{
 /// 		"_0": "0x5",
 /// 		"_1": "0x2",
 /// 		"_2": "0x0",
-/// 		"_3": "0x522"
+/// 		"_3": "0x01030104"
 /// 	}"#
 /// 	)
 /// 	.unwrap(),
-/// 	LJF { _0: 5, _1: 2, _2: 0, _3: 1314 }
+/// 	Ljf { _0: 5, _1: 2, _2: 0, _3: [1, 3, 1, 4] }
 /// );
 /// ```
 #[cfg(feature = "serde")]
-pub fn de_hex2num<'de, D, T>(hex: D) -> CoreResult<T, D::Error>
+pub fn de_try_from_hex<'de, D, T>(hex: D) -> Result<T, D::Error>
 where
 	D: Deserializer<'de>,
 	T: TryFromHex,
 {
 	let hex = <&str>::deserialize(hex)?;
 
-	T::try_from_hex(hex).map_err(|_| D::Error::custom(alloc::format!("Invalid hex str `{}`", hex)))
+	T::try_from_hex(hex).map_err(|_| D::Error::custom(alloc::format!("invalid hex str `{}`", hex)))
 }
 
-/// Deserialize hex to [`Vec<u8>`].
+/// Serialize the pre-defined primitive types to hex.
 ///
 /// # Examples
 /// ```
-/// use serde::Deserialize;
+/// use serde::Serialize;
 ///
-/// #[derive(Debug, PartialEq, Deserialize)]
-/// struct LJF {
-/// 	#[serde(deserialize_with = "array_bytes::de_hex2bytes")]
-/// 	ljf: Vec<u8>,
+/// #[derive(Debug, PartialEq, Serialize)]
+/// struct Ljf {
+/// 	#[serde(serialize_with = "array_bytes::se_hex")]
+/// 	_0: u8,
+/// 	#[serde(serialize_with = "array_bytes::se_hex")]
+/// 	_1: u16,
+/// 	#[serde(serialize_with = "array_bytes::se_hex")]
+/// 	_2: u32,
+/// 	#[serde(serialize_with = "array_bytes::se_hex")]
+/// 	_3: [u8; 4],
 /// }
 ///
 /// assert_eq!(
-/// 	serde_json::from_str::<LJF>(
-/// 		r#"{
-/// 		"ljf": "0x4c6f7665204a616e6520466f7265766572"
-/// 	}"#
-/// 	)
-/// 	.unwrap(),
-/// 	LJF { ljf: (*b"Love Jane Forever").to_vec() }
+/// 	serde_json::to_string::<Ljf>(&Ljf { _0: 5, _1: 2, _2: 0, _3: [1, 3, 1, 4] }).unwrap(),
+/// 	r#"{"_0":"0x5","_1":"0x2","_2":"0x0","_3":"0x01030104"}"#
 /// );
 /// ```
 #[cfg(feature = "serde")]
-pub fn de_hex2bytes<'de, D>(hex: D) -> CoreResult<Vec<u8>, D::Error>
+pub fn se_hex<S, T>(hex: T, serializer: S) -> Result<S::Ok, S::Error>
 where
-	D: Deserializer<'de>,
+	S: Serializer,
+	T: Hex,
 {
-	let hex = <&str>::deserialize(hex)?;
-
-	hex2bytes(hex).map_err(|_| D::Error::custom(alloc::format!("Invalid hex str `{}`", hex)))
+	serializer.serialize_str(&hex.hex("0x"))
+}
+/// Just like [`se_hex`] but without the prefix.
+///
+/// # Examples
+/// ```
+/// use serde::Serialize;
+///
+/// #[derive(Debug, PartialEq, Serialize)]
+/// struct Ljf {
+/// 	#[serde(serialize_with = "array_bytes::se_hex_without_prefix")]
+/// 	_0: u8,
+/// 	#[serde(serialize_with = "array_bytes::se_hex_without_prefix")]
+/// 	_1: u16,
+/// 	#[serde(serialize_with = "array_bytes::se_hex_without_prefix")]
+/// 	_2: u32,
+/// 	#[serde(serialize_with = "array_bytes::se_hex_without_prefix")]
+/// 	_3: [u8; 4],
+/// }
+///
+/// assert_eq!(
+/// 	serde_json::to_string::<Ljf>(&Ljf { _0: 5, _1: 2, _2: 0, _3: [1, 3, 1, 4] }).unwrap(),
+/// 	r#"{"_0":"5","_1":"2","_2":"0","_3":"01030104"}"#
+/// );
+/// ```
+#[cfg(feature = "serde")]
+pub fn se_hex_without_prefix<S, T>(hex: T, serializer: S) -> Result<S::Ok, S::Error>
+where
+	S: Serializer,
+	T: Hex,
+{
+	serializer.serialize_str(&hex.hex(""))
 }
 
 fn strip_0x(hex: &[u8]) -> &[u8] {
