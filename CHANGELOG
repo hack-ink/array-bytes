@@ -1,3 +1,7 @@
+## v7.1.0
+- Rename `se_hex` to `ser_hex`.
+- Rename `se_hex_without_prefix` to `ser_hex_without_prefix`.
+
 ## v7.0.0
 - Improve docs.
 - Improve tests.

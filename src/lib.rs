@@ -1050,13 +1050,13 @@ where
 ///
 /// #[derive(Debug, PartialEq, Serialize)]
 /// struct Ljf {
-/// 	#[serde(serialize_with = "array_bytes::se_hex")]
+/// 	#[serde(serialize_with = "array_bytes::ser_hex")]
 /// 	_0: u8,
-/// 	#[serde(serialize_with = "array_bytes::se_hex")]
+/// 	#[serde(serialize_with = "array_bytes::ser_hex")]
 /// 	_1: u16,
-/// 	#[serde(serialize_with = "array_bytes::se_hex")]
+/// 	#[serde(serialize_with = "array_bytes::ser_hex")]
 /// 	_2: u32,
-/// 	#[serde(serialize_with = "array_bytes::se_hex")]
+/// 	#[serde(serialize_with = "array_bytes::ser_hex")]
 /// 	_3: [u8; 4],
 /// }
 ///
@@ -1066,14 +1066,14 @@ where
 /// );
 /// ```
 #[cfg(feature = "serde")]
-pub fn se_hex<S, T>(hex: T, serializer: S) -> Result<S::Ok, S::Error>
+pub fn ser_hex<S, T>(hex: T, serializer: S) -> Result<S::Ok, S::Error>
 where
 	S: Serializer,
 	T: Hex,
 {
 	serializer.serialize_str(&hex.hex("0x"))
 }
-/// Just like [`se_hex`] but without the prefix.
+/// Just like [`ser_hex`] but without the prefix.
 ///
 /// # Examples
 /// ```
@@ -1081,13 +1081,13 @@ where
 ///
 /// #[derive(Debug, PartialEq, Serialize)]
 /// struct Ljf {
-/// 	#[serde(serialize_with = "array_bytes::se_hex_without_prefix")]
+/// 	#[serde(serialize_with = "array_bytes::ser_hex_without_prefix")]
 /// 	_0: u8,
-/// 	#[serde(serialize_with = "array_bytes::se_hex_without_prefix")]
+/// 	#[serde(serialize_with = "array_bytes::ser_hex_without_prefix")]
 /// 	_1: u16,
-/// 	#[serde(serialize_with = "array_bytes::se_hex_without_prefix")]
+/// 	#[serde(serialize_with = "array_bytes::ser_hex_without_prefix")]
 /// 	_2: u32,
-/// 	#[serde(serialize_with = "array_bytes::se_hex_without_prefix")]
+/// 	#[serde(serialize_with = "array_bytes::ser_hex_without_prefix")]
 /// 	_3: [u8; 4],
 /// }
 ///
@@ -1097,7 +1097,7 @@ where
 /// );
 /// ```
 #[cfg(feature = "serde")]
-pub fn se_hex_without_prefix<S, T>(hex: T, serializer: S) -> Result<S::Ok, S::Error>
+pub fn ser_hex_without_prefix<S, T>(hex: T, serializer: S) -> Result<S::Ok, S::Error>
 where
 	S: Serializer,
 	T: Hex,

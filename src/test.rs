@@ -32,437 +32,437 @@ impl From<[u8; 17]> for Ljfn {
 struct LjfPredefined {
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_0: isize,
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_1: i8,
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_2: i16,
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_3: i32,
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_4: i64,
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_5: i128,
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_6: usize,
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_7: u8,
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_8: u16,
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_9: u32,
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_10: u64,
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_11: u128,
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_12: Vec<u8>,
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_13: [u8; 1],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_14: [u8; 2],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_15: [u8; 3],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_16: [u8; 4],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_17: [u8; 5],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_18: [u8; 6],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_19: [u8; 7],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_20: [u8; 8],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_21: [u8; 9],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_22: [u8; 10],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_23: [u8; 11],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_24: [u8; 12],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_25: [u8; 13],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_26: [u8; 14],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_27: [u8; 15],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_28: [u8; 16],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_29: [u8; 17],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_30: [u8; 18],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_31: [u8; 19],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_32: [u8; 20],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_33: [u8; 21],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_34: [u8; 22],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_35: [u8; 23],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_36: [u8; 24],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_37: [u8; 25],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_38: [u8; 26],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_39: [u8; 27],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_40: [u8; 28],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_41: [u8; 29],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_42: [u8; 30],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_43: [u8; 31],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_44: [u8; 32],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_45: [u8; 33],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_46: [u8; 34],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_47: [u8; 35],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_48: [u8; 36],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_49: [u8; 37],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_50: [u8; 38],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_51: [u8; 39],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_52: [u8; 40],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_53: [u8; 41],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_54: [u8; 42],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_55: [u8; 43],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_56: [u8; 44],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_57: [u8; 45],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_58: [u8; 46],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_59: [u8; 47],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_60: [u8; 48],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_61: [u8; 49],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_62: [u8; 50],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_63: [u8; 51],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_64: [u8; 52],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_65: [u8; 53],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_66: [u8; 54],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_67: [u8; 55],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_68: [u8; 56],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_69: [u8; 57],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_70: [u8; 58],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_71: [u8; 59],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_72: [u8; 60],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_73: [u8; 61],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_74: [u8; 62],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_75: [u8; 63],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_76: [u8; 64],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_77: [u8; 128],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_78: [u8; 256],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_79: [u8; 512],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_80: [u8; 1024],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_81: [u8; 2048],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_82: [u8; 4096],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_83: [u8; 8192],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_84: [u8; 16384],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_85: [u8; 32768],
 	#[cfg_attr(
 		feature = "serde",
-		serde(deserialize_with = "de_try_from_hex", serialize_with = "se_hex")
+		serde(deserialize_with = "de_try_from_hex", serialize_with = "ser_hex")
 	)]
 	_86: [u8; 65536],
 }
@@ -1257,7 +1257,7 @@ fn de_try_from_hex_should_work() {
 
 #[cfg(feature = "serde")]
 #[test]
-fn se_hex_should_work() {
+fn ser_hex_should_work() {
 	let ljf = LjfPredefined::default();
 	let json = serde_json::to_string(&ljf).unwrap();
 
@@ -1266,10 +1266,10 @@ fn se_hex_should_work() {
 
 #[cfg(feature = "serde")]
 #[test]
-fn se_hex_without_prefix_should_work() {
+fn ser_hex_without_prefix_should_work() {
 	#[derive(Debug, PartialEq, Serialize)]
 	struct Ljf {
-		#[serde(serialize_with = "se_hex_without_prefix")]
+		#[serde(serialize_with = "ser_hex_without_prefix")]
 		_0: Vec<u8>,
 	}
 

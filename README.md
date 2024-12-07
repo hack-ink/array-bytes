@@ -94,7 +94,7 @@
 - `#[serde(deserialize_with = "array_bytes::de_try_from_hex")]`
   - type `S -> impl TryFromHex`
   - e.g. `"0xA" -> 10_u32`
-- `#[serde(serialize_with = "array_bytes::se_hex")]`
+- `#[serde(serialize_with = "array_bytes::ser_hex/array_bytes::ser_hex_without_prefix")]`
   - type `S -> impl Hex`
   - e.g. `"0x00" -> vec![0_u8]`
 
