@@ -29,7 +29,8 @@
   - type `AsRef<[u8]> -> u64`
   - type `AsRef<[u8]> -> u128`
 - Convert hex to array
-  - type `AsRef<[u8]> -> [u8; N]`, `N = { [1, 64], 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536 }`
+  - type `AsRef<[u8]> -> [u8; N]`
+  - type `AsRef<[u8]> -> SmallVec<[u8; 64]>`
   - type `AsRef<[u8]> -> Vec<u8>`
 
 #### `Hex` trait
@@ -47,9 +48,11 @@
   - type `u64 -> String`
   - type `u128 -> String`
 - Convert array to hex
-  - type `Vec<u8> -> String`
-  - type `[u8; N] -> String`, `N = { [1, 64], 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536 }`
+  - type `[u8; N] -> String`
+  - type `&[u8; N] -> String`
   - type `&[u8] -> String`
+  - type `Vec<u8> -> String`
+  - type `&Vec<u8> -> String`
 
 #### `slice` prefixed functions
 - Build fixed length `Array` from `Slice`
@@ -73,7 +76,7 @@
 - Transform hex from `Array`
   - type `&str -> [u8; N]`
 - Convert hex to bytes
-  - type  `AsRef<[u8]> -> Vec<u8>`
+  - type  `AsRef<[u8]> -> SmallVec<[u8; 64]>`
 - Convert hex to `Slice`
   - type `AsRef<[u8]> -> &[u8]`
 - Transform hex to `T`
@@ -102,85 +105,28 @@
 <div align="right"><sub>Tuesday, January 9th, 2024</sub></div>
 
 ```rs
-array_bytes::bytes2hex  time:   [26.426 µs 26.473 µs 26.518 µs]
-Found 4 outliers among 100 measurements (4.00%)
-  2 (2.00%) low mild
-  1 (1.00%) high mild
-  1 (1.00%) high severe
-
-const_hex::encode       time:   [994.78 ns 1.0084 µs 1.0232 µs]
-
-faster_hex::hex_string  time:   [11.728 µs 11.769 µs 11.815 µs]
-
+array_bytes::bytes2hex  time:   [11.175 µs 11.198 µs 11.219 µs]
+const_hex::encode       time:   [1.2195 µs 1.2381 µs 1.2564 µs]
+faster_hex::hex_string  time:   [12.058 µs 12.089 µs 12.123 µs]
 faster_hex::hex_encode_fallback
-                        time:   [11.704 µs 11.737 µs 11.773 µs]
-Found 1 outliers among 100 measurements (1.00%)
-  1 (1.00%) high mild
+                        time:   [12.055 µs 12.095 µs 12.135 µs]
+hex::encode             time:   [73.787 µs 75.290 µs 76.798 µs]
+rustc_hex::to_hex       time:   [43.948 µs 44.517 µs 45.504 µs]
 
-hex::encode             time:   [86.105 µs 86.250 µs 86.433 µs]
-Found 14 outliers among 100 measurements (14.00%)
-  1 (1.00%) low severe
-  4 (4.00%) low mild
-  6 (6.00%) high mild
-  3 (3.00%) high severe
-
-rustc_hex::to_hex       time:   [44.486 µs 45.538 µs 46.723 µs]
-Found 16 outliers among 100 measurements (16.00%)
-  1 (1.00%) low mild
-  2 (2.00%) high mild
-  13 (13.00%) high severe
-
-array_bytes::hex2bytes  time:   [43.576 µs 44.529 µs 45.404 µs]
-                        Performance has regressed.
-Found 11 outliers among 100 measurements (11.00%)
-  7 (7.00%) low mild
-  4 (4.00%) high mild
-
+array_bytes::hex2bytes  time:   [19.294 µs 19.383 µs 19.500 µs]
 array_bytes::hex2bytes_unchecked
-                        time:   [64.190 µs 65.311 µs 66.359 µs]
-
-array_bytes::hex2slice  time:   [45.484 µs 46.988 µs 48.736 µs]
-                        Performance has regressed.
-Found 12 outliers among 100 measurements (12.00%)
-  2 (2.00%) high mild
-  10 (10.00%) high severe
-
+                        time:   [19.507 µs 19.666 µs 19.850 µs]
+array_bytes::hex2slice  time:   [23.608 µs 24.087 µs 24.598 µs]
 array_bytes::hex2slice_unchecked
-                        time:   [62.339 µs 63.317 µs 64.279 µs]
-                        Performance has regressed.
-
-const_hex::decode       time:   [13.601 µs 13.629 µs 13.665 µs]
-                        Performance has improved.
-Found 2 outliers among 100 measurements (2.00%)
-  1 (1.00%) low mild
-  1 (1.00%) high severe
-
-faster_hex::hex_decode  time:   [28.015 µs 28.061 µs 28.110 µs]
-                        Performance has improved.
-Found 1 outliers among 100 measurements (1.00%)
-  1 (1.00%) high mild
-
+                        time:   [21.853 µs 22.428 µs 23.048 µs]
+const_hex::decode       time:   [13.999 µs 14.018 µs 14.037 µs]
+faster_hex::hex_decode  time:   [28.983 µs 29.028 µs 29.075 µs]
 faster_hex::hex_decode_unchecked
-                        time:   [11.782 µs 11.797 µs 11.812 µs]
-Found 3 outliers among 100 measurements (3.00%)
-  2 (2.00%) low severe
-  1 (1.00%) low mild
-
+                        time:   [11.908 µs 11.926 µs 11.947 µs]
 faster_hex::hex_decode_fallback
-                        time:   [11.748 µs 11.767 µs 11.785 µs]
-Found 7 outliers among 100 measurements (7.00%)
-  2 (2.00%) low severe
-  4 (4.00%) low mild
-  1 (1.00%) high mild
-
-hex::decode             time:   [93.055 µs 94.781 µs 96.583 µs]
-
-hex::decode_to_slice    time:   [31.949 µs 33.509 µs 35.285 µs]
-Found 13 outliers among 100 measurements (13.00%)
-  5 (5.00%) high mild
-  8 (8.00%) high severe
-
-rustc_hex::from_hex     time:   [105.99 µs 108.05 µs 110.11 µs]
+                        time:   [11.909 µs 11.924 µs 11.940 µs]
+hex::decode             time:   [96.566 µs 99.398 µs 102.23 µs]
+hex::decode_to_slice    time:   [41.424 µs 42.312 µs 43.448 µs]
 ```
 
 <div align="right">

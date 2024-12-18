@@ -1,5 +1,5 @@
-#![allow(clippy::tabs_in_doc_comments)]
-#![deny(missing_docs)]
+#![deny(clippy::all, missing_docs, unused_crate_dependencies)]
+#![allow(clippy::tabs_in_doc_comments, clippy::uninit_vec)]
 #![no_std]
 
 //! A collection of array/bytes/hex utilities.
@@ -18,9 +18,34 @@ use alloc::{format, string::String, vec::Vec};
 // crates.io
 #[cfg(feature = "serde")]
 use serde::{de::Error as DeError, Deserialize, Deserializer, Serializer};
+use smallvec::SmallVec;
 
 /// The main result of array-bytes.
 pub type Result<T, E = Error> = core::result::Result<T, E>;
+
+const HEX_CHARS: &[u8; 16] = b"0123456789abcdef";
+
+static HEX_TO_DIGIT: [Option<u8>; 256] = {
+	let mut table = [None; 256];
+	let mut i = 0;
+
+	while i <= 9 {
+		table[b'0' as usize + i] = Some(i as u8);
+
+		i += 1;
+	}
+
+	i = 0;
+
+	while i <= 5 {
+		table[b'a' as usize + i] = Some((10 + i) as u8);
+		table[b'A' as usize + i] = Some((10 + i) as u8);
+
+		i += 1;
+	}
+
+	table
+};
 
 /// Try to convert the given hex to a specific type.
 ///
@@ -68,100 +93,30 @@ impl_num_try_from_hex! {
 	u64,
 	u128,
 }
-macro_rules! impl_array_try_from_hex {
-	($($t:ty,)+) => {
-		$(impl TryFromHex for $t {
-			fn try_from_hex<H>(hex: H) -> Result<Self>
-			where
-				H: AsRef<[u8]>,
-			{
-				hex2array(hex)
-			}
-		})+
-	};
+impl<const N: usize> TryFromHex for [u8; N] {
+	fn try_from_hex<H>(hex: H) -> Result<Self>
+	where
+		H: AsRef<[u8]>,
+	{
+		let bytes = hex2bytes(hex)?;
+
+		slice2array(&bytes)
+	}
 }
-impl_array_try_from_hex! {
-	[u8; 1],
-	[u8; 2],
-	[u8; 3],
-	[u8; 4],
-	[u8; 5],
-	[u8; 6],
-	[u8; 7],
-	[u8; 8],
-	[u8; 9],
-	[u8; 10],
-	[u8; 11],
-	[u8; 12],
-	[u8; 13],
-	[u8; 14],
-	[u8; 15],
-	[u8; 16],
-	[u8; 17],
-	[u8; 18],
-	[u8; 19],
-	[u8; 20],
-	[u8; 21],
-	[u8; 22],
-	[u8; 23],
-	[u8; 24],
-	[u8; 25],
-	[u8; 26],
-	[u8; 27],
-	[u8; 28],
-	[u8; 29],
-	[u8; 30],
-	[u8; 31],
-	[u8; 32],
-	[u8; 33],
-	[u8; 34],
-	[u8; 35],
-	[u8; 36],
-	[u8; 37],
-	[u8; 38],
-	[u8; 39],
-	[u8; 40],
-	[u8; 41],
-	[u8; 42],
-	[u8; 43],
-	[u8; 44],
-	[u8; 45],
-	[u8; 46],
-	[u8; 47],
-	[u8; 48],
-	[u8; 49],
-	[u8; 50],
-	[u8; 51],
-	[u8; 52],
-	[u8; 53],
-	[u8; 54],
-	[u8; 55],
-	[u8; 56],
-	[u8; 57],
-	[u8; 58],
-	[u8; 59],
-	[u8; 60],
-	[u8; 61],
-	[u8; 62],
-	[u8; 63],
-	[u8; 64],
-	[u8; 128],
-	[u8; 256],
-	[u8; 512],
-	[u8; 1024],
-	[u8; 2048],
-	[u8; 4096],
-	[u8; 8192],
-	[u8; 16384],
-	[u8; 32768],
-	[u8; 65536],
+impl TryFromHex for SmallVec<[u8; 64]> {
+	fn try_from_hex<H>(hex: H) -> Result<Self>
+	where
+		H: AsRef<[u8]>,
+	{
+		hex2bytes(hex)
+	}
 }
 impl TryFromHex for Vec<u8> {
 	fn try_from_hex<H>(hex: H) -> Result<Self>
 	where
 		H: AsRef<[u8]>,
 	{
-		hex2bytes(hex)
+		hex2bytes(hex).map(|sv| sv.into_vec())
 	}
 }
 
@@ -219,106 +174,40 @@ impl_num_hex! {
 	u64,
 	u128,
 }
-macro_rules! impl_array_hex {
-	($($t:ty,)+) => {
-		$(
-			impl Hex for $t {
-				fn hex<P>(self, prefix: P) -> String
-				where
-					P: AsRef<str>
-				{
-					bytes2hex(prefix, self)
-				}
-			}
-			impl Hex for &$t {
-				fn hex<P>(self, prefix: P) -> String
-				where
-					P: AsRef<str>
-				{
-					bytes2hex(prefix, self)
-				}
-			}
-		)+
-	};
+impl<const N: usize> Hex for [u8; N] {
+	fn hex<P>(self, prefix: P) -> String
+	where
+		P: AsRef<str>,
+	{
+		bytes2hex(prefix, self)
+	}
 }
-impl_array_hex! {
-	Vec<u8>,
-	[u8; 1],
-	[u8; 2],
-	[u8; 3],
-	[u8; 4],
-	[u8; 5],
-	[u8; 6],
-	[u8; 7],
-	[u8; 8],
-	[u8; 9],
-	[u8; 10],
-	[u8; 11],
-	[u8; 12],
-	[u8; 13],
-	[u8; 14],
-	[u8; 15],
-	[u8; 16],
-	[u8; 17],
-	[u8; 18],
-	[u8; 19],
-	[u8; 20],
-	[u8; 21],
-	[u8; 22],
-	[u8; 23],
-	[u8; 24],
-	[u8; 25],
-	[u8; 26],
-	[u8; 27],
-	[u8; 28],
-	[u8; 29],
-	[u8; 30],
-	[u8; 31],
-	[u8; 32],
-	[u8; 33],
-	[u8; 34],
-	[u8; 35],
-	[u8; 36],
-	[u8; 37],
-	[u8; 38],
-	[u8; 39],
-	[u8; 40],
-	[u8; 41],
-	[u8; 42],
-	[u8; 43],
-	[u8; 44],
-	[u8; 45],
-	[u8; 46],
-	[u8; 47],
-	[u8; 48],
-	[u8; 49],
-	[u8; 50],
-	[u8; 51],
-	[u8; 52],
-	[u8; 53],
-	[u8; 54],
-	[u8; 55],
-	[u8; 56],
-	[u8; 57],
-	[u8; 58],
-	[u8; 59],
-	[u8; 60],
-	[u8; 61],
-	[u8; 62],
-	[u8; 63],
-	[u8; 64],
-	[u8; 128],
-	[u8; 256],
-	[u8; 512],
-	[u8; 1024],
-	[u8; 2048],
-	[u8; 4096],
-	[u8; 8192],
-	[u8; 16384],
-	[u8; 32768],
-	[u8; 65536],
+
+impl<const N: usize> Hex for &[u8; N] {
+	fn hex<P>(self, prefix: P) -> String
+	where
+		P: AsRef<str>,
+	{
+		bytes2hex(prefix, self)
+	}
 }
 impl Hex for &[u8] {
+	fn hex<P>(self, prefix: P) -> String
+	where
+		P: AsRef<str>,
+	{
+		bytes2hex(prefix, self)
+	}
+}
+impl Hex for Vec<u8> {
+	fn hex<P>(self, prefix: P) -> String
+	where
+		P: AsRef<str>,
+	{
+		bytes2hex(prefix, self)
+	}
+}
+impl Hex for &Vec<u8> {
 	fn hex<P>(self, prefix: P) -> String
 	where
 		P: AsRef<str>,
@@ -436,19 +325,7 @@ where
 	A: AsRef<[T]>,
 	T: Copy,
 {
-	let a = any.as_ref();
-
-	match a.len().cmp(&N) {
-		Ordering::Equal => slice2array_unchecked(a),
-		Ordering::Greater => slice2array_unchecked(&a[..N]),
-		Ordering::Less => {
-			let mut padded = [element; N];
-
-			padded[N - a.len()..].copy_from_slice(a);
-
-			padded
-		},
-	}
+	pad_array(any, element, true)
 }
 
 /// Suffixes the given element to the given array/slice/vector to make it a fixed-size array of
@@ -473,19 +350,7 @@ where
 	A: AsRef<[T]>,
 	T: Copy,
 {
-	let a = any.as_ref();
-
-	match a.len().cmp(&N) {
-		Ordering::Equal => slice2array_unchecked(a),
-		Ordering::Greater => slice2array_unchecked(&a[..N]),
-		Ordering::Less => {
-			let mut padded = [element; N];
-
-			padded[..a.len()].copy_from_slice(a);
-
-			padded
-		},
-	}
+	pad_array(any, element, false)
 }
 
 /// Convert `&[T]` to a type directly.
@@ -620,7 +485,7 @@ where
 /// ```
 pub fn hex_bytes2hex_str(bytes: &[u8]) -> Result<&str> {
 	for (i, byte) in bytes.iter().enumerate().skip(if bytes.starts_with(b"0x") { 2 } else { 0 }) {
-		if !is_hex_ascii(byte) {
+		if !byte.is_ascii_hexdigit() {
 			Err(Error::InvalidCharacter { character: *byte as _, index: i })?;
 		}
 	}
@@ -638,15 +503,13 @@ pub fn hex_bytes2hex_str(bytes: &[u8]) -> Result<&str> {
 ///
 /// # Examples
 /// ```
-/// unsafe {
-/// 	assert_eq!(
-/// 		array_bytes::hex_bytes2hex_str_unchecked(b"0x4c6f7665204a616e6520466f7265766572"),
-/// 		"0x4c6f7665204a616e6520466f7265766572",
-/// 	);
-/// }
+/// assert_eq!(
+/// 	array_bytes::hex_bytes2hex_str_unchecked(b"0x4c6f7665204a616e6520466f7265766572"),
+/// 	"0x4c6f7665204a616e6520466f7265766572",
+/// );
 /// ```
-pub unsafe fn hex_bytes2hex_str_unchecked(bytes: &[u8]) -> &str {
-	str::from_utf8_unchecked(bytes)
+pub fn hex_bytes2hex_str_unchecked(bytes: &[u8]) -> &str {
+	unsafe { str::from_utf8_unchecked(bytes) }
 }
 
 /// `AsRef<[u8]>` to [`String`].
@@ -665,16 +528,33 @@ where
 {
 	let prefix = prefix.as_ref();
 	let bytes = bytes.as_ref();
-	let mut hex = String::with_capacity(prefix.len() + bytes.len() * 2);
+	let cap = prefix.len() + bytes.len() * 2;
+	let mut hex_bytes = <SmallVec<[u8; 128]>>::with_capacity(cap);
 
-	prefix.chars().for_each(|byte| hex.push(byte));
-	bytes.iter().for_each(|byte| {
-		hex.push(char::from_digit((byte >> 4) as _, 16).unwrap());
-		hex.push(char::from_digit((byte & 0xf) as _, 16).unwrap());
-	});
+	hex_bytes.extend_from_slice(prefix.as_bytes());
 
-	hex
+	// The capacity is fixed, it's safe to set the length; qed.
+	unsafe {
+		hex_bytes.set_len(cap);
+	}
+
+	let hex_ptr = unsafe { hex_bytes.as_mut_ptr().add(prefix.len()) };
+
+	for (i, &byte) in bytes.iter().enumerate() {
+		let high = HEX_CHARS[(byte >> 4) as usize];
+		let low = HEX_CHARS[(byte & 0x0f) as usize];
+
+		unsafe {
+			*hex_ptr.add(i * 2) = high;
+			*hex_ptr.add(i * 2 + 1) = low;
+		}
+	}
+
+	// All the bytes are looked up in the `HEX_CHARS`, it's safe to convert to string; qed.
+	unsafe { String::from_utf8_unchecked(hex_bytes.into_vec()) }
 }
+
+// ? Add `bytes2hex_uppercase`.
 
 /// Just like [`hex2bytes`] but to a fixed length array.
 ///
@@ -689,7 +569,7 @@ pub fn hex2array<H, const N: usize>(hex: H) -> Result<[u8; N]>
 where
 	H: AsRef<[u8]>,
 {
-	vec2array(hex2bytes(hex.as_ref())?)
+	vec2array(hex2bytes(hex)?.into_vec())
 }
 
 /// Just like [`hex2array`] but without the checking.
@@ -705,7 +585,7 @@ pub fn hex2array_unchecked<H, const N: usize>(hex: H) -> [u8; N]
 where
 	H: AsRef<[u8]>,
 {
-	hex2bytes_unchecked(hex).try_into().unwrap()
+	hex2bytes_unchecked(hex).into_vec().try_into().unwrap()
 }
 
 /// `AsRef<[u8]>` to [`Vec<u8>`].
@@ -717,11 +597,11 @@ where
 /// # Examples
 /// ```
 /// assert_eq!(
-/// 	array_bytes::hex2bytes("0x4c6f7665204a616e6520466f7265766572"),
-/// 	Ok(b"Love Jane Forever".to_vec())
+/// 	array_bytes::hex2bytes("0x4c6f7665204a616e6520466f7265766572").unwrap().into_vec(),
+/// 	b"Love Jane Forever".to_vec()
 /// );
 /// ```
-pub fn hex2bytes<H>(hex: H) -> Result<Vec<u8>>
+pub fn hex2bytes<H>(hex: H) -> Result<SmallVec<[u8; 64]>>
 where
 	H: AsRef<[u8]>,
 {
@@ -731,10 +611,27 @@ where
 		Err(Error::InvalidLength)?;
 	}
 
-	let mut bytes = Vec::new();
+	let cap = hex.len() / 2;
+	let mut bytes = <SmallVec<[u8; 64]>>::with_capacity(cap);
 
-	for i in (0..hex.len()).step_by(2) {
-		bytes.push(hex2byte((&hex[i], i), (&hex[i + 1], i + 1))?);
+	// The capacity is fixed, it's safe to set the length; qed.
+	unsafe {
+		bytes.set_len(cap);
+	}
+
+	let bytes_ptr = bytes.as_mut_ptr();
+
+	for i in 0..cap {
+		let high = HEX_TO_DIGIT[hex[i * 2] as usize]
+			.ok_or(Error::InvalidCharacter { character: hex[i * 2] as char, index: i * 2 })?;
+		let low = HEX_TO_DIGIT[hex[i * 2 + 1] as usize].ok_or(Error::InvalidCharacter {
+			character: hex[i * 2 + 1] as char,
+			index: i * 2 + 1,
+		})?;
+
+		unsafe {
+			*bytes_ptr.add(i) = (high << 4) | low;
+		}
 	}
 
 	Ok(bytes)
@@ -745,17 +642,35 @@ where
 /// # Examples
 /// ```
 /// assert_eq!(
-/// 	array_bytes::hex2bytes_unchecked("0x4c6f7665204a616e6520466f7265766572"),
-/// 	*b"Love Jane Forever"
+/// 	array_bytes::hex2bytes_unchecked("0x4c6f7665204a616e6520466f7265766572").into_vec(),
+/// 	b"Love Jane Forever"
 /// );
 /// ```
-pub fn hex2bytes_unchecked<H>(hex: H) -> Vec<u8>
+pub fn hex2bytes_unchecked<H>(hex: H) -> SmallVec<[u8; 64]>
 where
 	H: AsRef<[u8]>,
 {
 	let hex = strip_0x(hex.as_ref());
+	let cap = hex.len() / 2;
+	let mut bytes = <SmallVec<[u8; 64]>>::with_capacity(cap);
 
-	(0..hex.len()).step_by(2).map(|i| hex2byte_unchecked(&hex[i], &hex[i + 1])).collect()
+	// The capacity is fixed, it's safe to set the length; qed.
+	unsafe {
+		bytes.set_len(cap);
+	}
+
+	let bytes_ptr = bytes.as_mut_ptr();
+
+	for i in 0..cap {
+		let high = HEX_TO_DIGIT[hex[i * 2] as usize].unwrap();
+		let low = HEX_TO_DIGIT[hex[i * 2 + 1] as usize].unwrap();
+
+		unsafe {
+			*bytes_ptr.add(i) = (high << 4) | low;
+		}
+	}
+
+	bytes
 }
 
 /// `AsRef<[u8]>` to `&[u8]`.
@@ -769,13 +684,13 @@ where
 ///
 /// # Examples
 /// ```
-/// let mut bytes = [0; 17];
+/// let mut array = [0; 17];
 ///
 /// assert_eq!(
-/// 	array_bytes::hex2slice("0x4c6f7665204a616e6520466f7265766572", &mut bytes),
+/// 	array_bytes::hex2slice("0x4c6f7665204a616e6520466f7265766572", &mut array),
 /// 	Ok(b"Love Jane Forever".as_slice())
 /// );
-/// assert_eq!(bytes, *b"Love Jane Forever");
+/// assert_eq!(array, *b"Love Jane Forever");
 /// ```
 pub fn hex2slice<H>(hex: H, slice: &mut [u8]) -> Result<&[u8]>
 where
@@ -804,13 +719,13 @@ where
 ///
 /// # Examples
 /// ```
-/// let mut bytes = [0; 17];
+/// let mut array = [0; 17];
 ///
 /// assert_eq!(
-/// 	array_bytes::hex2slice_unchecked("0x4c6f7665204a616e6520466f7265766572", &mut bytes),
+/// 	array_bytes::hex2slice_unchecked("0x4c6f7665204a616e6520466f7265766572", &mut array),
 /// 	b"Love Jane Forever"
 /// );
-/// assert_eq!(bytes, *b"Love Jane Forever");
+/// assert_eq!(array, *b"Love Jane Forever");
 /// ```
 pub fn hex2slice_unchecked<H>(hex: H, slice: &mut [u8]) -> &[u8]
 where
@@ -848,7 +763,7 @@ where
 	H: AsRef<[u8]>,
 	T: From<Vec<u8>>,
 {
-	Ok(hex2bytes(hex.as_ref())?.into())
+	Ok(hex2bytes(hex.as_ref())?.into_vec().into())
 }
 
 /// Just like [`hex_into`] but without the checking.
@@ -873,7 +788,7 @@ where
 	H: AsRef<[u8]>,
 	T: From<Vec<u8>>,
 {
-	hex2bytes_unchecked(hex).into()
+	hex2bytes_unchecked(hex).into_vec().into()
 }
 
 /// Try to convert `AsRef<[u8]>` to `T` directly, where `T: From<[u8; N]>`.
@@ -960,7 +875,11 @@ where
 	D: Deserializer<'de>,
 	T: From<Vec<u8>>,
 {
-	Ok(hex2bytes_unchecked(<&str>::deserialize(hex)?).into())
+	let hex_str = <&str>::deserialize(hex)?;
+
+	hex2bytes(hex_str)
+		.map(|sv| sv.into_vec().into())
+		.map_err(|e| D::Error::custom(format!("{e:?}")))
 }
 
 /// Deserialize hex to `T`, where `T: From<[u8; N]>`.
@@ -997,7 +916,9 @@ where
 	D: Deserializer<'de>,
 	T: From<[u8; N]>,
 {
-	Ok(hex2array_unchecked(<&str>::deserialize(hex)?).into())
+	let hex_str = <&str>::deserialize(hex)?;
+
+	hex2array(hex_str).map(Into::into).map_err(|e| D::Error::custom(format!("{e:?}")))
 }
 
 /// Deserialize hex to the pre-defined primitive types.
@@ -1105,6 +1026,7 @@ where
 	serializer.serialize_str(&hex.hex(""))
 }
 
+#[inline(always)]
 fn strip_0x(hex: &[u8]) -> &[u8] {
 	if let Some(hex) = hex.strip_prefix(b"0x") {
 		hex
@@ -1113,24 +1035,12 @@ fn strip_0x(hex: &[u8]) -> &[u8] {
 	}
 }
 
-fn is_hex_ascii(byte: &u8) -> bool {
-	// Convert to lowercase.
-	let byte = byte | 0b10_0000;
-
-	matches!(byte, b'0'..=b'9' | b'a'..=b'f')
-}
-
+#[inline(always)]
 fn hex_ascii2digit(hex_ascii: &u8) -> Option<u8> {
-	// Convert to lowercase.
-	let hex_ascii = hex_ascii | 0b10_0000;
-
-	match hex_ascii {
-		b'0'..=b'9' => Some(hex_ascii - b'0'),
-		b'a'..=b'f' => Some(hex_ascii - b'a' + 10),
-		_ => None,
-	}
+	HEX_TO_DIGIT[*hex_ascii as usize]
 }
 
+#[inline(always)]
 fn hex2byte(hex_ascii_1: (&u8, usize), hex_ascii_2: (&u8, usize)) -> Result<u8> {
 	let byte = hex_ascii2digit(hex_ascii_1.0)
 		.ok_or(Error::InvalidCharacter { character: *hex_ascii_1.0 as _, index: hex_ascii_1.1 })?
@@ -1140,6 +1050,34 @@ fn hex2byte(hex_ascii_1: (&u8, usize), hex_ascii_2: (&u8, usize)) -> Result<u8> 
 	Ok(byte)
 }
 
+#[inline(always)]
 fn hex2byte_unchecked(hex_ascii_1: &u8, hex_ascii_2: &u8) -> u8 {
 	hex_ascii2digit(hex_ascii_1).unwrap() << 4 | hex_ascii2digit(hex_ascii_2).unwrap()
+}
+
+#[inline(always)]
+fn pad_array<A, T, const N: usize>(any: A, element: T, pad_start: bool) -> [T; N]
+where
+	A: AsRef<[T]>,
+	T: Copy,
+{
+	let a = any.as_ref();
+
+	match a.len().cmp(&N) {
+		// `a.len() == N`; qed.
+		Ordering::Equal => slice2array_unchecked(a),
+		// `a[..N]` has exactly `N` elements; qed.
+		Ordering::Greater => slice2array_unchecked(&a[..N]),
+		Ordering::Less => {
+			let mut padded = [element; N];
+
+			if pad_start {
+				padded[N - a.len()..].copy_from_slice(a);
+			} else {
+				padded[..a.len()].copy_from_slice(a);
+			}
+
+			padded
+		},
+	}
 }

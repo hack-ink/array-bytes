@@ -1,5 +1,14 @@
 #![allow(clippy::upper_case_acronyms)]
 
+// Suppress `unused_crate_dependencies` error.
+use const_hex as _;
+use criterion as _;
+use faster_hex as _;
+use hex as _;
+use rustc_hex as _;
+use serde as _;
+use serde_json as _;
+
 // crates.io
 #[cfg(feature = "serde")] use serde::{Deserialize, Serialize};
 // self
@@ -907,16 +916,14 @@ fn hex_bytes2hex_str_should_work() {
 
 #[test]
 fn hex_bytes2hex_str_unchecked_should_work() {
-	unsafe {
-		assert_eq!(
-			hex_bytes2hex_str_unchecked(b"0x4c6f7665204a616e6520466f7265766572"),
-			"0x4c6f7665204a616e6520466f7265766572",
-		);
-		assert_eq!(
-			hex_bytes2hex_str_unchecked(b"4c6f7665204a616e6520466f7265766572"),
-			"4c6f7665204a616e6520466f7265766572",
-		);
-	}
+	assert_eq!(
+		hex_bytes2hex_str_unchecked(b"0x4c6f7665204a616e6520466f7265766572"),
+		"0x4c6f7665204a616e6520466f7265766572",
+	);
+	assert_eq!(
+		hex_bytes2hex_str_unchecked(b"4c6f7665204a616e6520466f7265766572"),
+		"4c6f7665204a616e6520466f7265766572",
+	);
 }
 
 #[test]
@@ -936,17 +943,20 @@ fn hex2array_should_work() {
 #[test]
 fn hex2bytes_should_work() {
 	assert_eq!(
-		hex2bytes("0x4c6f7665204a616e6520466f7265766572"),
-		Ok(b"Love Jane Forever".to_vec())
+		hex2bytes("0x4c6f7665204a616e6520466f7265766572").unwrap().into_vec(),
+		b"Love Jane Forever".to_vec()
 	);
 	assert_eq!(
-		hex2bytes("0x4c6f7665204a616e6520466f7265766572".as_bytes()),
-		Ok(b"Love Jane Forever".to_vec())
+		hex2bytes("0x4c6f7665204a616e6520466f7265766572".as_bytes()).unwrap().into_vec(),
+		b"Love Jane Forever".to_vec()
 	);
-	assert_eq!(hex2bytes("4c6f7665204a616e6520466f7265766572"), Ok(b"Love Jane Forever".to_vec()));
 	assert_eq!(
-		hex2bytes("4c6f7665204a616e6520466f7265766572".as_bytes()),
-		Ok(b"Love Jane Forever".to_vec())
+		hex2bytes("4c6f7665204a616e6520466f7265766572").unwrap().into_vec(),
+		b"Love Jane Forever".to_vec()
+	);
+	assert_eq!(
+		hex2bytes("4c6f7665204a616e6520466f7265766572".as_bytes()).unwrap().into_vec(),
+		b"Love Jane Forever".to_vec()
 	);
 
 	assert_eq!(hex2bytes("我爱你"), Err(Error::InvalidLength));
@@ -958,14 +968,20 @@ fn hex2bytes_should_work() {
 
 #[test]
 fn hex2bytes_unchecked_should_work() {
-	assert_eq!(hex2bytes_unchecked("0x4c6f7665204a616e6520466f7265766572"), *b"Love Jane Forever");
 	assert_eq!(
-		hex2bytes_unchecked("0x4c6f7665204a616e6520466f7265766572".as_bytes()),
+		hex2bytes_unchecked("0x4c6f7665204a616e6520466f7265766572").into_vec(),
 		*b"Love Jane Forever"
 	);
-	assert_eq!(hex2bytes_unchecked("4c6f7665204a616e6520466f7265766572"), *b"Love Jane Forever");
 	assert_eq!(
-		hex2bytes_unchecked("4c6f7665204a616e6520466f7265766572".as_bytes()),
+		hex2bytes_unchecked("0x4c6f7665204a616e6520466f7265766572".as_bytes()).into_vec(),
+		*b"Love Jane Forever"
+	);
+	assert_eq!(
+		hex2bytes_unchecked("4c6f7665204a616e6520466f7265766572").into_vec(),
+		*b"Love Jane Forever"
+	);
+	assert_eq!(
+		hex2bytes_unchecked("4c6f7665204a616e6520466f7265766572".as_bytes()).into_vec(),
 		*b"Love Jane Forever"
 	);
 }
@@ -1306,7 +1322,7 @@ fn random_input_should_work() {
 				512 => hex2array_unchecked::<_, 256>(&piece).to_vec(),
 				1024 => hex2array_unchecked::<_, 512>(&piece).to_vec(),
 				2048 => hex2array_unchecked::<_, 1024>(&piece).to_vec(),
-				_ => hex2bytes_unchecked(&piece),
+				_ => hex2bytes_unchecked(&piece).into_vec(),
 			})
 			.collect::<Vec<_>>();
 
