@@ -102,7 +102,7 @@
   - e.g. `"0x00" -> vec![0_u8]`
 
 ## Benchmark results
-<div align="right"><sub>Tuesday, January 9th, 2024</sub></div>
+<div align="right"><sub>Wed, Dec 18th, 2024</sub></div>
 
 ```rs
 array_bytes::bytes2hex  time:   [11.175 µs 11.198 µs 11.219 µs]
@@ -112,7 +112,7 @@ faster_hex::hex_encode_fallback
                         time:   [12.055 µs 12.095 µs 12.135 µs]
 hex::encode             time:   [73.787 µs 75.290 µs 76.798 µs]
 rustc_hex::to_hex       time:   [43.948 µs 44.517 µs 45.504 µs]
-
+---
 array_bytes::hex2bytes  time:   [19.294 µs 19.383 µs 19.500 µs]
 array_bytes::hex2bytes_unchecked
                         time:   [19.507 µs 19.666 µs 19.850 µs]
