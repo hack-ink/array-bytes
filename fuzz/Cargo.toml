@@ -1,5 +1,5 @@
 [package]
-authors = ["Xavier Lau <xavier@inv.cafe>"]
+authors = ["Xavier Lau <x@acg.box>"]
 edition = "2021"
 name    = "array-bytes-fuzz"
 publish = false
