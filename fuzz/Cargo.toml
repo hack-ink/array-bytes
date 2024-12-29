@@ -3,7 +3,7 @@ authors = ["Xavier Lau <x@acg.box>"]
 edition = "2021"
 name    = "array-bytes-fuzz"
 publish = false
-version = "6.1.0"
+version = "9.0.0"
 
 [package.metadata]
 cargo-fuzz = true
@@ -12,7 +12,7 @@ cargo-fuzz = true
 all-features = true
 
 [dependencies]
-array-bytes   = { version = "8.0", path = ".." }
+array-bytes   = { version = "9.0", path = ".." }
 libfuzzer-sys = { version = "0.4" }
 
 [workspace]
@@ -20,6 +20,6 @@ members = ["."]
 
 [[bin]]
 doc  = false
-name = "bytes-hex-conversion"
-path = "fuzz_targets/bytes_hex_conversion.rs"
+name = "hexify-dehexify"
+path = "fuzz_targets/hexify_dehexify.rs"
 test = false

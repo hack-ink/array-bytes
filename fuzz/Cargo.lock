@@ -10,14 +10,14 @@ checksum = "dde20b3d026af13f561bdd0f15edf01fc734f0dafcedbaf42bba506a9517f223"
 
 [[package]]
 name = "array-bytes"
-version = "8.0.0"
+version = "9.0.0"
 dependencies = [
  "smallvec",
 ]
 
 [[package]]
 name = "array-bytes-fuzz"
-version = "6.1.0"
+version = "9.0.0"
 dependencies = [
  "array-bytes",
  "libfuzzer-sys",

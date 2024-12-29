@@ -1,10 +1,13 @@
 [package]
 authors = ["Xavier Lau <x@acg.box>"]
 categories = [
+	"algorithms",
 	"encoding",
+	"parsing",
 	"no-std",
+	"wasm",
 ]
-description = "A collection of array/bytes/hex utilities."
+description = "A collection of Array/Bytes/Hex utilities with full No-STD compatibility."
 edition = "2021"
 homepage = "https://hack.ink/array-bytes"
 keywords = [
@@ -18,7 +21,7 @@ license = "Apache-2.0/GPL-3.0"
 name = "array-bytes"
 readme = "README.md"
 repository = "https://github.com/hack-ink/array-bytes"
-version = "8.0.0"
+version = "9.0.0"
 
 [profile.ci-dev]
 incremental = false
@@ -32,7 +35,7 @@ smallvec = { version = "1.13" }
 const-hex  = { version = "1.14" }
 criterion  = { version = "0.5" }
 faster-hex = { version = "0.10" }
-hex        = { version = "0.4" }
+hex_crate  = { package = "hex", version = "0.4" }
 rustc-hex  = { version = "2.1" }
 serde      = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0" }

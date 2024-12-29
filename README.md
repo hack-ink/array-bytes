@@ -1,7 +1,7 @@
 <div align="center">
 
 # array-bytes
-### A Collection of Array/Bytes/Hex Utilities.
+### A collection of Array/Bytes/Hex utilities with full No-STD compatibility.
 
 [![License GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![License MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -10,128 +10,117 @@
 [![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/hack-ink/array-bytes)](https://github.com/hack-ink/array-bytes/tags)
 [![GitHub code lines](https://tokei.rs/b1/github/hack-ink/array-bytes)](https://github.com/hack-ink/array-bytes)
 [![GitHub last commit](https://img.shields.io/github/last-commit/hack-ink/array-bytes?color=red&style=plastic)](https://github.com/hack-ink/array-bytes)
-
 </div>
 
-## Abilities
-#### `TryFromHex` trait
-- Convert hex to num
-  - type `AsRef<[u8]> -> isize`
-  - type `AsRef<[u8]> -> i8`
-  - type `AsRef<[u8]> -> i16`
-  - type `AsRef<[u8]> -> i32`
-  - type `AsRef<[u8]> -> i64`
-  - type `AsRef<[u8]> -> i128`
-  - type `AsRef<[u8]> -> usize`
-  - type `AsRef<[u8]> -> u8`
-  - type `AsRef<[u8]> -> u16`
-  - type `AsRef<[u8]> -> u32`
-  - type `AsRef<[u8]> -> u64`
-  - type `AsRef<[u8]> -> u128`
-- Convert hex to array
-  - type `AsRef<[u8]> -> [u8; N]`
-  - type `AsRef<[u8]> -> SmallVec<[u8; 64]>`
-  - type `AsRef<[u8]> -> Vec<u8>`
 
-#### `Hex` trait
-- Convert num to hex
-  - type `isize -> String`
-  - type `i8 -> String`
-  - type `i16 -> String`
-  - type `i32 -> String`
-  - type `i64 -> String`
-  - type `i128 -> String`
-  - type `usize -> String`
-  - type `u8 -> String`
-  - type `u16 -> String`
-  - type `u32 -> String`
-  - type `u64 -> String`
-  - type `u128 -> String`
-- Convert array to hex
-  - type `[u8; N] -> String`
-  - type `&[u8; N] -> String`
-  - type `&[u8] -> String`
-  - type `Vec<u8> -> String`
-  - type `&Vec<u8> -> String`
+## Usage
+Here are a few quick examples of the most commonly used operations: hexifying and dehexifying.
 
-#### `slice` prefixed functions
-- Build fixed length `Array` from `Slice`
-  - type `&[T] -> [T; N]`
-  - type `&[T] -> &[T; N]`
-- Transform `Slice` to `G`
-  - type `&[T] -> G`
-  - e.g. `&[0_u8, ...] -> [u8; 20] -> H160`
-
-#### `prefix` and `suffix` functions
-- Prefixes/suffixes the given element to the given slice to make it a fixed-size array of length `N`.
-
-#### `bytes` prefixed functions
-- Convert bytes to hex
-  - type `AsRef<[u8]> -> String`
-
-#### `hex` prefixed functions
-- Convert `HexBytes` to hex
-  - type `&[u8] -> &str`
-  - e.g. `b"0x..." -> "0x..."`
-- Transform hex from `Array`
-  - type `&str -> [u8; N]`
-- Convert hex to bytes
-  - type  `AsRef<[u8]> -> SmallVec<[u8; 64]>`
-- Convert hex to `Slice`
-  - type `AsRef<[u8]> -> &[u8]`
-- Transform hex to `T`
-  - type `AsRef<[u8]> -> T`
-  - e.g. `"0x..." -> [u8; 20] -> H160`
-
-#### `vec` prefixed functions
-- Build fixed length `Array` from `Vec`
-  - type `Vec<T> -> [T; N]`
-- Transform `Vec` to `G`
-  - type `Vec<T> -> G`
-  - e.g. `vec![0_u8,  ...] -> [u8; 20] -> H160`
-
-#### Serde support (require feature `serde`)
-- `#[serde(deserialize_with = "array_bytes::hex_deserialize_n_into")]`
-  - type `S -> T`
-  - e.g. `"0x..." -> H160`
-- `#[serde(deserialize_with = "array_bytes::de_try_from_hex")]`
-  - type `S -> impl TryFromHex`
-  - e.g. `"0xA" -> 10_u32`
-- `#[serde(serialize_with = "array_bytes::ser_hex/array_bytes::ser_hex_without_prefix")]`
-  - type `S -> impl Hex`
-  - e.g. `"0x00" -> vec![0_u8]`
-
-## Benchmark results
-<div align="right"><sub>Wed, Dec 18th, 2024</sub></div>
+However, this crate also offers many other utilities for Array/Bytes/Hex, each with comprehensive documentation and examples. Check them out on [docs.rs](https://docs.rs/array-bytes)!
 
 ```rs
-array_bytes::bytes2hex  time:   [11.175 µs 11.198 µs 11.219 µs]
-const_hex::encode       time:   [1.2195 µs 1.2381 µs 1.2564 µs]
-faster_hex::hex_string  time:   [12.058 µs 12.089 µs 12.123 µs]
-faster_hex::hex_encode_fallback
-                        time:   [12.055 µs 12.095 µs 12.135 µs]
-hex::encode             time:   [73.787 µs 75.290 µs 76.798 µs]
-rustc_hex::to_hex       time:   [43.948 µs 44.517 µs 45.504 µs]
----
-array_bytes::hex2bytes  time:   [19.294 µs 19.383 µs 19.500 µs]
-array_bytes::hex2bytes_unchecked
-                        time:   [19.507 µs 19.666 µs 19.850 µs]
-array_bytes::hex2slice  time:   [23.608 µs 24.087 µs 24.598 µs]
-array_bytes::hex2slice_unchecked
-                        time:   [21.853 µs 22.428 µs 23.048 µs]
-const_hex::decode       time:   [13.999 µs 14.018 µs 14.037 µs]
-faster_hex::hex_decode  time:   [28.983 µs 29.028 µs 29.075 µs]
-faster_hex::hex_decode_unchecked
-                        time:   [11.908 µs 11.926 µs 11.947 µs]
-faster_hex::hex_decode_fallback
-                        time:   [11.909 µs 11.924 µs 11.940 µs]
-hex::decode             time:   [96.566 µs 99.398 µs 102.23 µs]
-hex::decode_to_slice    time:   [41.424 µs 42.312 µs 43.448 µs]
+use array_bytes::{Hexify, Dehexify};
+use smallvec::SmallVec;
+
+// Hexify.
+// Unsigned.
+assert_eq!(52_u8.hexify(), "34");
+assert_eq!(520_u16.hexify_upper(), "208");
+assert_eq!(5_201_314_u32.hexify_prefixed(), "0x4f5da2");
+assert_eq!(5_201_314_u64.hexify_prefixed_upper(), "0x4F5DA2");
+assert_eq!(5_201_314_u128.hexify(), "4f5da2");
+assert_eq!(5_201_314_usize.hexify_upper(), "4F5DA2");
+// `[u8; N]`.
+assert_eq!(*b"Love Jane Forever".hexify(), String::from("4c6f7665204a616e6520466f7265766572"));
+// `&[u8; N]`.
+assert_eq!(
+	b"Love Jane Forever".hexify_upper(),
+	String::from("4C6F7665204A616E6520466F7265766572")
+);
+// `&[u8]`.
+assert_eq!(
+	b"Love Jane Forever".as_slice().hexify_prefixed(),
+	String::from("0x4c6f7665204a616e6520466f7265766572")
+);
+// `Vec<u8>`.
+assert_eq!(
+	b"Love Jane Forever".to_vec().hexify_prefixed_upper(),
+	String::from("0x4C6F7665204A616E6520466F7265766572")
+);
+// `&Vec<u8>`.
+assert_eq!(
+	(&b"Love Jane Forever".to_vec()).hexify(),
+	String::from("4c6f7665204a616e6520466f7265766572")
+);
+// Dehexify.
+// Unsigned.
+assert_eq!(u8::dehexify("34"), Ok(52));
+assert_eq!(u16::dehexify("208"), Ok(520));
+assert_eq!(u32::dehexify("0x4f5da2"), Ok(5_201_314));
+assert_eq!(u64::dehexify("0x4F5DA2"), Ok(5_201_314));
+assert_eq!(u128::dehexify("4f5da2"), Ok(5_201_314));
+assert_eq!(usize::dehexify("4F5DA2"), Ok(5_201_314));
+// Array.
+assert_eq!(
+	<[u8; 17]>::dehexify("0x4c6f7665204a616e6520466f7265766572"),
+	Ok(*b"Love Jane Forever")
+);
+// SmallVec.
+assert_eq!(
+	SmallVec::dehexify("0x4c6f7665204a616e6520466f7265766572").unwrap().into_vec(),
+	b"Love Jane Forever".to_vec()
+);
+assert_eq!(SmallVec::dehexify("我爱你"), Err(Error::InvalidLength));
+assert_eq!(SmallVec::dehexify("0x我爱你"), Err(Error::InvalidLength));
+// Vec.
+assert_eq!(
+	<Vec<u8>>::dehexify("0x4c6f7665204a616e6520466f7265766572"),
+	Ok(b"Love Jane Forever".to_vec())
+);
+assert_eq!(
+	<Vec<u8>>::dehexify("我爱你 "),
+	Err(Error::InvalidCharacter { character: 'æ', index: 0 })
+);
+assert_eq!(
+	<Vec<u8>>::dehexify(" 我爱你"),
+	Err(Error::InvalidCharacter { character: ' ', index: 0 })
+);
+```
+
+## Benchmark
+The following benchmarks were run on a `Apple M4 Max 64GB - macOS 15.2 (24C101)`.
+
+<div align="right"><sub>Sun, Dec 29th, 2024</sub></div>
+
+```rs
+// Hexify.
+array_bytes::Hexify::hexify      time:   [11.195 µs 11.227 µs 11.264 µs]
+const_hex::encode                time:   [1.0546 µs 1.0823 µs 1.1099 µs]
+faster_hex::hex_string           time:   [12.054 µs 12.103 µs 12.154 µs]
+faster_hex::hex_encode_fallback  time:   [12.170 µs 12.209 µs 12.245 µs]
+hex::encode                      time:   [87.014 µs 87.164 µs 87.312 µs]
+rustc_hex::to_hex                time:   [45.022 µs 45.616 µs 46.304 µs]
+// Dehexify.
+array_bytes::Dehexify::dehexify  time:   [19.601 µs 19.815 µs 20.061 µs]
+array_bytes::dehexify_slice_mut  time:   [20.455 µs 20.471 µs 20.489 µs]
+const_hex::decode                time:   [14.098 µs 14.118 µs 14.137 µs]
+faster_hex::hex_decode           time:   [29.356 µs 29.395 µs 29.435 µs]
+faster_hex::hex_decode_unchecked time:   [12.089 µs 12.134 µs 12.208 µs]
+faster_hex::hex_decode_fallback  time:   [12.067 µs 12.082 µs 12.098 µs]
+hex::decode                      time:   [97.005 µs 98.854 µs 100.65 µs]
+hex::decode_to_slice             time:   [39.262 µs 40.562 µs 42.064 µs]
+rustc_hex::from_hex              time:   [108.91 µs 110.77 µs 112.53 µs]
+```
+
+To run the benchmarks yourself:
+```sh
+git clone https://github.com/hack-ink/array-bytes
+cd array-bytes
+cargo bench
 ```
 
 <div align="right">
 
-#### License
+## License
 <sup>Licensed under either of <a href="LICENSE-APACHE">Apache-2.0</a> or <a href="LICENSE-GPL3">GPL-3.0</a> at your option.</sup>
-
 </div>
