@@ -1,3 +1,6 @@
+### v9.1.2
+- Add `ser_bytes_stringify` and `de_bytes_destringify`.
+
 ### v9.1.1
 - Integrate `serde_bytes`.
 

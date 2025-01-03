@@ -1,10 +1,37 @@
+// core
+use core::str;
 // alloc
 use alloc::format;
 // crates.io
 #[cfg(test)] use serde::Serialize;
-use serde::{de::Error as DeError, Deserialize, Deserializer, Serializer};
+use serde::{de::Error as _, ser::Error as _, Deserialize, Deserializer, Serializer};
 // self
 use crate::{prelude::*, Dehexify, Hexify};
+
+/// Serialize bytes to string.
+///
+/// # Examples
+/// ```
+/// use serde::Serialize;
+///
+/// #[derive(Debug, PartialEq, Serialize)]
+/// struct Ljf {
+/// 	#[serde(serialize_with = "array_bytes::ser_bytes_stringify")]
+/// 	_0: Vec<u8>,
+/// }
+///
+/// assert_eq!(
+/// 	serde_json::to_string::<Ljf>(&Ljf { _0: b"Love Jane Forever".to_vec() }).unwrap(),
+/// 	r#"{"_0":"Love Jane Forever"}"#
+/// );
+/// ```
+pub fn ser_bytes_stringify<S, T>(value: &T, serializer: S) -> Result<S::Ok, S::Error>
+where
+	S: Serializer,
+	T: AsRef<[u8]>,
+{
+	serializer.serialize_str(str::from_utf8(value.as_ref()).map_err(S::Error::custom)?)
+}
 
 /// Serialize `T` to hex.
 ///
@@ -130,6 +157,32 @@ where
 	serializer.serialize_str(&value.hexify_prefixed())
 }
 
+/// Deserialize string to bytes.
+///
+/// # Examples
+/// ```
+/// use serde::Deserialize;
+///
+/// #[derive(Debug, PartialEq, Deserialize)]
+/// struct Ljf {
+/// 	#[serde(deserialize_with = "array_bytes::de_bytes_destringify")]
+/// 	_0: Vec<u8>,
+/// }
+///
+/// assert_eq!(
+/// 	serde_json::from_str::<Ljf>(r#"{"_0":"Love Jane Forever"}"#).unwrap(),
+/// 	Ljf { _0: b"Love Jane Forever".to_vec() }
+/// );
+/// ```
+pub fn de_bytes_destringify<'de, D>(str: D) -> Result<Vec<u8>, D::Error>
+where
+	D: Deserializer<'de>,
+{
+	let str = <&str>::deserialize(str)?;
+
+	Ok(str.as_bytes().to_vec())
+}
+
 /// Deserialize hex to `T`.
 ///
 /// # Examples
@@ -168,7 +221,7 @@ where
 {
 	let hex = <&str>::deserialize(hex)?;
 
-	T::dehexify(hex).map_err(|_| D::Error::custom(alloc::format!("invalid hex str `{}`", hex)))
+	T::dehexify(hex).map_err(|e| D::Error::custom(alloc::format!("{e:?}")))
 }
 
 /// Deserialize hex to `T` where `T: From<Vec<u8>>`.
@@ -323,6 +376,8 @@ fn serde_should_work() {
 		_6: [u8; 17],
 		#[serde(deserialize_with = "de_dehexify", serialize_with = "ser_hexify_prefixed_upper")]
 		_7: Vec<u8>,
+		#[serde(deserialize_with = "de_bytes_destringify", serialize_with = "ser_bytes_stringify")]
+		_8: Vec<u8>,
 	}
 	impl Default for LjfPredefined {
 		fn default() -> Self {
@@ -335,6 +390,7 @@ fn serde_should_work() {
 				_5: 5_201_314,
 				_6: *b"Love Jane Forever",
 				_7: b"Love Jane Forever".to_vec(),
+				_8: b"Love Jane Forever".to_vec(),
 			}
 		}
 	}
@@ -346,7 +402,7 @@ fn serde_should_work() {
 	let json = result.unwrap();
 	assert_eq!(
 		json,
-		r#"{"_0":"34","_1":"208","_2":"0x4f5da2","_3":"0x4f5da2","_4":"4f5da2","_5":"4F5DA2","_6":"0x4c6f7665204a616e6520466f7265766572","_7":"0x4c6f7665204a616e6520466f7265766572"}"#
+		r#"{"_0":"34","_1":"208","_2":"0x4f5da2","_3":"0x4f5da2","_4":"4f5da2","_5":"4F5DA2","_6":"0x4c6f7665204a616e6520466f7265766572","_7":"0x4c6f7665204a616e6520466f7265766572","_8":"Love Jane Forever"}"#
 	);
 
 	let result = serde_json::from_str::<LjfPredefined>(&json);
