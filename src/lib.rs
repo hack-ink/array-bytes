@@ -60,6 +60,8 @@ mod prelude {
 	#[cfg(test)] pub use test::*;
 }
 
+#[cfg(feature = "serde")] pub use serde_bytes;
+
 #[allow(missing_docs)]
 pub type Result<T, E = Error> = core::result::Result<T, E>;
 

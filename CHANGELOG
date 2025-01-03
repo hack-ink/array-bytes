@@ -1,3 +1,6 @@
+### v9.1.1
+- Integrate `serde_bytes`.
+
 ### v9.1.0
 - Use reference instead of value in `Hexify` trait and related serialize functions.
 
