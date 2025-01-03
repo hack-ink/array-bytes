@@ -29,6 +29,9 @@ static HEX2DIGIT: [Option<u8>; 256] = {
 ///
 /// # Examples
 /// ```
+/// use array_bytes::{Dehexify, Error};
+/// use smallvec::SmallVec;
+///
 /// // Unsigned.
 /// assert_eq!(u8::dehexify("34"), Ok(52));
 /// assert_eq!(u16::dehexify("208"), Ok(520));

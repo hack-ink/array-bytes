@@ -44,16 +44,16 @@ const HEX_CHARS_UPPER: &[u8; 16] = b"0123456789ABCDEF";
 /// ```
 pub trait Hexify {
 	/// Hexify `Self`.
-	fn hexify(self) -> String;
+	fn hexify(&self) -> String;
 
 	/// Hexify `Self` with uppercase.
-	fn hexify_upper(self) -> String;
+	fn hexify_upper(&self) -> String;
 
 	/// Hexify `Self` with `0x` prefix.
-	fn hexify_prefixed(self) -> String;
+	fn hexify_prefixed(&self) -> String;
 
 	/// Hexify `Self` with `0x` prefix and uppercase.
-	fn hexify_prefixed_upper(self) -> String;
+	fn hexify_prefixed_upper(&self) -> String;
 }
 macro_rules! hexify_unsigned {
 	($self:expr, $map:expr) => {{
@@ -103,38 +103,20 @@ macro_rules! impl_hexify_for_unsigned {
 	($($t:ty,)+) => {
 		$(
 			impl Hexify for $t {
-				fn hexify(self) -> String {
+				fn hexify(&self) -> String {
 					hexify_unsigned!(self, HEX_CHARS)
 				}
 
-				fn hexify_upper(self) -> String {
+				fn hexify_upper(&self) -> String {
 					hexify_unsigned!(self, HEX_CHARS_UPPER)
 				}
 
-				fn hexify_prefixed(self) -> String {
+				fn hexify_prefixed(&self) -> String {
 					hexify_unsigned_prefixed!(self, HEX_CHARS)
 				}
 
-				fn hexify_prefixed_upper(self) -> String {
+				fn hexify_prefixed_upper(&self) -> String {
 					hexify_unsigned_prefixed!(self, HEX_CHARS_UPPER)
-				}
-			}
-
-			impl Hexify for &$t {
-				fn hexify(self) -> String {
-					(*self).hexify()
-				}
-
-				fn hexify_upper(self) -> String {
-					(*self).hexify_upper()
-				}
-
-				fn hexify_prefixed(self) -> String {
-					(*self).hexify_prefixed()
-				}
-
-				fn hexify_prefixed_upper(self) -> String {
-					(*self).hexify_prefixed_upper()
 				}
 			}
 		)+
@@ -202,90 +184,33 @@ macro_rules! hexify_prefixed {
 		unsafe { String::from_utf8_unchecked(hex_bytes.into_vec()) }
 	}};
 }
+macro_rules! hexify_bytes_fns {
+	() => {
+		fn hexify(&self) -> String {
+			hexify!(self, HEX_CHARS)
+		}
+
+		fn hexify_upper(&self) -> String {
+			hexify!(self, HEX_CHARS_UPPER)
+		}
+
+		fn hexify_prefixed(&self) -> String {
+			hexify_prefixed!(self, HEX_CHARS)
+		}
+
+		fn hexify_prefixed_upper(&self) -> String {
+			hexify_prefixed!(self, HEX_CHARS_UPPER)
+		}
+	};
+}
 impl<const N: usize> Hexify for [u8; N] {
-	fn hexify(self) -> String {
-		hexify!(self, HEX_CHARS)
-	}
-
-	fn hexify_upper(self) -> String {
-		hexify!(self, HEX_CHARS_UPPER)
-	}
-
-	fn hexify_prefixed(self) -> String {
-		hexify_prefixed!(self, HEX_CHARS)
-	}
-
-	fn hexify_prefixed_upper(self) -> String {
-		hexify_prefixed!(self, HEX_CHARS_UPPER)
-	}
+	hexify_bytes_fns! {}
 }
-impl<const N: usize> Hexify for &[u8; N] {
-	fn hexify(self) -> String {
-		hexify!(self, HEX_CHARS)
-	}
-
-	fn hexify_upper(self) -> String {
-		hexify!(self, HEX_CHARS_UPPER)
-	}
-
-	fn hexify_prefixed(self) -> String {
-		hexify_prefixed!(self, HEX_CHARS)
-	}
-
-	fn hexify_prefixed_upper(self) -> String {
-		hexify_prefixed!(self, HEX_CHARS_UPPER)
-	}
-}
-impl Hexify for &[u8] {
-	fn hexify(self) -> String {
-		hexify!(self, HEX_CHARS)
-	}
-
-	fn hexify_upper(self) -> String {
-		hexify!(self, HEX_CHARS_UPPER)
-	}
-
-	fn hexify_prefixed(self) -> String {
-		hexify_prefixed!(self, HEX_CHARS)
-	}
-
-	fn hexify_prefixed_upper(self) -> String {
-		hexify_prefixed!(self, HEX_CHARS_UPPER)
-	}
+impl Hexify for [u8] {
+	hexify_bytes_fns! {}
 }
 impl Hexify for Vec<u8> {
-	fn hexify(self) -> String {
-		hexify!(self, HEX_CHARS)
-	}
-
-	fn hexify_upper(self) -> String {
-		hexify!(self, HEX_CHARS_UPPER)
-	}
-
-	fn hexify_prefixed(self) -> String {
-		hexify_prefixed!(self, HEX_CHARS)
-	}
-
-	fn hexify_prefixed_upper(self) -> String {
-		hexify_prefixed!(self, HEX_CHARS_UPPER)
-	}
-}
-impl Hexify for &Vec<u8> {
-	fn hexify(self) -> String {
-		hexify!(self, HEX_CHARS)
-	}
-
-	fn hexify_upper(self) -> String {
-		hexify!(self, HEX_CHARS_UPPER)
-	}
-
-	fn hexify_prefixed(self) -> String {
-		hexify_prefixed!(self, HEX_CHARS)
-	}
-
-	fn hexify_prefixed_upper(self) -> String {
-		hexify_prefixed!(self, HEX_CHARS_UPPER)
-	}
+	hexify_bytes_fns! {}
 }
 #[test]
 fn hexify_should_work() {

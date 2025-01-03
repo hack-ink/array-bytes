@@ -84,26 +84,26 @@ assert_eq!(
 ## Benchmark
 The following benchmarks were run on a `Apple M4 Max 64GB - macOS 15.2 (24C101)`.
 
-<div align="right"><sub>Sun, Dec 29th, 2024</sub></div>
+<div align="right"><sub>Fri, Jan 3rd, 2025</sub></div>
 
 ```rs
 // Hexify.
-array_bytes::Hexify::hexify      time:   [11.195 µs 11.227 µs 11.264 µs]
-const_hex::encode                time:   [1.0546 µs 1.0823 µs 1.1099 µs]
-faster_hex::hex_string           time:   [12.054 µs 12.103 µs 12.154 µs]
-faster_hex::hex_encode_fallback  time:   [12.170 µs 12.209 µs 12.245 µs]
-hex::encode                      time:   [87.014 µs 87.164 µs 87.312 µs]
-rustc_hex::to_hex                time:   [45.022 µs 45.616 µs 46.304 µs]
+array_bytes::Hexify::hexify      time: [10.978 µs 10.997 µs 11.021 µs]
+const_hex::encode                time: [941.68 ns 946.55 ns 951.44 ns]
+faster_hex::hex_string           time: [11.478 µs 11.498 µs 11.519 µs]
+faster_hex::hex_encode_fallback  time: [11.546 µs 11.563 µs 11.580 µs]
+hex::encode                      time: [85.347 µs 85.524 µs 85.751 µs]
+rustc_hex::to_hex                time: [46.267 µs 47.009 µs 47.759 µs]
 // Dehexify.
-array_bytes::Dehexify::dehexify  time:   [19.601 µs 19.815 µs 20.061 µs]
-array_bytes::dehexify_slice_mut  time:   [20.455 µs 20.471 µs 20.489 µs]
-const_hex::decode                time:   [14.098 µs 14.118 µs 14.137 µs]
-faster_hex::hex_decode           time:   [29.356 µs 29.395 µs 29.435 µs]
-faster_hex::hex_decode_unchecked time:   [12.089 µs 12.134 µs 12.208 µs]
-faster_hex::hex_decode_fallback  time:   [12.067 µs 12.082 µs 12.098 µs]
-hex::decode                      time:   [97.005 µs 98.854 µs 100.65 µs]
-hex::decode_to_slice             time:   [39.262 µs 40.562 µs 42.064 µs]
-rustc_hex::from_hex              time:   [108.91 µs 110.77 µs 112.53 µs]
+array_bytes::Dehexify::dehexify  time: [19.143 µs 19.156 µs 19.173 µs]
+array_bytes::dehexify_slice_mut  time: [20.245 µs 20.274 µs 20.307 µs]
+const_hex::decode                time: [13.861 µs 14.276 µs 14.975 µs]
+faster_hex::hex_decode           time: [28.499 µs 28.545 µs 28.593 µs]
+faster_hex::hex_decode_unchecked time: [11.775 µs 11.799 µs 11.828 µs]
+faster_hex::hex_decode_fallback  time: [11.818 µs 11.840 µs 11.862 µs]
+hex::decode                      time: [90.870 µs 91.481 µs 92.126 µs]
+hex::decode_to_slice             time: [32.272 µs 32.553 µs 32.927 µs]
+rustc_hex::from_hex              time: [106.68 µs 107.45 µs 108.31 µs]
 ```
 
 To run the benchmarks yourself:

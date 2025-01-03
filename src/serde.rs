@@ -29,7 +29,7 @@ use crate::{prelude::*, Dehexify, Hexify};
 /// 	r#"{"_0":"5","_1":"2","_2":"0","_3":"01030104"}"#
 /// );
 /// ```
-pub fn ser_hexify<S, T>(value: T, serializer: S) -> Result<S::Ok, S::Error>
+pub fn ser_hexify<S, T>(value: &T, serializer: S) -> Result<S::Ok, S::Error>
 where
 	S: Serializer,
 	T: Hexify,
@@ -60,7 +60,7 @@ where
 /// 	r#"{"_0":"5","_1":"2","_2":"0","_3":"01030104"}"#
 /// );
 /// ```
-pub fn ser_hexify_upper<S, T>(value: T, serializer: S) -> Result<S::Ok, S::Error>
+pub fn ser_hexify_upper<S, T>(value: &T, serializer: S) -> Result<S::Ok, S::Error>
 where
 	S: Serializer,
 	T: Hexify,
@@ -91,7 +91,7 @@ where
 /// 	r#"{"_0":"0x5","_1":"0x2","_2":"0x0","_3":"0x01030104"}"#
 /// );
 /// ```
-pub fn ser_hexify_prefixed<T, S>(value: T, serializer: S) -> Result<S::Ok, S::Error>
+pub fn ser_hexify_prefixed<T, S>(value: &T, serializer: S) -> Result<S::Ok, S::Error>
 where
 	T: Hexify,
 	S: Serializer,
@@ -122,7 +122,7 @@ where
 /// 	r#"{"_0":"0x5","_1":"0x2","_2":"0x0","_3":"0x01030104"}"#
 /// );
 /// ```
-pub fn ser_hexify_prefixed_upper<T, S>(value: T, serializer: S) -> Result<S::Ok, S::Error>
+pub fn ser_hexify_prefixed_upper<T, S>(value: &T, serializer: S) -> Result<S::Ok, S::Error>
 where
 	S: Serializer,
 	T: Hexify,
