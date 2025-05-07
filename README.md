@@ -19,9 +19,9 @@ Here are a few quick examples of the most commonly used operations: hexifying an
 However, this crate also offers many other utilities for Array/Bytes/Hex, each with comprehensive documentation and examples. Check them out on [docs.rs](https://docs.rs/array-bytes)!
 
 ```rs
-use array_bytes::{Dehexify, Hexify};
+use array_bytes::{Dehexify, Error, Hexify};
 use smallvec::SmallVec;
-
+//!
 // Hexify.
 // Unsigned.
 assert_eq!(52_u8.hexify(), "34");
@@ -33,7 +33,10 @@ assert_eq!(5_201_314_usize.hexify_upper(), "4F5DA2");
 // `[u8; N]`.
 assert_eq!(*b"Love Jane Forever".hexify(), String::from("4c6f7665204a616e6520466f7265766572"));
 // `&[u8; N]`.
-assert_eq!(b"Love Jane Forever".hexify_upper(), String::from("4C6F7665204A616E6520466F7265766572"));
+assert_eq!(
+	b"Love Jane Forever".hexify_upper(),
+	String::from("4C6F7665204A616E6520466F7265766572")
+);
 // `&[u8]`.
 assert_eq!(
 	b"Love Jane Forever".as_slice().hexify_prefixed(),
@@ -58,7 +61,10 @@ assert_eq!(u64::dehexify("0x4F5DA2"), Ok(5_201_314));
 assert_eq!(u128::dehexify("4f5da2"), Ok(5_201_314));
 assert_eq!(usize::dehexify("4F5DA2"), Ok(5_201_314));
 // Array.
-assert_eq!(<[u8; 17]>::dehexify("0x4c6f7665204a616e6520466f7265766572"), Ok(*b"Love Jane Forever"));
+assert_eq!(
+	<[u8; 17]>::dehexify("0x4c6f7665204a616e6520466f7265766572"),
+	Ok(*b"Love Jane Forever")
+);
 // SmallVec.
 assert_eq!(
 	SmallVec::dehexify("0x4c6f7665204a616e6520466f7265766572").unwrap().into_vec(),
