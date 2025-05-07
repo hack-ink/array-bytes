@@ -376,11 +376,7 @@ where
 
 #[inline(always)]
 pub(super) fn strip_0x(hex: &[u8]) -> &[u8] {
-	if hex.len() >= 2 && hex[0] == b'0' && hex[1] == b'x' {
-		&hex[2..]
-	} else {
-		hex
-	}
+	if hex.len() >= 2 && hex[0] == b'0' && hex[1] == b'x' { &hex[2..] } else { hex }
 }
 
 #[inline(always)]

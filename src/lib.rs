@@ -13,7 +13,7 @@
 //! However, this crate also offers many other utilities for Array/Bytes/Hex, each with comprehensive documentation and examples. Check them out on [docs.rs](https://docs.rs/array-bytes)!
 //!
 //! ```rust
-//! use array_bytes::{Dehexify, Hexify, Error};
+//! use array_bytes::{Dehexify, Error, Hexify};
 //! use smallvec::SmallVec;
 //!
 //! // Hexify.
@@ -27,7 +27,10 @@
 //! // `[u8; N]`.
 //! assert_eq!(*b"Love Jane Forever".hexify(), String::from("4c6f7665204a616e6520466f7265766572"));
 //! // `&[u8; N]`.
-//! assert_eq!(b"Love Jane Forever".hexify_upper(), String::from("4C6F7665204A616E6520466F7265766572"));
+//! assert_eq!(
+//! 	b"Love Jane Forever".hexify_upper(),
+//! 	String::from("4C6F7665204A616E6520466F7265766572")
+//! );
 //! // `&[u8]`.
 //! assert_eq!(
 //! 	b"Love Jane Forever".as_slice().hexify_prefixed(),
@@ -52,7 +55,10 @@
 //! assert_eq!(u128::dehexify("4f5da2"), Ok(5_201_314));
 //! assert_eq!(usize::dehexify("4F5DA2"), Ok(5_201_314));
 //! // Array.
-//! assert_eq!(<[u8; 17]>::dehexify("0x4c6f7665204a616e6520466f7265766572"), Ok(*b"Love Jane Forever"));
+//! assert_eq!(
+//! 	<[u8; 17]>::dehexify("0x4c6f7665204a616e6520466f7265766572"),
+//! 	Ok(*b"Love Jane Forever")
+//! );
 //! // SmallVec.
 //! assert_eq!(
 //! 	SmallVec::dehexify("0x4c6f7665204a616e6520466f7265766572").unwrap().into_vec(),

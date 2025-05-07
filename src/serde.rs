@@ -4,9 +4,9 @@ use core::str;
 use alloc::format;
 // crates.io
 #[cfg(test)] use serde::Serialize;
-use serde::{de::Error as _, ser::Error as _, Deserialize, Deserializer, Serializer};
+use serde::{Deserialize, Deserializer, Serializer, de::Error as _, ser::Error as _};
 // self
-use crate::{prelude::*, Dehexify, Hexify};
+use crate::{Dehexify, Hexify, prelude::*};
 
 /// Serialize bytes to string.
 ///
