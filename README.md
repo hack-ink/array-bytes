@@ -65,14 +65,14 @@ assert_eq!(
 	<[u8; 17]>::dehexify("0x4c6f7665204a616e6520466f7265766572"),
 	Ok(*b"Love Jane Forever")
 );
-// SmallVec.
+// `SmallVec`.
 assert_eq!(
 	SmallVec::dehexify("0x4c6f7665204a616e6520466f7265766572").unwrap().into_vec(),
 	b"Love Jane Forever".to_vec()
 );
 assert_eq!(SmallVec::dehexify("我爱你"), Err(Error::InvalidLength));
 assert_eq!(SmallVec::dehexify("0x我爱你"), Err(Error::InvalidLength));
-// Vec.
+// `Vec`.
 assert_eq!(
 	<Vec<u8>>::dehexify("0x4c6f7665204a616e6520466f7265766572"),
 	Ok(b"Love Jane Forever".to_vec())
