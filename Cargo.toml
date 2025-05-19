@@ -43,7 +43,7 @@ smallvec    = { version = "1.15" }
 
 [dev-dependencies]
 const-hex  = { version = "1.14" }
-criterion  = { version = "0.5" }
+criterion  = { version = "0.6" }
 faster-hex = { version = "0.10" }
 hex_crate  = { package = "hex", version = "0.4" }
 rustc-hex  = { version = "2.1" }
