@@ -22,7 +22,7 @@ However, this crate also offers many other utilities for Array/Bytes/Hex, each w
 ```rs
 use array_bytes::{Dehexify, Error, Hexify};
 use smallvec::SmallVec;
-//!
+
 // Hexify.
 // Unsigned.
 assert_eq!(52_u8.hexify(), "34");
