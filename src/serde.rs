@@ -154,7 +154,7 @@ where
 	S: Serializer,
 	T: Hexify,
 {
-	serializer.serialize_str(&value.hexify_prefixed())
+	serializer.serialize_str(&value.hexify_prefixed_upper())
 }
 
 /// Deserialize string to bytes.
@@ -402,7 +402,7 @@ fn serde_should_work() {
 	let json = result.unwrap();
 	assert_eq!(
 		json,
-		r#"{"_0":"34","_1":"208","_2":"0x4f5da2","_3":"0x4f5da2","_4":"4f5da2","_5":"4F5DA2","_6":"0x4c6f7665204a616e6520466f7265766572","_7":"0x4c6f7665204a616e6520466f7265766572","_8":"Love Jane Forever"}"#
+		r#"{"_0":"34","_1":"208","_2":"0x4f5da2","_3":"0x4F5DA2","_4":"4f5da2","_5":"4F5DA2","_6":"0x4c6f7665204a616e6520466f7265766572","_7":"0x4C6F7665204A616E6520466F7265766572","_8":"Love Jane Forever"}"#
 	);
 
 	let result = serde_json::from_str::<LjfPredefined>(&json);

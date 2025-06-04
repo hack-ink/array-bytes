@@ -1,34 +1,49 @@
+### v9.2.2
+
+- Fix case sensitivity in `ser_hexify_prefixed_upper`.
+- Bump dependencies.
+- Format code.
+
 ### v9.2.1
+
 - Enable all features for docs.rs.
 
 ### v9.2.0
+
 - Include examples in the lib.rs.
 - Upgrade edition to 2024.
 - Bump dependencies.
 
 ### v9.1.2
+
 - Add `ser_bytes_stringify` and `de_bytes_destringify`.
 
 ### v9.1.1
+
 - Integrate `serde_bytes`.
 
 ### v9.1.0
+
 - Use reference instead of value in `Hexify` trait and related serialize functions.
 
 ### v9.0.0
+
 - Expose more friendly APIs, `Hexify` and `DeHexify` traits.
 - Un-public some tiny functions to encourage using `Hexify` and `DeHexify` traits.
 - Improve docs.
 - Restructure the code.
 
 ### v8.0.0
+
 - Improve performance.
 
 ### v7.1.0
+
 - Rename `se_hex` to `ser_hex`.
 - Rename `se_hex_without_prefix` to `ser_hex_without_prefix`.
 
 ### v7.0.0
+
 - Improve docs.
 - Improve tests.
 - Bump dependencies.
@@ -37,104 +52,129 @@
 - Remove `de_hex2bytes`.
 
 ### v6.2.3
+
 - Add `slice2array_ref` and `slice2array_ref_unchecked`.
 - Bump dependencies.
 
 ### v6.2.2
+
 - Improve documentation.
 
 ### v6.2.1
+
 - Add `prefix_with` and `suffix_with`.
 - Bump dependencies.
 
 ### v6.2.0
+
 - Adjust generics order.
 - Bump dependencies.
 
 ### v6.1.0
+
 - Improve expression.
 - Improve `TryFromHex` and add `Hex`.
 
 ### v6.0.0
+
 - Optimize algorithm.
 - Bump dependencies.
 
 ### v5.1.0
+
 - Rename error fields.
 
 ### v5.0.0
+
 - Optimize algorithm.
 - Improve documentation.
 - Support `AsRef<T>` input.
 - Add `hex2slice` and `hex2slice_unchecked`.
 
 ### v4.2.0
+
 - Bump dependencies.
 - Update CI.
 - Update license.
 
 ### v4.1.0
+
 - Mark `hex_bytes2hex_str_unchecked` as unsafe.
 
 ### v4.0.0
+
 - Use `is_hex_ascii` to optimize performance.
 - Add benchmark results.
 - Add `hex_bytes2hex_str` and `hex_bytes2hex_str_unchecked`.
 - Add fuzzing.
 
 ### v3.0.0
+
 - Break `hex_into` into `hex_into` and `hex_n_into`.
 - Break `hex_into_unchecked` into `hex_into_unchecked` and `hex_n_into_unchecked`.
 
 ### v2.0.2
+
 - Bump dependencies.
 - Update README.
 - Update CI.
 
 ### v2.0.1
+
 - Fix tests.
 
 ### v2.0.0
+
 - Split `dyn_*` to `slice_*` and `vec_*`.
 - Remove all the unsafe usage.
 
 ### v1.6.0
+
 - Disable generic input. (people should know what are they going to do)
 - Bump dependencies.
 
 ### v1.5.2
+
 - Update documentation.
 - Update code format.
 - Bump dependencies.
 
 ### v1.5.1
+
 - Update description.
 
 ### v1.5.0
+
 - Revert *"Use `String` instead `&str` in `serde`"*.
 - Bump dependencies.
 - Rust edition 2021.
 
 ### v1.4.1
+
 - Use `String` instead `&str` in `serde`.
 
 ### v1.4.0
+
 - Bump `serde`.
 - Add more documentation.
 - Add more tests.
 - Rename `hexd2num` to `de_hex2num`, `hexd2bytes` to `de_hex2bytes`.
 
 ### v1.3.3
+
 - Allow explicit generic argument.
 
 ### v1.3.2
+
 - Add `dyn_into`.
 
 ### v1.3.0
+
 - Add `hex2array`, `hex_try_into` and `hex_into_unchecked`.
 - Support `serde`.
 
 ### v1.2.0
+
 - Deprecated macro `hex2array_unchecked`.
 - Introduce function `hex2array_unchecked`.
 - Require at least Rust `1.51.0`.

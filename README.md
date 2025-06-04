@@ -1,7 +1,8 @@
 <div align="center">
 
 # array-bytes
-### A collection of Array/Bytes/Hex utilities with full No-STD compatibility.
+
+### A collection of Array/Bytes/Hex utilities with full No-STD compatibility
 
 [![License GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![License MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -12,8 +13,8 @@
 [![GitHub last commit](https://img.shields.io/github/last-commit/hack-ink/array-bytes?color=red&style=plastic)](https://github.com/hack-ink/array-bytes)
 </div>
 
-
 ## Usage
+
 Here are a few quick examples of the most commonly used operations: hexifying and dehexifying.
 
 However, this crate also offers many other utilities for Array/Bytes/Hex, each with comprehensive documentation and examples. Check them out on [docs.rs](https://docs.rs/array-bytes)!
@@ -88,6 +89,7 @@ assert_eq!(
 ```
 
 ## Benchmark
+
 The following benchmarks were run on a `Apple M4 Max 64GB - macOS 15.2 (24C101)`.
 
 <div align="right"><sub>Fri, Jan 3rd, 2025</sub></div>
@@ -113,6 +115,7 @@ rustc_hex::from_hex              time: [106.68 µs 107.45 µs 108.31 µs]
 ```
 
 To run the benchmarks yourself:
+
 ```sh
 git clone https://github.com/hack-ink/array-bytes
 cd array-bytes
@@ -122,5 +125,6 @@ cargo bench
 <div align="right">
 
 ## License
+
 <sup>Licensed under either of <a href="LICENSE-APACHE">Apache-2.0</a> or <a href="LICENSE-GPL3">GPL-3.0</a> at your option.</sup>
 </div>
