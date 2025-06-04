@@ -1,14 +1,18 @@
-# System
-.DS_Store
-
-# Integrated Development Environment
-.idea
+# Integrated development environment.
 .vscode
 
-# Package Manager
-## Cargo
+# Package manager.
+## Cargo.
 target
-## Npm
-package-lock.json
+## Python
+__pycache__
+## NPM.
 node_modules
-build
+
+# System.
+.DS_Store
+
+# Test data.
+*.bak
+.env
+tmp
