@@ -140,24 +140,17 @@ mod prelude {
 pub type Result<T, E = Error> = core::result::Result<T, E>;
 
 #[allow(missing_docs)]
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, thiserror::Error, PartialEq, Eq)]
 pub enum Error {
-	/// The length must not be odd.
+	#[error(transparent)]
+	ParseIntError(#[from] core::num::ParseIntError),
+	#[error(transparent)]
+	Utf8Error(#[from] core::str::Utf8Error),
+
+	#[error("length must not be odd")]
 	InvalidLength,
-	/// Found the invalid character at `index`.
-	InvalidCharacter {
-		/// The invalid character.
-		character: char,
-		/// The invalid character's index.
-		index: usize,
-	},
-	/// The data can not fit the array/slice length well.
-	MismatchedLength {
-		/// Expected length.
-		expect: usize,
-	},
-	/// Failed to parse the hex number from hex string.
-	Utf8Error(core::str::Utf8Error),
-	/// Failed to parse the hex number from hex string.
-	ParseIntError(core::num::ParseIntError),
+	#[error("invalid character({character}) at index({index})")]
+	InvalidCharacter { character: char, index: usize },
+	#[error("mismatched length, expected {expect}")]
+	MismatchedLength { expect: usize },
 }

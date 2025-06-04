@@ -1,3 +1,7 @@
+### v9.3.0
+
+- Use thiserror for error handling.
+
 ### v9.2.2
 
 - Fix case sensitivity in `ser_hexify_prefixed_upper`.
