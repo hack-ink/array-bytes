@@ -46,7 +46,7 @@ thiserror   = { version = "2.0", default-features = false }
 
 [dev-dependencies]
 # crates.io
-const-hex  = { version = "1.14" }
+const-hex  = { version = "1.15" }
 criterion  = { version = "0.6" }
 faster-hex = { version = "0.10" }
 hex_crate  = { package = "hex", version = "0.4" }
