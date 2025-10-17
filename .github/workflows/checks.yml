@@ -1,4 +1,7 @@
-name: Checks
+name: Rust
+
+permissions:
+  contents: read
 
 env:
   CACHE_VERSION: 0
@@ -10,49 +13,54 @@ env:
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
   merge_group:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   cargo-checks:
+    permissions:
+      actions: write
     name: Task cargo ${{ matrix.action }}
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
         action: [clippy, fmt, test]
+
     steps:
       - name: Fetch latest code
         uses: actions/checkout@v5
+
       - name: Setup build environment
         if: matrix.action != 'fmt'
         run: rustup show
-      - uses: Swatinem/rust-cache@v2
+
+      - name: Cache cargo target
         if: matrix.action != 'fmt'
+        uses: Swatinem/rust-cache@v2
         with:
           prefix-key: ${{ env.CACHE_VERSION }}
           key: ${{ matrix.action }}
+
       - name: Cargo clippy
         if: matrix.action == 'clippy'
         uses: giraffate/clippy-action@v1
         with:
-          clippy_flags: --workspace --all-features --all-targets --locked
+          clippy_flags: --workspace --all-features --all-targets --locked -- -Dwarnings
+
       - name: Cargo fmt
         if: matrix.action == 'fmt'
         run: |
           rustup toolchain install nightly
           rustup component add rustfmt --toolchain nightly
           cargo +nightly fmt --all -- --check
+
       - name: Cargo test
         if: matrix.action == 'test'
         run: RUST_MIN_STACK=67108864 cargo test --profile ci-dev --workspace --all-features --all-targets --locked
-      - name: Fast fail
-        uses: vishnudxb/cancel-workflow@v1.2
-        if: failure()
-        with:
-          repo: hack-ink/array-bytes
-          workflow_id: ${{ github.run_id }}
-          access_token: ${{ github.token }}

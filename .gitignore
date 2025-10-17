@@ -1,5 +1,6 @@
 # Integrated development environment.
 .vscode
+.zed
 
 # Package manager.
 ## Cargo.
