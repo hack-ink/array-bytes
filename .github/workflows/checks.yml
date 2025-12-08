@@ -35,7 +35,7 @@ jobs:
 
     steps:
       - name: Fetch latest code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Setup build environment
         if: matrix.action != 'fmt'
